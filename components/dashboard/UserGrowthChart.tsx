@@ -36,12 +36,18 @@ const formatDate = (monthIndex: number) => {
 };
 
 /**
+ * User Growth Chart Component Props
+ */
+interface UserGrowthChartProps {
+  selectedPeriod: 'year' | 'month' | 'week';
+}
+
+/**
  * User Growth Chart Component
  * 
  * Renders a line chart visualization of user growth data using ApexCharts
  */
-export default function UserGrowthChart() {
-  const [selectedPeriod, setSelectedPeriod] = useState<'year' | 'month' | 'week'>('year');
+export default function UserGrowthChart({ selectedPeriod }: UserGrowthChartProps) {
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const [tooltipData, setTooltipData] = useState<{
     value: string;
@@ -365,69 +371,6 @@ export default function UserGrowthChart() {
   return (
     <Card className="bg-[#101012] rounded-2xl border-0 h-full">
       <CardContent className="p-8">
-      {/* Chart Header */}
-      <div className="mb-6">
-          <div className="flex items-start justify-between">
-            <div>
-        <h2 className="text-xl font-bold text-white mb-1">Overview</h2>
-        <p className="text-gray-400 text-sm">User Growth Trends</p>
-      </div>
-
-            {/* Time Filter Buttons */}
-            <div className="w-[380px] h-12 relative bg-neutral-900 rounded-xl overflow-hidden">
-              <div className="left-[8px] top-[8.50px] right-[8px] absolute inline-flex justify-between items-center">
-                <button
-                  onClick={() => setSelectedPeriod('year')}
-                  className={`w-28 px-3 py-2 rounded-md flex justify-center items-center gap-1 transition-all duration-200 ${
-                    selectedPeriod === 'year'
-                      ? 'bg-zinc-800 shadow-sm'
-                      : 'hover:opacity-80'
-                  }`}
-                >
-                  <div className={`justify-start text-sm font-['Inter'] leading-4 ${
-                    selectedPeriod === 'year'
-                      ? 'text-green-400 font-normal'
-                      : 'text-neutral-300 font-light'
-                  }`}>
-                    This Year
-                  </div>
-                </button>
-                <button
-                  onClick={() => setSelectedPeriod('month')}
-                  className={`w-28 px-3 py-2 rounded-md flex justify-center items-center gap-1 transition-all duration-200 ${
-                    selectedPeriod === 'month'
-                      ? 'bg-zinc-800 shadow-sm'
-                      : 'hover:opacity-80'
-                  }`}
-                >
-                  <div className={`justify-start text-sm font-['Inter'] leading-4 ${
-                    selectedPeriod === 'month'
-                      ? 'text-green-400 font-normal'
-                      : 'text-neutral-300 font-light'
-                  }`}>
-                    Monthly
-                  </div>
-                </button>
-                <button
-                  onClick={() => setSelectedPeriod('week')}
-                  className={`w-28 px-3 py-2 rounded-md flex justify-center items-center gap-1 transition-all duration-200 ${
-                    selectedPeriod === 'week'
-                      ? 'bg-zinc-800 shadow-sm'
-                      : 'hover:opacity-80'
-                  }`}
-                >
-                  <div className={`justify-start text-sm font-['Inter'] leading-4 ${
-                    selectedPeriod === 'week'
-                      ? 'text-green-400 font-normal'
-                      : 'text-neutral-300 font-light'
-                  }`}>
-                    Weekly
-                  </div>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
 
         <div className="flex flex-col gap-6">
           {/* User Title and Legend Row */}
