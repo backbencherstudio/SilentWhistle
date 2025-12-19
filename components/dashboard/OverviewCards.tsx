@@ -15,6 +15,7 @@
 'use client';
 
 import React from "react";
+import Image from "next/image";
 import { Card, CardContent } from "../ui/card";
 
 const statsData = [
@@ -74,10 +75,12 @@ export default function OverviewCards() {
       <Card className="flex-1 flex flex-col bg-[#101012] rounded-2xl border-0">
         <CardContent className="flex flex-col items-start p-0 flex-1">
           <div className="relative w-full h-full flex-1">
-            <img
+            <Image
               className="w-full h-full object-cover rounded-2xl"
               alt="Global Reach Map"
               src="/dashboard/greenmap.svg"
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           </div>
         </CardContent>

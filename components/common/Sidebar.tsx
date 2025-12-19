@@ -159,7 +159,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     },
     {
       icon: settingIcon,
-      label: 'Admin Profile',
+      label: 'Profile & Account',
       href: '/dashboard/admin-profile',
       isActive: isActive('/dashboard/admin-profile')
     },
@@ -186,7 +186,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       <div className={`${isOpen 
         ? 'inset-0 z-50 h-[90vh] overflow-hidden bg-black relative ' 
         : 'h-screen bg-black'} 
-        flex flex-col justify-between`} style={{ fontFamily: 'var(--font-inter)' }}>
+        flex flex-col justify-between border-r border-[#262626]`} style={{ fontFamily: 'var(--font-inter)' }}>
         
         {/* Top section with logo and navigation */}
         <div className="flex flex-col flex-1">
@@ -194,11 +194,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           <div className="p-6">
             <div className="flex items-center gap-3">
               {/* Logo Icon */}
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 {logoIcon({ size: 36 })}
               </div>
               {/* Logo Text */}
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 {logoTextIcon({ size: 20 })}
               </div>
             </div>
@@ -220,35 +220,45 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                     tabIndex={0}
                     aria-label={`Navigate to ${item.label}`}
                   >
-                     {/* Active indicator bar - thicker primary color bar on left */}
-                     <div className={`w-1.5 h-[52px] left-0 top-0 absolute rounded-tr rounded-br transition-colors duration-300 ease-in-out ${
-                       active ? 'bg-[#38E07B]' : 'bg-transparent'
-                     }`} />
-                     
                      {/* Menu item content */}
                      <div 
-                       className={`w-[230px] px-4 py-4 absolute rounded-lg inline-flex justify-start items-center gap-3
+                       className={`w-full px-4 py-4 relative rounded-lg inline-flex justify-start items-center gap-3
                          transition-all duration-300 ease-in-out
                          ${active 
-                           ? 'bg-[#38E07B] left-[20px]' 
-                           : 'left-0 group-hover:left-[20px] group-hover:border group-hover:border-[#38E07B] group-hover:bg-black'
+                           ? 'bg-[#181818]' 
+                           : 'group-hover:bg-[#181818]'
                          }
                        `}
                      >
-                       {/* Navigation icon */}
-                       <div className={`w-[18px] h-[18px] flex items-center justify-center transition-transform duration-300 ease-in-out ${
-                         active ? 'scale-110' : 'group-hover:scale-110'
+                       {/* Icon and text container - moves right when active */}
+                       <div className={`inline-flex justify-start items-center gap-3 transition-all duration-300 ease-in-out ${
+                         active ? 'ml-[10px]' : ''
                        }`}>
-                         <div className={active ? '[&_svg_path]:stroke-black [&_svg_circle]:stroke-black' : '[&_svg_path]:stroke-white [&_svg_circle]:stroke-white'}>
-                           <IconComponent size={18} />
+                         {/* Navigation icon */}
+                         <div className={`w-[18px] h-[18px] flex items-center justify-center transition-transform duration-300 ease-in-out ${
+                           active ? 'scale-110' : 'group-hover:scale-110'
+                         }`}>
+                           <div className="[&_svg_path]:stroke-white [&_svg_circle]:stroke-white">
+                             <IconComponent size={18} />
+                           </div>
+                         </div>
+                         {/* Navigation label */}
+                         <div className={`text-center justify-start leading-tight tracking-tight whitespace-nowrap ${
+                           active ? 'text-sm font-medium text-white' : 'text-sm font-medium text-white'
+                         }`} style={{ fontFamily: 'var(--font-inter)' }}>
+                           {item.label}
                          </div>
                        </div>
-                       {/* Navigation label */}
-                       <div className={`text-center justify-start leading-tight tracking-tight whitespace-nowrap ${
-                         active ? 'text-base font-bold text-black' : 'text-sm font-medium text-white'
-                       }`} style={{ fontFamily: 'var(--font-inter)' }}>
-                         {item.label}
-                       </div>
+                       
+                       {/* Active indicator - thin green line on right edge with gradient */}
+                       {active && (
+                         <div 
+                           className="w-px h-full absolute right-0 top-0 rounded-tr-lg rounded-br-lg"
+                           style={{
+                             background: 'linear-gradient(to bottom, rgba(56, 224, 123, 0) 0%, rgba(56, 224, 123, 0) 15%, rgba(56, 224, 123, 0) 16%, rgba(56, 224, 123, 1) 50%, rgba(56, 224, 123, 0) 84%, rgba(56, 224, 123, 0) 85%, rgba(56, 224, 123, 0) 100%)'
+                           }}
+                         />
+                       )}
                     </div>
                   </div>
                 );
@@ -258,21 +268,31 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* Logout button section */}
-        <div className="self-stretch h-[52px] relative md:mb-8 flex items-center justify-center">
-          <button 
+        <div className="px-4 pb-4 md:pb-8">
+          <div
             onClick={handleLogout}
-            className="w-[200px] px-8 py-4 rounded-lg inline-flex items-center gap-3 bg-gray-800 hover:bg-gray-700 transition-colors duration-300 ease-in-out"
+            className="self-stretch h-[52px] relative cursor-pointer"
+            role="button"
+            tabIndex={0}
             aria-label="Logout"
           >
-            {/* Logout icon */}
-            <LogOut 
-              className="w-[18px] h-[18px] text-white transition-transform duration-300 ease-in-out hover:scale-110"
-            />
-            {/* Logout text */}
-            <div className="whitespace-nowrap text-white text-sm font-medium leading-tight tracking-tight" style={{ fontFamily: 'var(--font-inter)' }}>
-              Logout
+            {/* Logout button content */}
+            <div 
+              className="w-full px-4 py-4 relative rounded-lg inline-flex justify-start items-center gap-3 bg-[#181818] hover:bg-[#181818] transition-all duration-300 ease-in-out"
+            >
+              {/* Icon and text container */}
+              <div className="inline-flex justify-start items-center gap-3">
+                {/* Logout icon */}
+                <div className="w-[18px] h-[18px] flex items-center justify-center transition-transform duration-300 ease-in-out hover:scale-110">
+                  <LogOut className="w-[18px] h-[18px] text-white" />
+                </div>
+                {/* Logout text */}
+                <div className="text-center justify-start leading-tight tracking-tight whitespace-nowrap text-sm font-medium text-white" style={{ fontFamily: 'var(--font-inter)' }}>
+                  Logout
+                </div>
+              </div>
             </div>
-          </button>
+          </div>
         </div>
       </div>
     </>
