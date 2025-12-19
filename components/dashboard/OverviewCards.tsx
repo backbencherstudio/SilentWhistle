@@ -14,96 +14,74 @@
 
 'use client';
 
-import { Users, FileEdit, FileText, Globe } from 'lucide-react';
+import React from "react";
+import { Card, CardContent } from "../ui/card";
 
-/**
- * Overview Cards Component
- * 
- * Renders a grid of four metric cards displaying key statistics
- */
+const statsData = [
+  {
+    title: "Total Users",
+    value: "24,592",
+    badge: {
+      text: "Active: 18,234 | Inactive: 6,358",
+      bgColor: "bg-[#0a160d]",
+      textColor: "text-[#38e07b]",
+    },
+  },
+  {
+    title: "Total Shouts/Posts",
+    value: "156,428",
+    badge: {
+      text: "Text: 124,562 | Voice: 31,866",
+      bgColor: "bg-[#14151c]",
+      textColor: "text-[#7485ff]",
+    },
+  },
+  {
+    title: "Total Reports",
+    value: "1,248",
+    badge: {
+      text: "Pending: 89 | Resolved: 1,159",
+      bgColor: "bg-[#1a1600]",
+      textColor: "text-[#8ac45c]",
+    },
+  },
+];
+
 export default function OverviewCards() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {/* Total Users Card */}
-      <div className="bg-gray-900 rounded-lg p-6 border border-gray-800">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-white text-sm font-medium">Total Users</h3>
-          <Users className="w-5 h-5 text-gray-400" />
-        </div>
-        {/* Main metric value */}
-        <div className="mb-3">
-          <p className="text-3xl font-bold text-white">24,592</p>
-        </div>
-        {/* Breakdown metrics */}
-        <div className="flex items-center gap-4 text-sm">
-          <span className="text-[#22c55e]">Active: 18,234</span>
-          <span className="text-gray-400">|</span>
-          <span className="text-gray-400">Inactive: 6,358</span>
-        </div>
-      </div>
-
-      {/* Total Shouts/Posts Card */}
-      <div className="bg-gray-900 rounded-lg p-6 border border-gray-800">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-white text-sm font-medium">Total Shouts/Posts</h3>
-          <FileEdit className="w-5 h-5 text-gray-400" />
-        </div>
-        {/* Main metric value */}
-        <div className="mb-3">
-          <p className="text-3xl font-bold text-white">156,428</p>
-        </div>
-        {/* Breakdown metrics */}
-        <div className="flex items-center gap-4 text-sm">
-          <span className="text-blue-400">Text: 124,562</span>
-          <span className="text-gray-400">|</span>
-          <span className="text-purple-400">Voice: 31,866</span>
-        </div>
-      </div>
-
-      {/* Total Reports Card */}
-      <div className="bg-gray-900 rounded-lg p-6 border border-gray-800">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-white text-sm font-medium">Total Reports</h3>
-          <FileText className="w-5 h-5 text-gray-400" />
-        </div>
-        {/* Main metric value */}
-        <div className="mb-3">
-          <p className="text-3xl font-bold text-white">1,248</p>
-        </div>
-        {/* Breakdown metrics */}
-        <div className="flex items-center gap-4 text-sm">
-          <span className="text-yellow-400">Pending: 89</span>
-          <span className="text-gray-400">|</span>
-          <span className="text-gray-400">Resolved: 1,159</span>
-        </div>
-      </div>
-
-      {/* World Map Card - Global Reach Visualization */}
-      <div className="bg-gray-900 rounded-lg p-6 border border-gray-800">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-white text-sm font-medium">Global Reach</h3>
-          <Globe className="w-5 h-5 text-gray-400" />
-        </div>
-        {/* Map visualization container */}
-        <div className="h-32 flex items-center justify-center">
-          {/* Simplified World Map Visualization */}
-          <div className="relative w-full h-full bg-gray-800 rounded">
-            <svg viewBox="0 0 400 200" className="w-full h-full">
-              {/* Simplified world map with green dots representing user locations */}
-              <circle cx="100" cy="80" r="3" fill="#22c55e" />
-              <circle cx="150" cy="70" r="3" fill="#22c55e" />
-              <circle cx="200" cy="90" r="3" fill="#22c55e" />
-              <circle cx="250" cy="75" r="3" fill="#22c55e" />
-              <circle cx="300" cy="85" r="3" fill="#22c55e" />
-              <circle cx="120" cy="120" r="3" fill="#22c55e" />
-              <circle cx="180" cy="130" r="3" fill="#22c55e" />
-              <circle cx="220" cy="140" r="3" fill="#22c55e" />
-              <circle cx="280" cy="125" r="3" fill="#22c55e" />
-              <circle cx="320" cy="135" r="3" fill="#22c55e" />
-            </svg>
+    <section className="flex w-full items-stretch gap-3">
+      {statsData.map((stat, index) => (
+        <Card key={index} className="flex-1 flex flex-col bg-[#101012] rounded-2xl border-0">
+          <CardContent className="flex flex-col items-start gap-4 px-3.5 py-4 flex-1">
+            <div className="relative self-stretch -mt-px font-['Inter',Helvetica] font-normal text-gray-400 text-base tracking-[0] leading-[17.6px]">
+              {stat.title}
+            </div>
+            <div className="relative self-stretch font-['Inter',Helvetica] font-semibold text-white text-2xl tracking-[0] leading-[38.4px]">
+              {stat.value}
+            </div>
+            <div
+              className={`inline-flex items-center justify-center gap-2.5 px-3 py-2 relative flex-[0_0_auto] ${stat.badge.bgColor} rounded-md`}
+            >
+              <div
+                className={`relative w-fit -mt-px font-['Inter',Helvetica] font-light ${stat.badge.textColor} text-sm tracking-[0] leading-[15.4px] whitespace-nowrap`}
+              >
+                {stat.badge.text}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+      <Card className="flex-1 flex flex-col bg-[#101012] rounded-2xl border-0">
+        <CardContent className="flex flex-col items-start p-0 flex-1">
+          <div className="relative w-full h-full flex-1">
+            <img
+              className="w-full h-full object-cover rounded-2xl"
+              alt="Global Reach Map"
+              src="/dashboard/greenmap.svg"
+            />
           </div>
-        </div>
-      </div>
-    </div>
+        </CardContent>
+      </Card>
+    </section>
   );
 }

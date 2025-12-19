@@ -35,7 +35,7 @@ import { svg as reportsIcon } from '@/components/icons/reportsicon';
  * Defines the structure of each navigation menu item
  */
 interface NavItem {
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<{ className?: string; size?: number }>;
   label: string;
   href: string;
   isActive?: boolean;
@@ -261,7 +261,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         <div className="self-stretch h-[52px] relative md:mb-8 flex items-center justify-center">
           <button 
             onClick={handleLogout}
-            className="w-[200px] px-8 py-4 rounded-lg inline-flex justify-center items-center gap-3 bg-gray-800 hover:bg-gray-700 transition-colors duration-300 ease-in-out"
+            className="w-[200px] px-8 py-4 rounded-lg inline-flex items-center gap-3 bg-gray-800 hover:bg-gray-700 transition-colors duration-300 ease-in-out"
             aria-label="Logout"
           >
             {/* Logout icon */}
