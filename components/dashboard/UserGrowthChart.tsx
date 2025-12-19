@@ -71,7 +71,7 @@ export default function UserGrowthChart({ selectedPeriod }: UserGrowthChartProps
     const plotAreaHeight = chartHeight - plotAreaTop - plotAreaBottom;
     const yAxisMin = 0;
     const yAxisMax = 250;
-    
+  
     // Green line center is at: anonymousValue + (activeValue / 2)
     // This represents the middle of the green area (stacked on top of blue)
     const greenLineCenterValue = anonymousValue + (activeValue / 2);
@@ -381,8 +381,8 @@ export default function UserGrowthChart({ selectedPeriod }: UserGrowthChartProps
               </div>
               <div className="font-['Inter',Helvetica] font-semibold text-white text-2xl tracking-[0] leading-[38.4px]">
                 240.8K
-              </div>
-            </div>
+      </div>
+        </div>
             <div className="flex items-center gap-[18px]">
           <div className="flex items-center gap-2">
                 <div className="w-[7px] h-[7px] bg-[#38e07b] rounded-full" />
