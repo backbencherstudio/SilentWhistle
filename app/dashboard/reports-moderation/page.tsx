@@ -8,12 +8,13 @@
 'use client';
 
 import DashboardLayout from '@/components/common/DashboardLayout';
+import { ReportsModeration } from '@/components/dashboard/ReportsModeration';
 
 export default function ReportsModerationPage() {
   return (
     <DashboardLayout>
-      <div className="p-6">
-        <h1 className="text-3xl font-bold text-white">Reports & Moderation</h1>
+      <div className="p-6 w-full">
+        <ReportsModeration />
       </div>
     </DashboardLayout>
   );
