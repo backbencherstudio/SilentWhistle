@@ -81,7 +81,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="flex items-center justify-end gap-4">
             {/* Notification Bell Button */}
             <button 
-              className="p-2 text-white hover:text-gray-300 transition-colors"
+              className="p-2 rounded-full bg-zinc-800 hover:bg-zinc-700 text-white hover:text-gray-300 transition-colors cursor-pointer"
               aria-label="Notifications"
             >
               <div className="w-6 h-6 flex items-center justify-center">
