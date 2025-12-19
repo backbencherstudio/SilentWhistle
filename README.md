@@ -1,36 +1,126 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Silent Whistle Dashboard
 
-## Getting Started
+A modern, responsive dashboard application built with Next.js, React, and TypeScript.
 
-First, run the development server:
+## 📁 Project Structure
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+silent/
+├── app/                          # Next.js App Router directory
+│   ├── dashboard/               # Dashboard-specific pages
+│   │   └── page.tsx             # Dashboard page route (/dashboard)
+│   ├── layout.tsx               # Root layout component
+│   ├── page.tsx                 # Home page (dashboard) route (/)
+│   └── globals.css              # Global styles
+│
+├── components/                   # React components directory
+│   ├── common/                  # Shared/common components
+│   │   ├── DashboardLayout.tsx # Layout wrapper with sidebar and header
+│   │   └── Sidebar.tsx         # Navigation sidebar component
+│   │
+│   └── dashboard/               # Dashboard page-specific components
+│       ├── OverviewCards.tsx    # Key metrics overview cards
+│       ├── UserGrowthChart.tsx  # User growth line chart
+│       └── ShoutCategories.tsx  # Shout categories list
+│
+├── service/                      # Business logic services
+│   └── user/                    # User-related services
+│       └── user.service.ts      # User authentication service
+│
+├── helper/                       # Utility helpers
+│   └── cookie.helper.ts         # Cookie management utility
+│
+├── public/                       # Static assets
+│   ├── dashboard/               # Dashboard-specific assets
+│   │   └── icon/               # Icon files
+│   └── ...                     # Other static files
+│
+└── ...                          # Configuration files
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🏗️ Architecture Overview
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Components Organization
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+#### Common Components (`components/common/`)
+Shared components used across multiple pages:
+- **DashboardLayout**: Provides consistent layout structure with sidebar and header
+- **Sidebar**: Navigation sidebar with menu items and logout functionality
 
-## Learn More
+#### Page-Specific Components (`components/dashboard/`)
+Components specific to the dashboard page:
+- **OverviewCards**: Displays key metrics (users, posts, reports, global reach)
+- **UserGrowthChart**: Line chart visualization of user growth trends
+- **ShoutCategories**: List of shout/post categories with counts
 
-To learn more about Next.js, take a look at the following resources:
+### Services (`service/`)
+Business logic and API interactions:
+- **UserService**: Handles user authentication, logout, and token management
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Helpers (`helper/`)
+Utility functions:
+- **CookieHelper**: Browser cookie management utilities
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🚀 Getting Started
 
-## Deploy on Vercel
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Installation
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
+```
+
+## 📝 Code Style
+
+- All components include comprehensive JSDoc comments
+- TypeScript interfaces are defined for all props and data structures
+- Consistent naming conventions (PascalCase for components, camelCase for functions)
+- Proper separation of concerns (components, services, helpers)
+
+## 🎨 Features
+
+- **Responsive Design**: Works seamlessly on desktop and mobile devices
+- **Dark Theme**: Modern dark UI with purple accent colors
+- **Interactive Charts**: SVG-based data visualizations
+- **Real-time Navigation**: Active route highlighting in sidebar
+- **Accessibility**: ARIA labels and semantic HTML
+
+## 📦 Dependencies
+
+- **Next.js 16**: React framework with App Router
+- **React 19**: UI library
+- **TypeScript**: Type safety
+- **Tailwind CSS**: Utility-first CSS framework
+- **Lucide React**: Icon library
+
+## 🔧 Development Guidelines
+
+1. **Component Structure**: Each component should be in its appropriate folder
+   - Common/shared components → `components/common/`
+   - Page-specific components → `components/[page-name]/`
+
+2. **Comments**: All files should include:
+   - File-level JSDoc comments explaining purpose
+   - Function/method comments with parameters and return types
+   - Inline comments for complex logic
+
+3. **TypeScript**: Use proper types and interfaces for all props and data
+
+4. **Styling**: Use Tailwind CSS utility classes, maintain consistent spacing
+
+## 📄 License
+
+Private project - All rights reserved

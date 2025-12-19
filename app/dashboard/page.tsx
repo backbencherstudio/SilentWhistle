@@ -1,14 +1,11 @@
 /**
- * Home Page (Dashboard)
+ * Dashboard Page
  * 
- * The main landing page of the application, displaying the dashboard overview.
- * This page serves as the primary dashboard with:
- * - Overview cards showing key metrics
- * - User growth chart visualization
- * - Shout categories breakdown
+ * Alternative dashboard route that displays the same content as the home page.
+ * This page can be used for direct navigation to the dashboard.
  * 
  * @page
- * @route /
+ * @route /dashboard
  */
 
 'use client';
@@ -19,11 +16,11 @@ import UserGrowthChart from '@/components/dashboard/UserGrowthChart';
 import ShoutCategories from '@/components/dashboard/ShoutCategories';
 
 /**
- * Home Page Component
+ * Dashboard Page Component
  * 
- * Renders the main dashboard page with all overview components
+ * Renders the dashboard page with all overview components
  */
-export default function Home() {
+export default function DashboardPage() {
   return (
     <DashboardLayout>
       <div className="p-6 space-y-8">
