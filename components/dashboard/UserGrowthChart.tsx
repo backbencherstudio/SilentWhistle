@@ -1,13 +1,14 @@
 /**
  * User Growth Chart Component
  * 
- * Displays a line chart showing user growth trends over time.
+ * Displays a line chart showing user growth trends over time using ApexCharts.
  * Features:
  * - Dual-line chart (Active vs Anonymous users)
  * - Monthly data points (Jan-Dec)
  * - Y-axis with K notation (0K-250K)
  * - Interactive tooltip on hover
- * - Responsive SVG-based visualization
+ * - Time filter buttons (This Year, Monthly, Weekly)
+ * - Responsive ApexCharts visualization
  * 
  * @component
  * @example
@@ -16,197 +17,574 @@
 
 'use client';
 
+import { useState, useRef } from 'react';
+import dynamic from 'next/dynamic';
+import { TrendingUpIcon } from 'lucide-react';
+import { Badge } from '../ui/badge';
+import { Card, CardContent } from '../ui/card';
+
+// Dynamically import ApexCharts to avoid SSR issues
+const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
+
+// Helper function to format date for year period
+const formatDate = (monthIndex: number) => {
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+  return `${monthNames[monthIndex]} 21, 2025`;
+};
+
 /**
  * User Growth Chart Component
  * 
- * Renders a line chart visualization of user growth data
+ * Renders a line chart visualization of user growth data using ApexCharts
  */
 export default function UserGrowthChart() {
-  // Month labels for X-axis
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const [selectedPeriod, setSelectedPeriod] = useState<'year' | 'month' | 'week'>('year');
+  const [tooltipVisible, setTooltipVisible] = useState(false);
+  const [tooltipData, setTooltipData] = useState<{
+    value: string;
+    date: string;
+    left: number;
+    top: number;
+  }>({
+    value: '241K',
+    date: 'June 21, 2025',
+    left: 37.42,
+    top: 30,
+  });
+  const chartContainerRef = useRef<HTMLDivElement>(null);
   
-  // Y-axis labels with K notation
-  const yAxisLabels = ['250K', '200K', '150K', '100K', '50K', '25K', '0K'];
+  // Helper function to calculate Y position of green line center based on values
+  const calculateGreenLineCenterY = (activeValue: number, anonymousValue: number) => {
+    // Chart configuration
+    const chartHeight = 394;
+    const plotAreaTop = 20;
+    const plotAreaBottom = 30;
+    const plotAreaHeight = chartHeight - plotAreaTop - plotAreaBottom;
+    const yAxisMin = 0;
+    const yAxisMax = 250;
+    
+    // Green line center is at: anonymousValue + (activeValue / 2)
+    // This represents the middle of the green area (stacked on top of blue)
+    const greenLineCenterValue = anonymousValue + (activeValue / 2);
+    
+    // Calculate normalized position (inverted because Y=0 is at top in charts)
+    const normalizedPosition = (yAxisMax - greenLineCenterValue) / (yAxisMax - yAxisMin);
+    
+    // Calculate Y position in plot area
+    const yInPlotArea = normalizedPosition * plotAreaHeight;
+    
+    // Return absolute Y position (from top of chart container)
+    return plotAreaTop + yInPlotArea;
+  };
   
-  // Sample data points for Active users (in thousands)
-  const activeData = [180, 190, 200, 210, 220, 230, 240, 235, 240, 240, 240, 240];
-  
-  // Sample data points for Anonymous users (in thousands)
-  const anonymousData = [60, 65, 70, 68, 72, 75, 70, 68, 65, 63, 63, 63];
+  // Data for different periods
+  const yearData = {
+    months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    active: [180, 190, 200, 210, 220, 230, 240, 235, 240, 240, 240, 240],
+    anonymous: [60, 65, 70, 68, 72, 75, 70, 68, 65, 63, 63, 63],
+  };
 
-  // Chart configuration constants
-  const maxValue = 250; // Maximum value for Y-axis scaling
-  const chartHeight = 300; // Chart height in pixels
-  const chartWidth = 600; // Chart width in pixels
+  const monthData = {
+    weeks: ["Week 1", "Week 2", "Week 3", "Week 4"],
+    active: [235, 238, 240, 240],
+    anonymous: [65, 64, 63, 63],
+  };
 
-  /**
-   * Calculates the Y position for a given value
-   * Converts data value to SVG coordinate system
-   * 
-   * @param value - The data value to convert
-   * @returns {number} The Y coordinate position
-   */
-  const getYPosition = (value: number) => {
-    return chartHeight - (value / maxValue) * chartHeight;
+  const weekData = {
+    days: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    active: [238, 239, 240, 240, 240, 240, 240],
+    anonymous: [64, 63, 63, 63, 63, 63, 63],
+  };
+
+  // Get current data based on selected period
+  const getCurrentData = () => {
+    switch (selectedPeriod) {
+      case 'month':
+        return monthData;
+      case 'week':
+        return weekData;
+      default:
+        return yearData;
+    }
+  };
+
+  const currentData = getCurrentData();
+  const activeData = currentData.active;
+  const anonymousData = currentData.anonymous;
+  const xAxisCategories = 'months' in currentData ? currentData.months : 'weeks' in currentData ? currentData.weeks : currentData.days;
+
+  // Helper function to format date based on period
+  const formatDateByPeriod = (index: number) => {
+    if (selectedPeriod === 'year') {
+      return formatDate(index);
+    } else if (selectedPeriod === 'month') {
+      const weekNames = ["Week 1", "Week 2", "Week 3", "Week 4"];
+      return `${weekNames[index]} of December 2025`;
+    } else {
+      const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+      return `${dayNames[index]} December 21, 2025`;
+    }
+  };
+
+  // ApexCharts configuration
+  const chartOptions = {
+    chart: {
+      type: 'area' as const,
+      toolbar: {
+        show: false,
+      },
+      zoom: {
+        enabled: false,
+      },
+      offsetX: 0,
+      offsetY: 0,
+      events: {
+        dataPointMouseEnter: (_event: unknown, _chartContext: unknown, config: { dataPointIndex?: number; seriesIndex?: number; x?: number }) => {
+          const dataPointIndex = config.dataPointIndex;
+          const seriesIndex = config.seriesIndex;
+          const xPosition = config.x;
+          
+          // Get the value from the active series (seriesIndex 0)
+          if (seriesIndex === 0 && dataPointIndex !== undefined && dataPointIndex >= 0 && dataPointIndex < activeData.length) {
+            const value = activeData[dataPointIndex];
+            const anonymousValue = anonymousData[dataPointIndex];
+            const date = formatDateByPeriod(dataPointIndex);
+            
+              // Use ApexCharts' x position for accurate positioning within plot area
+              // xPosition is relative to the plot area, not the container
+              if (xPosition !== undefined && chartContainerRef.current) {
+                const rect = chartContainerRef.current.getBoundingClientRect();
+                // ApexCharts plot area typically has ~50px left padding and ~60px right padding (for December gap)
+                const plotAreaLeft = 50;
+                const absoluteX = plotAreaLeft + xPosition;
+                const leftPercentage = (absoluteX / rect.width) * 100;
+              
+              // Calculate top position at the center of green line
+              const greenLineCenterY = calculateGreenLineCenterY(value, anonymousValue);
+              const topPercentage = (greenLineCenterY / 394) * 100;
+              
+            setTooltipData({
+              value: `${Math.round(value)}K`,
+              date: date,
+              left: Math.max(5, Math.min(95, leftPercentage)),
+              top: Math.max(5, Math.min(85, topPercentage - 8)),
+            });
+            } else {
+              // Fallback calculation - ensure January (index 0) is positioned correctly
+              const plotAreaLeft = 50;
+              const plotAreaRight = 60; // Increased for December gap
+              if (chartContainerRef.current) {
+                const rect = chartContainerRef.current.getBoundingClientRect();
+                const plotAreaWidth = rect.width - plotAreaLeft - plotAreaRight;
+                const lastIndex = xAxisCategories.length - 1;
+                const dataPointX = plotAreaLeft + (dataPointIndex / lastIndex) * plotAreaWidth;
+                const leftPercentage = (dataPointX / rect.width) * 100;
+                
+                // Calculate top position at the center of green line
+                const greenLineCenterY = calculateGreenLineCenterY(value, anonymousData[dataPointIndex]);
+                const topPercentage = (greenLineCenterY / 394) * 100;
+                
+            setTooltipData({
+              value: `${Math.round(value)}K`,
+              date: date,
+              left: Math.max(5, Math.min(95, leftPercentage)),
+              top: Math.max(5, Math.min(85, topPercentage - 8)),
+            });
+              } else {
+                const leftPercentage = (dataPointIndex / (xAxisCategories.length - 1)) * 100;
+                
+                // Calculate top position at the center of green line
+                const greenLineCenterY = calculateGreenLineCenterY(value, anonymousData[dataPointIndex]);
+                const topPercentage = (greenLineCenterY / 394) * 100;
+                
+                setTooltipData({
+                  value: `${Math.round(value)}K`,
+                  date: date,
+                  left: leftPercentage,
+                  top: Math.max(5, Math.min(85, topPercentage - 8)),
+                });
+              }
+            }
+            setTooltipVisible(true);
+          }
+        },
+        dataPointMouseLeave: () => {
+          // Keep tooltip visible when moving between data points
+        },
+        mouseMove: (_event: unknown, _chartContext: unknown, config: { dataPointIndex?: number; seriesIndex?: number; x?: number }) => {
+          // Handle mouse move for smoother tooltip following
+          if (config && config.dataPointIndex !== undefined && config.seriesIndex === 0) {
+            const dataPointIndex = config.dataPointIndex;
+            const xPosition = config.x;
+            
+            if (dataPointIndex >= 0 && dataPointIndex < activeData.length) {
+              const value = activeData[dataPointIndex];
+              const anonymousValue = anonymousData[dataPointIndex];
+              const date = formatDateByPeriod(dataPointIndex);
+              
+              // Use ApexCharts' x position for accurate positioning
+              if (xPosition !== undefined && chartContainerRef.current) {
+                const rect = chartContainerRef.current.getBoundingClientRect();
+                const plotAreaLeft = 50; // Increased right padding for December gap
+                const absoluteX = plotAreaLeft + xPosition;
+                const leftPercentage = (absoluteX / rect.width) * 100;
+                
+                // Calculate top position at the center of green line
+                const greenLineCenterY = calculateGreenLineCenterY(value, anonymousValue);
+                const topPercentage = (greenLineCenterY / 394) * 100;
+                
+            setTooltipData({
+              value: `${Math.round(value)}K`,
+              date: date,
+              left: Math.max(5, Math.min(95, leftPercentage)),
+              top: Math.max(5, Math.min(85, topPercentage - 8)),
+            });
+              } else {
+                // Fallback calculation
+                const leftPercentage = (dataPointIndex / (xAxisCategories.length - 1)) * 100;
+                
+                // Calculate top position at the center of green line
+                const greenLineCenterY = calculateGreenLineCenterY(value, anonymousValue);
+                const topPercentage = (greenLineCenterY / 394) * 100;
+                
+                setTooltipData({
+                  value: `${Math.round(value)}K`,
+                  date: date,
+                  left: leftPercentage,
+                  top: Math.max(5, Math.min(85, topPercentage - 8)),
+                });
+              }
+              setTooltipVisible(true);
+            }
+          }
+        },
+      },
+    },
+    dataLabels: {
+      enabled: false,
+    },
+    stroke: {
+      curve: 'smooth' as const,
+      width: 2,
+    },
+    colors: ['#38e07b', '#7485ff'], // Green for Active, Blue for Anonymous
+    xaxis: {
+      categories: xAxisCategories,
+      labels: {
+        style: {
+          colors: '#9ca3af',
+          fontSize: '12px',
+        },
+      },
+      axisBorder: {
+        show: false,
+      },
+      axisTicks: {
+        show: false,
+      },
+      offsetX: 0,
+      offsetY: 0,
+    },
+    plotOptions: {
+      area: {
+        fillTo: 'end' as const,
+      },
+    },
+    yaxis: {
+      labels: {
+        formatter: (value: number) => {
+          return `${Math.round(value)}K`;
+        },
+        style: {
+          colors: '#9ca3af',
+          fontSize: '12px',
+        },
+      },
+      min: 0,
+      max: 250,
+      tickAmount: 7,
+    },
+    grid: {
+      borderColor: '#1f2937',
+      strokeDashArray: 0,
+      xaxis: {
+        lines: {
+          show: false,
+        },
+      },
+      yaxis: {
+        lines: {
+          show: true,
+          strokeDashArray: 0,
+        },
+      },
+    },
+    tooltip: {
+      enabled: false,
+    },
+    legend: {
+      show: false,
+    },
+  };
+
+  const chartSeries = [
+    {
+      name: 'Active',
+      data: activeData,
+      fill: {
+        type: 'gradient',
+        gradient: {
+          shadeIntensity: 1,
+          opacityFrom: 0.7,
+          opacityTo: 0.3,
+          stops: [0, 90, 100],
+        },
+      },
+    },
+    {
+      name: 'Anonymous',
+      data: anonymousData,
+      fill: {
+        opacity: 0,
+      },
+    },
+  ];
+
+  // Update chart options when period changes
+  const chartOptionsWithPeriod = {
+    ...chartOptions,
+    xaxis: {
+      ...chartOptions.xaxis,
+      categories: xAxisCategories,
+    },
   };
 
   return (
-    <div className="bg-gray-900 rounded-lg p-6 border border-gray-800">
+    <Card className="bg-[#101012] rounded-2xl border-0 h-full">
+      <CardContent className="p-8">
       {/* Chart Header */}
       <div className="mb-6">
+          <div className="flex items-start justify-between">
+            <div>
         <h2 className="text-xl font-bold text-white mb-1">Overview</h2>
         <p className="text-gray-400 text-sm">User Growth Trends</p>
       </div>
 
-      <div className="relative">
-        {/* Chart Title */}
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold text-white">User 240.8K</h3>
-        </div>
-
-        {/* Legend - Shows what each line represents */}
-        <div className="flex items-center gap-6 mb-4">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-[#22c55e]"></div>
-            <span className="text-white text-sm">Active: 18,234</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-blue-400"></div>
-            <span className="text-white text-sm">Anonymous: 6,358</span>
-          </div>
-        </div>
-
-        {/* Chart Container */}
-        <div className="relative" style={{ height: chartHeight, width: '100%' }}>
-          <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="w-full h-full">
-            {/* Y-axis labels - Display scale values */}
-            {yAxisLabels.map((label, index) => {
-              const y = (index / (yAxisLabels.length - 1)) * chartHeight;
-              return (
-                <text
-                  key={label}
-                  x="10"
-                  y={y + 5}
-                  fill="#9ca3af"
-                  fontSize="12"
-                  textAnchor="start"
+            {/* Time Filter Buttons */}
+            <div className="w-[380px] h-12 relative bg-neutral-900 rounded-xl overflow-hidden">
+              <div className="left-[8px] top-[8.50px] right-[8px] absolute inline-flex justify-between items-center">
+                <button
+                  onClick={() => setSelectedPeriod('year')}
+                  className={`w-28 px-3 py-2 rounded-md flex justify-center items-center gap-1 transition-all duration-200 ${
+                    selectedPeriod === 'year'
+                      ? 'bg-zinc-800 shadow-sm'
+                      : 'hover:opacity-80'
+                  }`}
                 >
-                  {label}
-                </text>
-              );
-            })}
+                  <div className={`justify-start text-sm font-['Inter'] leading-4 ${
+                    selectedPeriod === 'year'
+                      ? 'text-green-400 font-normal'
+                      : 'text-neutral-300 font-light'
+                  }`}>
+                    This Year
+                  </div>
+                </button>
+                <button
+                  onClick={() => setSelectedPeriod('month')}
+                  className={`w-28 px-3 py-2 rounded-md flex justify-center items-center gap-1 transition-all duration-200 ${
+                    selectedPeriod === 'month'
+                      ? 'bg-zinc-800 shadow-sm'
+                      : 'hover:opacity-80'
+                  }`}
+                >
+                  <div className={`justify-start text-sm font-['Inter'] leading-4 ${
+                    selectedPeriod === 'month'
+                      ? 'text-green-400 font-normal'
+                      : 'text-neutral-300 font-light'
+                  }`}>
+                    Monthly
+                  </div>
+                </button>
+                <button
+                  onClick={() => setSelectedPeriod('week')}
+                  className={`w-28 px-3 py-2 rounded-md flex justify-center items-center gap-1 transition-all duration-200 ${
+                    selectedPeriod === 'week'
+                      ? 'bg-zinc-800 shadow-sm'
+                      : 'hover:opacity-80'
+                  }`}
+                >
+                  <div className={`justify-start text-sm font-['Inter'] leading-4 ${
+                    selectedPeriod === 'week'
+                      ? 'text-green-400 font-normal'
+                      : 'text-neutral-300 font-light'
+                  }`}>
+                    Weekly
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
 
-            {/* Grid lines - Horizontal lines for better readability */}
-            {yAxisLabels.map((_, index) => {
-              const y = (index / (yAxisLabels.length - 1)) * chartHeight;
-              return (
-                <line
-                  key={index}
-                  x1="50"
-                  y1={y}
-                  x2={chartWidth - 50}
-                  y2={y}
-                  stroke="#1f2937"
-                  strokeWidth="1"
-                />
-              );
-            })}
+        <div className="flex flex-col gap-6">
+          {/* User Title and Legend Row */}
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="font-['Inter',Helvetica] font-normal text-gray-400 text-lg tracking-[0] leading-[19.8px]">
+                User
+              </div>
+              <div className="font-['Inter',Helvetica] font-semibold text-white text-2xl tracking-[0] leading-[38.4px]">
+                240.8K
+              </div>
+            </div>
+            <div className="flex items-center gap-[18px]">
+          <div className="flex items-center gap-2">
+                <div className="w-[7px] h-[7px] bg-[#38e07b] rounded-full" />
+                <div className="font-['Inter',Helvetica] font-light text-gray-400 text-sm tracking-[0] leading-[15.4px]">
+                  Active: 18,234
+                </div>
+          </div>
+          <div className="flex items-center gap-2">
+                <div className="w-[7px] h-[7px] bg-[#7485ff] rounded-full" />
+                <div className="font-['Inter',Helvetica] font-light text-gray-400 text-sm tracking-[0] leading-[15.4px]">
+                  Anonymous: 6,358
+                </div>
+              </div>
+          </div>
+        </div>
 
-            {/* Active users line (green) */}
-            <polyline
-              points={activeData.map((value, index) => {
-                const x = 50 + (index / (months.length - 1)) * (chartWidth - 100);
-                const y = getYPosition(value);
-                return `${x},${y}`;
-              }).join(' ')}
-              fill="none"
-              stroke="#22c55e"
-              strokeWidth="2"
-            />
-
-            {/* Anonymous users line (blue) */}
-            <polyline
-              points={anonymousData.map((value, index) => {
-                const x = 50 + (index / (months.length - 1)) * (chartWidth - 100);
-                const y = getYPosition(value);
-                return `${x},${y}`;
-              }).join(' ')}
-              fill="none"
-              stroke="#60a5fa"
-              strokeWidth="2"
-            />
-
-            {/* Data points for Active users line */}
-            {activeData.map((value, index) => {
-              const x = 50 + (index / (months.length - 1)) * (chartWidth - 100);
-              const y = getYPosition(value);
-              return (
-                <circle
-                  key={`active-${index}`}
-                  cx={x}
-                  cy={y}
-                  r="4"
-                  fill="#22c55e"
-                />
-              );
-            })}
-
-            {/* Data points for Anonymous users line */}
-            {anonymousData.map((value, index) => {
-              const x = 50 + (index / (months.length - 1)) * (chartWidth - 100);
-              const y = getYPosition(value);
-              return (
-                <circle
-                  key={`anonymous-${index}`}
-                  cx={x}
-                  cy={y}
-                  r="4"
-                  fill="#60a5fa"
-                />
-              );
-            })}
-
-            {/* Tooltip area - Shows detailed info for June data point */}
-            <g>
-              <rect
-                x={50 + (5 / (months.length - 1)) * (chartWidth - 100) - 60}
-                y={getYPosition(230) - 40}
-                width="120"
-                height="35"
-                fill="#1f2937"
-                rx="4"
+          {/* Chart Container with Tooltip Card Inside */}
+          <div className="relative">
+        {/* Chart Container */}
+            <div 
+              ref={chartContainerRef}
+              className="relative" 
+              style={{ minHeight: '394px', width: '100%' }}
+              onMouseLeave={() => setTooltipVisible(false)}
+              onMouseMove={(e) => {
+                // Fallback: Calculate which data point we're closest to based on mouse position
+                // This handles cases where ApexCharts events don't fire
+                if (chartContainerRef.current) {
+                  const rect = chartContainerRef.current.getBoundingClientRect();
+                  const mouseX = e.clientX - rect.left;
+                  const mouseY = e.clientY - rect.top;
+                  
+                  // Account for chart padding (ApexCharts typically uses ~50px left, increased right padding for December gap)
+                  const plotAreaLeft = 50;
+                  const plotAreaRight = 60; // Increased right padding to create gap after December
+                  const plotAreaTop = 20;
+                  const plotAreaBottom = 30;
+                  const plotAreaWidth = rect.width - plotAreaLeft - plotAreaRight;
+                  
+                  // Expand detection area to include buffer zones for edge data points (January and December)
+                  // Allow detection in the left padding area (0 to plotAreaLeft) to trigger January
+                  // Allow detection in the right padding area to trigger December
+                  const detectionLeft = 0; // Start from very left
+                  const detectionRight = rect.width; // Extend to very right to catch December
+                  
+                  // Check if mouse is within expanded detection area
+                  if (mouseX >= detectionLeft && mouseX <= detectionRight && 
+                      mouseY >= plotAreaTop && mouseY <= rect.height - plotAreaBottom) {
+                    // Special handling for left edge (January - index 0)
+                    let dataPointIndex: number;
+                    const lastIndex = xAxisCategories.length - 1;
+                    const plotAreaRightEdge = rect.width - plotAreaRight;
+                    
+                    if (mouseX < plotAreaLeft) {
+                      // Mouse is in left padding area, treat as January (index 0)
+                      dataPointIndex = 0;
+                    } else if (mouseX > plotAreaRightEdge) {
+                      // Mouse is in right padding area, treat as December (last index)
+                      dataPointIndex = lastIndex;
+                    } else {
+                      // Calculate relative position within plot area
+                      const relativeX = mouseX - plotAreaLeft;
+                      const relativePercentage = relativeX / plotAreaWidth;
+                      
+                      // Calculate data point index
+                      // Each data point occupies 1/(n-1) of the plot width
+                      // Use round for better accuracy, but ensure we're within bounds
+                      dataPointIndex = Math.round(relativePercentage * lastIndex);
+                      // Clamp to valid range
+                      dataPointIndex = Math.max(0, Math.min(lastIndex, dataPointIndex));
+                    }
+                    
+                    if (dataPointIndex >= 0 && dataPointIndex < activeData.length) {
+                      const value = activeData[dataPointIndex];
+                      const anonymousValue = anonymousData[dataPointIndex];
+                      const date = formatDateByPeriod(dataPointIndex);
+                      
+                      // Calculate exact position for tooltip at the data point
+                      // Data points are evenly spaced: index 0 at left edge, last index before right padding
+                      const lastIndex = xAxisCategories.length - 1;
+                      const dataPointX = plotAreaLeft + (dataPointIndex / lastIndex) * plotAreaWidth;
+                      const leftPercentage = (dataPointX / rect.width) * 100;
+                      
+                      // Calculate top position at the center of green line
+                      const greenLineCenterY = calculateGreenLineCenterY(value, anonymousValue);
+                      const topPercentage = (greenLineCenterY / rect.height) * 100;
+                      
+            setTooltipData({
+              value: `${Math.round(value)}K`,
+              date: date,
+              left: Math.max(5, Math.min(95, leftPercentage)),
+              top: Math.max(5, Math.min(85, topPercentage - 8)),
+            });
+                      setTooltipVisible(true);
+                    }
+                  }
+                }
+              }}
+            >
+              <Chart
+                key={selectedPeriod}
+                options={chartOptionsWithPeriod}
+                series={chartSeries}
+                type="area"
+                height={394}
               />
-              <text
-                x={50 + (5 / (months.length - 1)) * (chartWidth - 100)}
-                y={getYPosition(230) - 20}
-                fill="#22c55e"
-                fontSize="12"
-                textAnchor="middle"
-              >
-                User 240.8K
-              </text>
-              <text
-                x={50 + (5 / (months.length - 1)) * (chartWidth - 100)}
-                y={getYPosition(230) - 5}
-                fill="#ffffff"
-                fontSize="12"
-                textAnchor="middle"
-              >
-                June 21, 2025
-              </text>
-            </g>
-          </svg>
-
-          {/* X-axis labels - Month abbreviations */}
-          <div className="flex justify-between mt-2 px-12">
-            {months.map((month) => (
-              <span key={month} className="text-xs text-gray-400">
-                {month}
+              
+              {/* Tooltip Card - Positioned inside chart based on mouse hover */}
+              {tooltipVisible && (
+                <div
+                  className="absolute z-10 transition-all duration-100 pointer-events-none"
+                  style={{
+                    left: `${tooltipData.left}%`,
+                    top: `${tooltipData.top}%`,
+                    transform: 'translate(-50%, -100%)',
+                  }}
+                >
+                  <Card className="w-[145px] bg-[#14151c] rounded-lg border-[0.6px] border-[#0b1739] shadow-[3px_4px_17px_#01051133]">
+                    <CardContent className="p-3.5">
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-1.5">
+                          <div className="font-['Inter',Helvetica] font-normal text-white text-xs tracking-[0] leading-[13.2px]">
+                            User
+                          </div>
+                          <Badge className="bg-[#0a160d] border-[0.6px] border-[#05c16833] rounded-sm px-1 py-0.5 hover:bg-[#0a160d]">
+                            <div className="flex items-center gap-0.5">
+                              <span className="font-['Inter',Helvetica] font-normal text-[#38e07b] text-xs tracking-[0] leading-[13.2px]">
+                                {tooltipData.value}
               </span>
-            ))}
+                              <TrendingUpIcon className="w-2 h-2 text-[#38e07b]" />
+                            </div>
+                          </Badge>
+                        </div>
+                        <div className="font-['Inter',Helvetica] font-normal text-gray-400 text-xs tracking-[0] leading-[13.2px]">
+                          {tooltipData.date}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
           </div>
         </div>
       </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

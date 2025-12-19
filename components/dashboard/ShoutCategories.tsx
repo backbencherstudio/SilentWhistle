@@ -12,7 +12,9 @@
 
 'use client';
 
+import { useState } from 'react';
 import { Lightbulb, Eye, Brain, HandHeart, AlertTriangle, MessageSquare } from 'lucide-react';
+import { Card } from '../ui/card';
 
 /**
  * Category interface
@@ -48,41 +50,72 @@ const categories: Category[] = [
  * Renders a list of categories with their post counts
  */
 export default function ShoutCategories() {
+  const [selectedType, setSelectedType] = useState<'text' | 'voice'>('text');
+
   return (
-    <div className="bg-gray-900 rounded-lg p-6 border border-gray-800">
+    <Card className="bg-[#101012] rounded-2xl border-0 h-full flex flex-col">
       {/* Header Section */}
-      <div className="mb-6">
-        <h2 className="text-xl font-bold text-white mb-4">Shout Categories</h2>
-        {/* Column headers */}
-        <div className="flex items-center gap-4 text-sm">
-          <span className="text-white">Text Posts</span>
-          <span className="text-white">Voice Posts</span>
+      <div className="px-6 pt-6 pb-4 flex justify-between items-center gap-7">
+        <div className="flex-1 justify-start text-white text-base font-semibold font-['Inter'] leading-7 whitespace-nowrap">
+          Shout Categories
+        </div>
+        <div className="flex justify-start items-center gap-1.5">
+          <button
+            onClick={() => setSelectedType('text')}
+            className={`px-1.5 py-[3px] rounded-lg flex justify-center items-center gap-2.5 transition-colors ${
+              selectedType === 'text' ? 'bg-neutral-800' : ''
+            }`}
+          >
+            <div className="justify-start text-neutral-300 text-sm font-normal font-['Inter'] leading-6 whitespace-nowrap">
+              Text Posts
+            </div>
+          </button>
+          <button
+            onClick={() => setSelectedType('voice')}
+            className={`px-1.5 py-[3px] flex justify-center items-center gap-2.5 transition-colors ${
+              selectedType === 'voice' ? 'bg-neutral-800 rounded-lg' : ''
+            }`}
+          >
+            <div className="justify-start text-neutral-300 text-sm font-normal font-['Inter'] leading-6 whitespace-nowrap">
+              Voice Posts
+            </div>
+          </button>
         </div>
       </div>
 
       {/* Categories List */}
-      <div className="space-y-4">
+      <div className="flex-1 px-6 pb-6 flex flex-col justify-start items-start overflow-y-auto">
         {categories.map((category, index) => {
           const IconComponent = category.icon;
+          const isLast = index === categories.length - 1;
+          
           return (
             <div
               key={index}
-              className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-800 transition-colors"
+              className={`w-full py-1.5 inline-flex justify-between items-center ${
+                !isLast ? 'border-b border-neutral-800' : ''
+              }`}
             >
-              {/* Category name and icon */}
-              <div className="flex items-center gap-3">
-                <IconComponent className="w-5 h-5 text-white" />
-                <span className="text-white text-sm font-medium">{category.name}</span>
+              <div className="flex-1 px-4 py-2.5 flex justify-start items-center gap-1 min-w-0">
+                <div className="w-4 h-4 relative overflow-hidden flex items-center justify-center flex-shrink-0">
+                  <IconComponent className="w-4 h-4 text-gray-200" />
+                </div>
+                <div className="justify-start text-gray-200 text-sm font-normal font-['Inter'] leading-4 whitespace-nowrap truncate">
+                  {category.name}
+                </div>
               </div>
-              {/* Post counts */}
-              <div className="flex items-center gap-4 text-sm">
-                <span className="text-white w-16 text-right">{category.textPosts}</span>
-                <span className="text-white w-16 text-right">{category.voicePosts}</span>
+              <div className="w-32 flex justify-between items-center gap-4 flex-shrink-0">
+                <div className="justify-start text-white text-sm font-medium font-['Inter'] leading-4 whitespace-nowrap">
+                  {category.textPosts}
+                </div>
+                <div className="justify-start text-white text-sm font-medium font-['Inter'] leading-4 whitespace-nowrap">
+                  {category.voicePosts}
+                </div>
               </div>
             </div>
           );
         })}
       </div>
-    </div>
+    </Card>
   );
 }
