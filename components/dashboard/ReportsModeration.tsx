@@ -279,7 +279,7 @@ export const ReportsModeration = (): React.ReactElement => {
                           // Handle review action
                           console.log('Review clicked for row', index);
                         }}
-                        className="px-4 py-2 bg-[#38e07b] text-white hover:bg-[#38e07b] hover:opacity-90 rounded-lg font-['Inter'] font-medium text-sm cursor-pointer"
+                        className="px-4 py-2 bg-[#38e07b] text-black hover:bg-[#38e07b] hover:opacity-90 rounded-lg font-['Inter'] font-medium text-sm cursor-pointer"
                       >
                         Review
                       </Button>
