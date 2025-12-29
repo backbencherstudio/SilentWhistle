@@ -54,6 +54,22 @@ export class UserService {
   }
 
   /**
+   * Set authentication token
+   * 
+   * Stores the authentication token in cookies.
+   * 
+   * @static
+   * @param {string} token - The authentication token to store
+   * @param {number} [days=7] - Number of days until expiration (default: 7)
+   * @returns {void}
+   * @example
+   * UserService.setAuthToken('abc123token');
+   */
+  static setAuthToken(token: string, days: number = 7): void {
+    CookieHelper.set('authToken', token, days);
+  }
+
+  /**
    * Check if user is authenticated
    * 
    * Determines if a user is currently authenticated by checking

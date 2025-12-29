@@ -16,10 +16,11 @@
 
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { UserService } from '@/service/user/user.service';
 import { LogOut } from 'lucide-react';
+import LogoutModal from './LogoutModal';
 // Custom icons
 import { logoIcon } from '@/components/icons/logoicon';
 import { logoTextIcon } from '@/components/icons/logotext';
@@ -59,6 +60,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const pathname = usePathname();
   const router = useRouter();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   /**
    * Effect hook to prevent body scrolling when sidebar is open on mobile
@@ -114,18 +116,29 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   };
 
   /**
-   * Handles user logout
-   * Clears authentication tokens and redirects to home page
+   * Opens the logout confirmation modal
    */
-  const handleLogout = () => {
+  const handleLogoutClick = () => {
+    setShowLogoutModal(true);
+  };
+
+  /**
+   * Handles user logout confirmation
+   * Clears authentication tokens and redirects to login page
+   */
+  const handleLogoutConfirm = () => {
+    // Close the modal
+    setShowLogoutModal(false);
+    
     // Clear the authentication token
     UserService.logout();
     
     // Clear any other local storage data if exists
     localStorage.clear();
+    sessionStorage.clear();
     
-    // Redirect to home page
-    router.push('/');
+    // Redirect to login page
+    router.push('/login');
   };
 
   /**
@@ -270,7 +283,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         {/* Logout button section */}
         <div className="px-4 pb-4 md:pb-8">
           <div
-            onClick={handleLogout}
+            onClick={handleLogoutClick}
             className="self-stretch h-[52px] relative cursor-pointer"
             role="button"
             tabIndex={0}
@@ -295,6 +308,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </div>
         </div>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      <LogoutModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleLogoutConfirm}
+      />
     </>
   );
 };

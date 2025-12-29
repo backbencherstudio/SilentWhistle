@@ -13,19 +13,35 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/common/DashboardLayout';
 import OverviewCards from '@/components/dashboard/OverviewCards';
 import UserGrowthChart from '@/components/dashboard/UserGrowthChart';
 import ShoutCategories from '@/components/dashboard/ShoutCategories';
+import { UserService } from '@/service/user/user.service';
 
 /**
  * Home Page Component
  * 
- * Renders the main dashboard page with all overview components
+ * Renders the main dashboard page with all overview components.
+ * Redirects to login if not authenticated.
  */
 export default function Home() {
+  const router = useRouter();
   const [selectedPeriod, setSelectedPeriod] = useState<'year' | 'month' | 'week'>('year');
+
+  useEffect(() => {
+    // Check authentication on mount
+    if (!UserService.isAuthenticated()) {
+      router.push('/login');
+    }
+  }, [router]);
+
+  // Don't render dashboard if not authenticated (will redirect)
+  if (!UserService.isAuthenticated()) {
+    return null;
+  }
 
   return (
     <DashboardLayout>
