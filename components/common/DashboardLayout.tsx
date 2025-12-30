@@ -39,12 +39,37 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   // State to control mobile sidebar visibility
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  // State to control desktop sidebar collapse
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    // Get collapsed state from localStorage if available
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('sidebarCollapsed');
+      return saved === 'true';
+    }
+    return false;
+  });
+
+  // Save collapsed state to localStorage
+  const handleToggleCollapse = () => {
+    const newState = !isCollapsed;
+    setIsCollapsed(newState);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sidebarCollapsed', String(newState));
+    }
+  };
 
   return (
     <div className="flex min-h-screen bg-black font-sans">
       {/* Desktop Sidebar - Fixed position, always visible on medium screens and up */}
-      <aside className="hidden md:block md:w-64 lg:w-72 fixed left-0 top-0 h-screen bg-black z-20">
-        <Sidebar isOpen={false} onClose={() => {}} />
+      <aside className={`hidden md:block fixed left-0 top-0 h-screen bg-black z-20 transition-all duration-300 ease-in-out ${
+        isCollapsed ? 'w-20' : 'w-64 lg:w-72'
+      }`}>
+        <Sidebar 
+          isOpen={false} 
+          onClose={() => {}} 
+          isCollapsed={isCollapsed}
+          onToggleCollapse={handleToggleCollapse}
+        />
       </aside>
       
       {/* Mobile Sidebar - Overlay that appears when opened */}
@@ -53,7 +78,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </div>
 
       {/* Main Content Area - Adjusted for fixed sidebar */}
-      <div className="flex-1 flex flex-col min-h-screen md:ml-64 lg:ml-72">
+      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out ${
+        isCollapsed ? 'md:ml-20' : 'md:ml-64 lg:ml-72'
+      }`}>
         {/* Mobile Menu Button - Only visible on mobile devices */}
         <button
           onClick={() => setSidebarOpen(true)}
