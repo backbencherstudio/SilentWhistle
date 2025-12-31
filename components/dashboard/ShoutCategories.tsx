@@ -1,20 +1,25 @@
 /**
  * Shout Categories Component
- * 
+ *
  * Displays a list of shout/post categories with their respective counts.
  * Shows both text posts and voice posts for each category.
  * Categories include: Idea, Observation, Thought, Gratitude, Concern, Gossip
- * 
+ *
  * @component
  * @example
  * <ShoutCategories />
  */
 
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Lightbulb, Eye, Brain, HandHeart, AlertTriangle, MessageSquare } from 'lucide-react';
-import { Card } from '../ui/card';
+import { useState } from "react";
+import { Card } from "../ui/card";
+import light from "../icons/shout-categories/light";
+import eye from "../icons/shout-categories/eye";
+import brain from "../icons/shout-categories/brain";
+import handHeart from "../icons/shout-categories/handHeart";
+import alertTriangle from "../icons/shout-categories/alertTriangle";
+import messageSquare from "../icons/shout-categories/messageSquare";
 
 /**
  * Category interface
@@ -36,21 +41,21 @@ interface Category {
  * Array of all shout categories with their icons and counts
  */
 const categories: Category[] = [
-  { icon: Lightbulb, name: 'Idea', textPosts: 240, voicePosts: 240 },
-  { icon: Eye, name: 'Observation', textPosts: 240, voicePosts: 240 },
-  { icon: Brain, name: 'Thought', textPosts: 240, voicePosts: 240 },
-  { icon: HandHeart, name: 'Gratitude', textPosts: 240, voicePosts: 240 },
-  { icon: AlertTriangle, name: 'Concern', textPosts: 240, voicePosts: 240 },
-  { icon: MessageSquare, name: 'Gossip', textPosts: 240, voicePosts: 240 },
+  { icon: light, name: "Idea", textPosts: 240, voicePosts: 240 },
+  { icon: eye, name: "Observation", textPosts: 240, voicePosts: 240 },
+  { icon: brain, name: "Thought", textPosts: 240, voicePosts: 240 },
+  { icon: handHeart, name: "Gratitude", textPosts: 240, voicePosts: 240 },
+  { icon: alertTriangle, name: "Concern", textPosts: 240, voicePosts: 240 },
+  { icon: messageSquare, name: "Gossip", textPosts: 240, voicePosts: 240 },
 ];
 
 /**
  * Shout Categories Component
- * 
+ *
  * Renders a list of categories with their post counts
  */
 export default function ShoutCategories() {
-  const [selectedType, setSelectedType] = useState<'text' | 'voice'>('text');
+  const [selectedType, setSelectedType] = useState<"text" | "voice">("text");
 
   return (
     <Card className="bg-[#101012] rounded-2xl border-0 h-full flex flex-col">
@@ -61,9 +66,9 @@ export default function ShoutCategories() {
         </div>
         <div className="flex justify-start items-center gap-1.5">
           <button
-            onClick={() => setSelectedType('text')}
-            className={`px-1.5 py-[3px] rounded-lg flex justify-center items-center gap-2.5 transition-colors ${
-              selectedType === 'text' ? 'bg-neutral-800' : ''
+            onClick={() => setSelectedType("text")}
+            className={`px-1.5 py-0.75 rounded-lg flex justify-center items-center gap-2.5 transition-colors ${
+              selectedType === "text" ? "bg-neutral-800" : ""
             }`}
           >
             <div className="justify-start text-neutral-300 text-sm font-normal font-['Inter'] leading-6 whitespace-nowrap">
@@ -71,9 +76,9 @@ export default function ShoutCategories() {
             </div>
           </button>
           <button
-            onClick={() => setSelectedType('voice')}
-            className={`px-1.5 py-[3px] flex justify-center items-center gap-2.5 transition-colors ${
-              selectedType === 'voice' ? 'bg-neutral-800 rounded-lg' : ''
+            onClick={() => setSelectedType("voice")}
+            className={`px-1.5 py-0.75 flex justify-center items-center gap-2.5 transition-colors ${
+              selectedType === "voice" ? "bg-neutral-800 rounded-lg" : ""
             }`}
           >
             <div className="justify-start text-neutral-300 text-sm font-normal font-['Inter'] leading-6 whitespace-nowrap">
@@ -88,23 +93,23 @@ export default function ShoutCategories() {
         {categories.map((category, index) => {
           const IconComponent = category.icon;
           const isLast = index === categories.length - 1;
-          
+
           return (
             <div
               key={index}
               className={`w-full py-1.5 inline-flex justify-between items-center ${
-                !isLast ? 'border-b border-neutral-800' : ''
+                !isLast ? "border-b border-neutral-800" : ""
               }`}
             >
               <div className="flex-1 px-4 py-2.5 flex justify-start items-center gap-1 min-w-0">
-                <div className="w-4 h-4 relative overflow-hidden flex items-center justify-center flex-shrink-0">
+                <div className="w-4 h-4 relative overflow-hidden flex items-center justify-center shrink-0">
                   <IconComponent className="w-4 h-4 text-gray-200" />
                 </div>
                 <div className="justify-start text-gray-200 text-sm font-normal font-['Inter'] leading-4 whitespace-nowrap truncate">
                   {category.name}
                 </div>
               </div>
-              <div className="w-32 flex justify-between items-center gap-4 flex-shrink-0">
+              <div className="w-32 flex justify-between items-center gap-4 shrink-0">
                 <div className="justify-start text-white text-sm font-medium font-['Inter'] leading-4 whitespace-nowrap">
                   {category.textPosts}
                 </div>
