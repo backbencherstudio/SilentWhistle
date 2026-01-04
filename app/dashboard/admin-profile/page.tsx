@@ -1,14 +1,14 @@
 /**
  * Admin Profile Page
- * 
+ *
  * @page
  * @route /dashboard/admin-profile
  */
 
-'use client';
+"use client";
 
-import DashboardLayout from '@/components/common/DashboardLayout';
-import { SystemSettings } from '@/components/dashboard/SystemSettings';
+import DashboardLayout from "@/components/common/DashboardLayout";
+import { SystemSettings } from "@/components/dashboard/SystemSettings";
 
 export default function AdminProfilePage() {
   return (
@@ -19,4 +19,3 @@ export default function AdminProfilePage() {
     </DashboardLayout>
   );
 }
-
