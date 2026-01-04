@@ -1,14 +1,6 @@
-'use client';
+"use client";
 
-import {
-  Search,
-  Type,
-  Mic,
-  Lightbulb,
-  MapPin,
-  ThumbsUp,
-  AlertCircle,
-} from "lucide-react";
+import { Search, Type, Mic, AlertCircle, MapPin } from "lucide-react";
 import React from "react";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Badge } from "../ui/badge";
@@ -19,6 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import lightbulb from "../icons/lightbulb";
+import thumbsup from "../icons/thumbsup";
 
 const tableHeaders = [
   { label: "Name" },
@@ -55,11 +49,11 @@ const userTypes = [
 ];
 
 const tags = [
-  { icon: Lightbulb, count: "69" },
+  { icon: lightbulb, count: "69" },
   { icon: MapPin, count: "07" },
-  { icon: ThumbsUp, count: "60" },
-  { icon: ThumbsUp, count: "60" },
-  { icon: ThumbsUp, count: "60" },
+  { icon: thumbsup, count: "60" },
+  { icon: thumbsup, count: "60" },
+  { icon: thumbsup, count: "60" },
 ];
 
 const tableData = [
@@ -111,10 +105,10 @@ export const PostManagement = (): React.ReactElement => {
         </div>
 
         {/* Search and Filter Section */}
-        <div className="flex items-center gap-4 flex-shrink-0 w-full lg:w-auto">
+        <div className="flex items-center gap-4 shrink-0 w-full lg:w-auto">
           {/* Search Bar */}
           <div className="flex-1 lg:flex-initial lg:w-96 h-10 px-4 py-2.5 bg-neutral-900 rounded-lg inline-flex justify-start items-center gap-1.5">
-            <Search className="w-5 h-5 text-zinc-400 flex-shrink-0" />
+            <Search className="w-5 h-5 text-zinc-400 shrink-0" />
             <input
               type="text"
               placeholder="Search users or shouts..."
@@ -123,7 +117,7 @@ export const PostManagement = (): React.ReactElement => {
           </div>
 
           <Select defaultValue="all">
-            <SelectTrigger className="w-[148px] h-10 bg-[#101012] border-[#2c2d35] rounded-lg">
+            <SelectTrigger className="w-37 h-10 bg-[#101012] border-[#2c2d35] rounded-lg">
               <SelectValue>
                 <span className="font-['Inter'] font-normal text-white text-xs">
                   All Types
@@ -144,7 +138,7 @@ export const PostManagement = (): React.ReactElement => {
             {tableHeaders.map((header, index) => (
               <div
                 key={index}
-                className="flex-1 h-full flex items-center bg-[#1a1a1a] px-[18px]"
+                className="flex-1 h-full flex items-center bg-[#1a1a1a] px-4.5"
               >
                 <h3 className="font-['Inter'] font-medium text-gray-50 text-lg tracking-[0] leading-[normal]">
                   {header.label}
@@ -156,10 +150,10 @@ export const PostManagement = (): React.ReactElement => {
           {tableData.map((row, rowIndex) => (
             <div
               key={rowIndex}
-              className="flex h-[68px] items-center w-full border-t border-solid border-[#212529]"
+              className="flex h-17 items-center w-full border-t border-solid border-[#212529]"
             >
               {/* Name Column */}
-              <div className="flex-1 h-full flex items-center px-[18px]">
+              <div className="flex-1 h-full flex items-center px-4.5">
                 <div className="inline-flex items-center gap-2">
                   <Avatar className="w-9 h-9 rounded-full border border-solid border-[#e3e5e6] bg-gray-700">
                     <AvatarFallback className="bg-gray-700 text-gray-300">
@@ -181,7 +175,7 @@ export const PostManagement = (): React.ReactElement => {
               </div>
 
               {/* Posts Type Column */}
-              <div className="flex-1 h-full flex items-center px-[18px]">
+              <div className="flex-1 h-full flex items-center px-4.5">
                 <div className="inline-flex items-center gap-1">
                   {postTypes.map((postType, index) => {
                     const IconComponent = postType.icon;
@@ -191,7 +185,7 @@ export const PostManagement = (): React.ReactElement => {
                         className="items-center gap-2 p-2 rounded-lg inline-flex"
                       >
                         <div className="inline-flex items-center justify-center gap-1.5">
-                          <div className="relative w-[26px] h-[26px] bg-gray-700 rounded-full flex items-center justify-center">
+                          <div className="relative w-6.5 h-6.5 bg-gray-700 rounded-full flex items-center justify-center">
                             <IconComponent className="w-3.5 h-3.5 text-gray-50" />
                           </div>
                           <span className="text-gray-50 font-['Inter'] font-medium text-xs tracking-[0] leading-[normal]">
@@ -205,12 +199,12 @@ export const PostManagement = (): React.ReactElement => {
               </div>
 
               {/* User Type Column */}
-              <div className="flex-1 h-full flex items-center px-[18px]">
+              <div className="flex-1 h-full flex items-center px-4.5">
                 <div className="inline-flex items-center gap-1">
                   {userTypes.map((userType, index) => (
                     <Badge
                       key={index}
-                      className={`inline-flex flex-col items-start gap-[3px] p-2 ${userType.bgColor} rounded-lg border-0 hover:${userType.bgColor}`}
+                      className={`inline-flex flex-col items-start gap-0.75 p-2 ${userType.bgColor} rounded-lg border-0 hover:${userType.bgColor}`}
                     >
                       <span
                         className={`${userType.textColor} text-xs leading-[14.4px] whitespace-nowrap font-['Inter'] font-medium tracking-[0]`}
@@ -228,7 +222,7 @@ export const PostManagement = (): React.ReactElement => {
               </div>
 
               {/* Tag Column */}
-              <div className="flex-1 h-full flex items-center px-[18px]">
+              <div className="flex-1 h-full flex items-center px-4.5">
                 <div className="inline-flex items-center gap-1">
                   {tags.map((tag, index) => {
                     const IconComponent = tag.icon;
@@ -237,7 +231,7 @@ export const PostManagement = (): React.ReactElement => {
                         key={index}
                         className="inline-flex flex-col items-start gap-2.5 p-2 bg-[#1a1a1a] rounded-lg overflow-hidden"
                       >
-                        <div className="inline-flex flex-col items-center gap-[3px]">
+                        <div className="inline-flex flex-col items-center gap-0.75">
                           <IconComponent className="w-3.5 h-3.5 text-white" />
                           <span className="text-white font-['Inter'] font-medium text-xs tracking-[0] leading-[normal]">
                             {tag.count}
@@ -250,10 +244,10 @@ export const PostManagement = (): React.ReactElement => {
               </div>
 
               {/* Reports Column */}
-              <div className="flex-1 h-full flex items-center px-[18px]">
+              <div className="flex-1 h-full flex items-center px-4.5">
                 <div className="items-center gap-2 px-2 py-1.5 rounded-lg inline-flex">
-                  <div className="inline-flex items-center justify-center gap-[3px]">
-                    <AlertCircle className="w-[18px] h-[18px] text-[#d54c3f]" />
+                  <div className="inline-flex items-center justify-center gap-0.75">
+                    <AlertCircle className="w-4.5 h-4.5 text-[#d54c3f]" />
                     <span className="font-['Inter'] font-medium text-[#d54c3f] text-sm tracking-[0] leading-[normal]">
                       {row.reports}
                     </span>
@@ -267,4 +261,3 @@ export const PostManagement = (): React.ReactElement => {
     </div>
   );
 };
-

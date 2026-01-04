@@ -1,16 +1,16 @@
 /**
  * User Management Page
- * 
+ *
  * @page
  * @route /dashboard/user-management
  */
 
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Search, ChevronDown } from 'lucide-react';
-import DashboardLayout from '@/components/common/DashboardLayout';
-import { UserTable } from '@/components/dashboard/UserTable';
+import { useState } from "react";
+import { Search, ChevronDown } from "lucide-react";
+import DashboardLayout from "@/components/common/DashboardLayout";
+import { UserTable } from "@/components/dashboard/UserTable";
 
 export default function UserManagementPage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -32,10 +32,10 @@ export default function UserManagementPage() {
             </div>
 
             {/* Search and Filter Section */}
-            <div className="flex items-center gap-4 flex-shrink-0 w-full lg:w-auto">
+            <div className="flex items-center gap-4 shrink-0 w-full lg:w-auto">
               {/* Search Bar */}
               <div className="flex-1 lg:flex-initial lg:w-96 h-10 px-4 py-2.5 bg-neutral-900 rounded-lg inline-flex justify-start items-center gap-1.5">
-                <Search className="w-5 h-5 text-zinc-400 flex-shrink-0" />
+                <Search className="w-5 h-5 text-zinc-400 shrink-0" />
                 <input
                   type="text"
                   placeholder="Search users or shouts..."
@@ -44,7 +44,7 @@ export default function UserManagementPage() {
               </div>
 
               {/* Filter Dropdown */}
-              <div className="h-10 bg-neutral-900 rounded-lg outline outline-1 outline-offset-[-1px] outline-zinc-800 overflow-hidden relative min-w-[144px]">
+              <div className="h-10 bg-neutral-900 rounded-lg outline-1 -outline-offset-1 outline-zinc-800 overflow-hidden relative min-w-36">
                 <button
                   onClick={() => setIsFilterOpen(!isFilterOpen)}
                   className="w-full h-full inline-flex justify-between items-center gap-2 px-3"
@@ -53,8 +53,8 @@ export default function UserManagementPage() {
                     All User
                   </div>
                   <ChevronDown
-                    className={`w-4 h-4 text-white transition-transform flex-shrink-0 ${
-                      isFilterOpen ? 'rotate-180' : ''
+                    className={`w-4 h-4 text-white transition-transform shrink-0 ${
+                      isFilterOpen ? "rotate-180" : ""
                     }`}
                   />
                 </button>
@@ -71,4 +71,3 @@ export default function UserManagementPage() {
     </DashboardLayout>
   );
 }
-
