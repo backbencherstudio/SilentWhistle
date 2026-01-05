@@ -14,6 +14,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import UserProfileModal from "./modal/UserViewModal";
+import UserEditModal from "./modal/UserEditModal";
+import UserDeleteModal from "./modal/UserDeleteModal";
 
 interface UserData {
   id: string;
@@ -91,6 +93,8 @@ const headerColumns = [
 
 export const UserTable = (): React.ReactElement => {
   const [profileOpen, setProfileOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
 
   return (
@@ -189,16 +193,28 @@ export const UserTable = (): React.ReactElement => {
                       setSelectedUser(user);
                       setProfileOpen(true);
                     }}
-                    className="cursor-pointer text-white focus:bg-neutral-800"
+                    className="cursor-pointer text-white focus:bg-neutral-800 focus:text-white"
                   >
                     View
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem className="cursor-pointer text-white focus:bg-neutral-800">
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setSelectedUser(user);
+                      setEditOpen(true);
+                    }}
+                    className="cursor-pointer text-white focus:bg-neutral-800 focus:text-white"
+                  >
                     Edit
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem className="cursor-pointer text-red-400 focus:bg-neutral-800">
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setSelectedUser(user);
+                      setDeleteOpen(true);
+                    }}
+                    className="cursor-pointer text-red-400 focus:bg-neutral-800 focus:text-red-400"
+                  >
                     Delete
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -214,6 +230,9 @@ export const UserTable = (): React.ReactElement => {
         onOpenChange={setProfileOpen}
         user={selectedUser}
       />
+
+      <UserEditModal open={editOpen} onOpenChange={setEditOpen} />
+      <UserDeleteModal open={deleteOpen} onOpenChange={setDeleteOpen} />
     </>
   );
 };
