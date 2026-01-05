@@ -5,6 +5,7 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
+  DialogOverlay,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
@@ -54,7 +55,8 @@ const UserProfileModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-205 border-0 bg-[#0D0F10]/95 text-white shadow-2xl backdrop-blur-xl rounded-2xl">
+      <DialogOverlay className="bg-black/40 backdrop-blur-xs" />
+      <DialogContent className="max-w-205 border-0 bg-[#0D0F10]/95 text-white shadow-2xl rounded-2xl">
         <DialogHeader>
           <DialogTitle className="text-center text-lg font-semibold">
             User Profile
