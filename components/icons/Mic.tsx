@@ -1,20 +1,29 @@
 const Mic = () => {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
+      width="14"
+      height="14"
+      viewBox="0 0 14 14"
       fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="lucide lucide-mic-icon lucide-mic"
+      xmlns="http://www.w3.org/2000/svg"
     >
-      <path d="M12 19v3" />
-      <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-      <rect x="9" y="2" width="6" height="13" rx="3" />
+      <path
+        d="M9.91634 4.08329V6.41663C9.91634 8.02746 8.61051 9.33329 6.99967 9.33329C5.38884 9.33329 4.08301 8.02746 4.08301 6.41663V4.08329C4.08301 2.47246 5.38884 1.16663 6.99967 1.16663C8.61051 1.16663 9.91634 2.47246 9.91634 4.08329Z"
+        stroke="#4DC978"
+        strokeWidth="0.76"
+      />
+      <path
+        d="M8.5 3.5H7M8.5 5.5H7"
+        stroke="#4DC978"
+        strokeWidth="0.76"
+        strokeLinecap="round"
+      />
+      <path
+        d="M11.6663 6.41663C11.6663 8.99395 9.577 11.0833 6.99967 11.0833M6.99967 11.0833C4.42235 11.0833 2.33301 8.99395 2.33301 6.41663M6.99967 11.0833V12.8333M6.99967 12.8333H8.74967M6.99967 12.8333H5.24967"
+        stroke="#4DC978"
+        strokeWidth="0.76"
+        strokeLinecap="round"
+      />
     </svg>
   );
 };
