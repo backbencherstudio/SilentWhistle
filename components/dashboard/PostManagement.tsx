@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, Type, Mic, AlertCircle, MapPin } from "lucide-react";
+import { Search, AlertCircle, MapPin } from "lucide-react";
 import React from "react";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Badge } from "../ui/badge";
@@ -11,8 +11,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import lightbulb from "../icons/lightbulb";
 import thumbsup from "../icons/thumbsup";
+import TextIcon from "../icons/TextIcon";
+import Mic from "../icons/Mic";
+import light from "../icons/shout-categories/light";
 
 const tableHeaders = [
   { label: "Name" },
@@ -24,7 +26,7 @@ const tableHeaders = [
 
 const postTypes = [
   {
-    icon: Type,
+    icon: TextIcon,
     count: "284",
   },
   {
@@ -49,7 +51,7 @@ const userTypes = [
 ];
 
 const tags = [
-  { icon: lightbulb, count: "69" },
+  { icon: light, count: "69" },
   { icon: MapPin, count: "07" },
   { icon: thumbsup, count: "60" },
   { icon: thumbsup, count: "60" },
@@ -186,7 +188,7 @@ export const PostManagement = (): React.ReactElement => {
                       >
                         <div className="inline-flex items-center justify-center gap-1.5">
                           <div className="relative w-6.5 h-6.5 bg-gray-700 rounded-full flex items-center justify-center">
-                            <IconComponent className="w-3.5 h-3.5 text-gray-50" />
+                            <IconComponent />
                           </div>
                           <span className="text-gray-50 font-['Inter'] font-medium text-xs tracking-[0] leading-[normal]">
                             {postType.count}

@@ -20,43 +20,43 @@ const light = ({ size = 24, ...props }: IconProps) => {
       <path
         d="M3.07621 9.01656C2.82394 8.4495 2.68329 7.8186 2.68329 7.15382C2.68329 4.68478 4.62339 2.68323 7.01662 2.68323C9.40986 2.68323 11.35 4.68478 11.35 7.15382C11.35 7.8186 11.2093 8.4495 10.957 9.01656"
         stroke="#F8FAFB"
-        stroke-width="0.7"
-        stroke-linecap="round"
+        strokeWidth="0.7"
+        strokeLinecap="round"
       />
       <path
         d="M7.01666 0.349976V1.01664"
         stroke="#F8FAFB"
-        stroke-width="0.7"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="0.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
         d="M13.6833 7.0166L13.0166 7.0166"
         stroke="#F8FAFB"
-        stroke-width="0.7"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="0.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
         d="M1.01666 7.0166L0.349996 7.0166"
         stroke="#F8FAFB"
-        stroke-width="0.7"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="0.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
         d="M11.7302 2.30261L11.2588 2.77402"
         stroke="#F8FAFB"
-        stroke-width="0.7"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="0.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
         d="M2.77448 2.77429L2.30307 2.30289"
         stroke="#F8FAFB"
-        stroke-width="0.7"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="0.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );

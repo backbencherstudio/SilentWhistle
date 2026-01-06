@@ -1,13 +1,6 @@
-'use client';
+"use client";
 
-import {
-  Search,
-  ChevronDown,
-  Type,
-  Mic,
-  MoreVertical,
-  User,
-} from "lucide-react";
+import { Search, ChevronDown, MoreVertical, User } from "lucide-react";
 import React, { useState } from "react";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Badge } from "../ui/badge";
@@ -20,6 +13,9 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
+import TextIcon from "../icons/TextIcon";
+import Mic from "../icons/Mic";
+import AllContentViewModal from "./modal/AllContentViewModal";
 
 const tableData = [
   {
@@ -29,7 +25,7 @@ const tableData = [
     },
     shouts: {
       count: 2,
-      icon: Type,
+      icon: TextIcon,
       type: "text",
     },
     time: "08:30 AM",
@@ -63,7 +59,7 @@ const tableData = [
     },
     shouts: {
       count: 2,
-      icon: Type,
+      icon: TextIcon,
       type: "text",
     },
     time: "08:30 AM",
@@ -76,6 +72,7 @@ const tableData = [
 ];
 
 export const ContentManagement = (): React.ReactElement => {
+  const [contentViewModal, setContentViewModalOpen] = useState(false);
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
 
   const toggleRow = (index: number) => {
@@ -119,9 +116,9 @@ export const ContentManagement = (): React.ReactElement => {
             variant="outline"
             onClick={() => {
               // Handle Today filter
-              console.log('Today filter clicked');
+              console.log("Today filter clicked");
             }}
-            className="inline-flex items-center justify-center gap-2 p-3 h-10 bg-[#101012] rounded-lg border border-solid border-[#2c2d35] hover:bg-[#101012] hover:text-white min-w-[100px] cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 p-3 h-10 bg-[#101012] rounded-lg border border-solid border-[#2c2d35] hover:bg-[#101012] hover:text-white min-w-25 cursor-pointer"
           >
             <span className="font-['Inter'] font-normal text-white text-xs">
               Today
@@ -134,9 +131,9 @@ export const ContentManagement = (): React.ReactElement => {
             variant="outline"
             onClick={() => {
               // Handle All Types filter
-              console.log('All Types filter clicked');
+              console.log("All Types filter clicked");
             }}
-            className="inline-flex items-center justify-between gap-2 px-3 h-10 w-[148px] bg-[#101012] rounded-lg border border-solid border-[#2c2d35] hover:bg-[#101012] hover:text-white cursor-pointer"
+            className="inline-flex items-center justify-between gap-2 px-3 h-10 w-37 bg-[#101012] rounded-lg border border-solid border-[#2c2d35] hover:bg-[#101012] hover:text-white cursor-pointer"
           >
             <span className="font-['Inter'] font-normal text-white text-xs">
               All Types
@@ -175,17 +172,20 @@ export const ContentManagement = (): React.ReactElement => {
             <TableBody>
               {tableData.map((row, index) => {
                 const IconComponent = row.shouts.icon;
+                const isEven = index % 2 === 0;
                 return (
                   <TableRow
                     key={index}
-                    className="h-16 border-t border-[#212529] hover:bg-transparent cursor-pointer"
+                    className={`h-16 border-t border-[#212529] cursor-pointer ${
+                      isEven ? "bg-[#101012]" : "bg-[#141417]"
+                    } hover:bg-[#1d1d22] transition-colors`}
                     onClick={() => {
-                      // Handle row click
-                      console.log('Row clicked', index);
+                      setContentViewModalOpen(true);
+                      console.log("Row clicked", index);
                     }}
                   >
                     <TableCell className="p-0">
-                      <div className="flex items-center gap-2 px-[18px]">
+                      <div className="flex items-center gap-2 px-4.5">
                         <Avatar className="w-9 h-9 rounded-full border border-solid border-[#e6e3e3] bg-gray-700">
                           <AvatarFallback className="bg-gray-700 text-gray-300">
                             <User className="w-5 h-5" />
@@ -202,10 +202,10 @@ export const ContentManagement = (): React.ReactElement => {
                       </div>
                     </TableCell>
                     <TableCell className="p-0">
-                      <div className="flex items-center gap-2 p-2 px-[18px] rounded-lg">
+                      <div className="flex items-center gap-2 p-2 px-4.5 rounded-lg">
                         <div className="flex items-center justify-center gap-1.5">
-                          <div className="relative w-[26px] h-[26px] bg-gray-700 rounded-full flex items-center justify-center">
-                            <IconComponent className="w-3.5 h-3.5 text-gray-50" />
+                          <div className="relative w-6.5 h-6.5 bg-gray-700 rounded-full flex items-center justify-center">
+                            <IconComponent />
                           </div>
                           <div className="font-['Inter'] font-medium text-gray-50 text-xs">
                             {row.shouts.count}
@@ -217,20 +217,20 @@ export const ContentManagement = (): React.ReactElement => {
                       <Button
                         variant="ghost"
                         onClick={() => toggleRow(index)}
-                        className="flex w-[150px] items-start justify-between px-3 py-1.5 mx-[18px] bg-[#1a1a1a] rounded-lg hover:bg-[#1a1a1a] h-auto cursor-pointer"
+                        className="flex w-37.5 items-start justify-between px-3 py-1.5 mx-4.5 bg-[#1a1a1a] rounded-lg hover:bg-[#1a1a1a] h-auto cursor-pointer"
                       >
                         <span className="font-medium text-gray-50 text-sm font-['Inter']">
                           Content
                         </span>
                         <ChevronDown
                           className={`w-5 h-5 text-gray-50 transition-transform ${
-                            expandedRows.has(index) ? 'rotate-180' : ''
+                            expandedRows.has(index) ? "rotate-180" : ""
                           }`}
                         />
                       </Button>
                     </TableCell>
                     <TableCell className="p-0">
-                      <div className="flex items-start gap-1.5 px-[18px]">
+                      <div className="flex items-start gap-1.5 px-4.5">
                         <div className="font-['Inter'] font-medium text-gray-50 text-sm">
                           {row.time}
                         </div>
@@ -240,9 +240,9 @@ export const ContentManagement = (): React.ReactElement => {
                       </div>
                     </TableCell>
                     <TableCell className="p-0">
-                      <div className="px-[18px]">
+                      <div className="px-4.5">
                         <Badge
-                          className={`px-2.5 py-1.5 rounded-lg font-normal text-base whitespace-nowrap font-['Inter'] ${
+                          className={`px-2.5 py-1.5 rounded-lg font-normal text-base whitespace-nowrap font-['Inter'] border-0 ${
                             row.status.variant === "published"
                               ? "bg-[#162924] text-[#38e07b] hover:bg-[#162924]"
                               : "bg-[#3f0005] text-[#ff0012] hover:bg-[#3f0005]"
@@ -253,13 +253,13 @@ export const ContentManagement = (): React.ReactElement => {
                       </div>
                     </TableCell>
                     <TableCell className="p-0">
-                      <div className="flex justify-center px-[18px]">
+                      <div className="flex justify-center px-4.5">
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => {
                             // Handle actions menu
-                            console.log('Actions clicked for row', index);
+                            console.log("Actions clicked for row", index);
                           }}
                           className="w-6 h-6 p-0 hover:bg-transparent cursor-pointer"
                         >
@@ -274,7 +274,11 @@ export const ContentManagement = (): React.ReactElement => {
           </Table>
         </div>
       </div>
+
+      <AllContentViewModal
+        open={contentViewModal}
+        onOpenChange={setContentViewModalOpen}
+      />
     </div>
   );
 };
-
