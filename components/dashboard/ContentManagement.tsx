@@ -16,9 +16,33 @@ import {
 import TextIcon from "../icons/TextIcon";
 import Mic from "../icons/Mic";
 import AllContentViewModal from "./modal/AllContentViewModal";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import EyeIcon from "../icons/Eye";
+import EditIcon from "../icons/EditIcon";
+import DeleteIcon from "../icons/DeleteIcon";
+import UserProfileModal from "./modal/UserViewModal";
+import UserEditModal from "./modal/UserEditModal";
+import UserDeleteModal from "./modal/UserDeleteModal";
+
+interface UserData {
+  id: string;
+  avatar: string;
+  name: string;
+  username: string;
+  email: string;
+  status: "Active" | "Inactive";
+  documentCount: number;
+  joinedDate: string;
+}
 
 const tableData = [
   {
+    id: "1",
     author: {
       name: "Frank Flores",
       username: "@Ludovic_Migneault",
@@ -36,6 +60,7 @@ const tableData = [
     },
   },
   {
+    id: "2",
     author: {
       name: "Frank Flores",
       username: "@Ludovic_Migneault",
@@ -53,6 +78,7 @@ const tableData = [
     },
   },
   {
+    id: "3",
     author: {
       name: "Frank Flores",
       username: "@Ludovic_Migneault",
@@ -74,6 +100,10 @@ const tableData = [
 export const ContentManagement = (): React.ReactElement => {
   const [contentViewModal, setContentViewModalOpen] = useState(false);
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const toggleRow = (index: number) => {
     const newExpanded = new Set(expandedRows);
@@ -253,18 +283,85 @@ export const ContentManagement = (): React.ReactElement => {
                       </div>
                     </TableCell>
                     <TableCell className="p-0">
-                      <div className="flex justify-center px-4.5">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => {
-                            // Handle actions menu
-                            console.log("Actions clicked for row", index);
-                          }}
-                          className="w-6 h-6 p-0 hover:bg-transparent cursor-pointer"
-                        >
-                          <MoreVertical className="w-6 h-6 text-gray-50" />
-                        </Button>
+                      <div className="flex-1 flex items-center justify-center">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="w-6 h-6 p-0"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <MoreVertical className="w-6 h-6 text-gray-50" />
+                            </Button>
+                          </DropdownMenuTrigger>
+
+                          <DropdownMenuContent
+                            align="end"
+                            className="min-w-40 bg-neutral-900 border border-zinc-800 rounded-lg"
+                          >
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedUser({
+                                  id: row.id,
+                                  avatar: "",
+                                  name: row.author.name,
+                                  username: row.author.username,
+                                  email: "unknown",
+                                  status: "Active",
+                                  documentCount: row.shouts.count,
+                                  joinedDate: row.date,
+                                });
+
+                                setProfileOpen(true);
+                              }}
+                              className="cursor-pointer text-white focus:bg-neutral-800 focus:text-white"
+                            >
+                              <EyeIcon /> View
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedUser({
+                                  id: row.id,
+                                  avatar: "",
+                                  name: row.author.name,
+                                  username: row.author.username,
+                                  email: "unknown",
+                                  status: "Active",
+                                  documentCount: row.shouts.count,
+                                  joinedDate: row.date,
+                                });
+                                setEditOpen(true);
+                              }}
+                              className="cursor-pointer text-white focus:bg-neutral-800 focus:text-white"
+                            >
+                              <EditIcon /> Edit
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedUser({
+                                  id: row.id,
+                                  avatar: "",
+                                  name: row.author.name,
+                                  username: row.author.username,
+                                  email: "unknown",
+                                  status: "Active",
+                                  documentCount: row.shouts.count,
+                                  joinedDate: row.date,
+                                });
+                                setDeleteOpen(true);
+                              }}
+                              className="cursor-pointer text-red-400 focus:bg-neutral-800 focus:text-red-400"
+                            >
+                              <DeleteIcon stroke="#FF6A4D" /> Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -279,6 +376,15 @@ export const ContentManagement = (): React.ReactElement => {
         open={contentViewModal}
         onOpenChange={setContentViewModalOpen}
       />
+
+      <UserProfileModal
+        open={profileOpen}
+        onOpenChange={setProfileOpen}
+        user={selectedUser}
+      />
+
+      <UserEditModal open={editOpen} onOpenChange={setEditOpen} />
+      <UserDeleteModal open={deleteOpen} onOpenChange={setDeleteOpen} />
     </div>
   );
 };

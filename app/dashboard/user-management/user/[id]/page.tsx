@@ -9,19 +9,12 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { Ellipsis, EllipsisVertical, MapPin, Search } from "lucide-react";
+import { Ellipsis, MapPin, Search } from "lucide-react";
 import Image from "next/image";
 import UserDataTab from "../../_components/UserDataTab";
 
