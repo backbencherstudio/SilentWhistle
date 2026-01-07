@@ -1,14 +1,14 @@
 /**
  * Content Management Page
- * 
+ *
  * @page
  * @route /dashboard/content-management
  */
 
-'use client';
+"use client";
 
-import DashboardLayout from '@/components/common/DashboardLayout';
-import { ContentManagement } from '@/components/dashboard/ContentManagement';
+import DashboardLayout from "@/components/common/DashboardLayout";
+import { ContentManagement } from "@/components/dashboard/ContentManagement";
 
 export default function ContentManagementPage() {
   return (
@@ -19,4 +19,3 @@ export default function ContentManagementPage() {
     </DashboardLayout>
   );
 }
-
