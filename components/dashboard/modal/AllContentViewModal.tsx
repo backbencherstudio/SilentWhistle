@@ -37,7 +37,13 @@ const AllContentViewModal = ({ open, onOpenChange }: ModalProps) => {
               <p className="font-medium text-xl leading-[110%] -tracking-[1%]">
                 Just discovered an.....
               </p>
-              <Button className="bg-[#38E07B] hover:bg-[#38E07B] text-base text-[#101012]">
+              <Button
+                onClick={() => {
+                  onOpenChange(false);
+                  setTimeout(() => setPostModalOpen(true), 100);
+                }}
+                className="bg-[#38E07B] hover:bg-[#38E07B] text-base text-[#101012]"
+              >
                 View
               </Button>
             </div>

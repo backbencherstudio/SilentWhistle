@@ -27,9 +27,9 @@ const UserDeleteModal = ({ open, onOpenChange }: UserProfileModalProps) => {
             <div className="bg-[#003515] px-4 py-3.5 rounded-full w-fit">
               <DeleteIcon />
             </div>
-            <h1 className="text-lg font-medium leading-[110%]">
+            <span className="text-lg font-medium leading-[110%]">
               Delete Account
-            </h1>
+            </span>
           </DialogTitle>
         </DialogHeader>
         <div className="w-full flex flex-col items-center">
