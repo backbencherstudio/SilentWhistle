@@ -9,6 +9,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 /**
  * OTP Verification Page Component
@@ -93,26 +94,11 @@ export default function OTPVerifyPage() {
   return (
     <div className="min-h-screen bg-[#05060f] relative overflow-hidden flex items-center justify-center p-4 sm:p-6 md:p-8">
       {/* Background Ellipse 1 - Bottom Left */}
-      <div className="hidden md:block absolute left-[-97px] w-[525px] h-[525px] top-[707px] opacity-60 pointer-events-none">
-        <div className="absolute inset-[-133.33%]">
-          <img 
-            alt="" 
-            className="block max-w-none w-full h-full object-contain" 
-            src="https://www.figma.com/api/mcp/asset/7ea6ac30-6a35-48e1-91ed-0d2ea924377f" 
-          />
-        </div>
-      </div>
+      <Image src="/dashboard/bottom-light.svg" alt='bg bottm' width={1025} height={1025} className='hidden md:block absolute left-0 bottom-0 object-contain' />
+
 
       {/* Background Ellipse 2 - Top Right */}
-      <div className="hidden md:block absolute right-[-108px] w-[434px] h-[434px] top-[-108px] opacity-60 pointer-events-none">
-        <div className="absolute inset-[-161.29%]">
-          <img 
-            alt="" 
-            className="block max-w-none w-full h-full object-contain" 
-            src="https://www.figma.com/api/mcp/asset/9b049881-d08e-4bc9-bda4-39ea741e6d49" 
-          />
-        </div>
-      </div>
+      <Image src="/dashboard/top-light.svg" alt='bg top' width={1025} height={1025} className='hidden md:block absolute right-0 top-0 object-contain' />
 
       {/* OTP Verification Card */}
       <div className="relative z-10 w-full max-w-[368px] bg-[#101012] rounded-[24px] p-6 sm:p-7 md:p-8">
@@ -152,11 +138,10 @@ export default function OTPVerifyPage() {
                       inputRefs.current[index]?.select();
                     }}
                     onBlur={() => setFocusedIndex(null)}
-                    className={`bg-[rgba(8,14,30,0.6)] border rounded-[40px] w-12 h-12 text-center text-white text-xl font-medium font-['Inter'] focus:outline-none transition-colors ${
-                      isFocused || hasValue
-                        ? 'border-[#00c27a]'
-                        : 'border-[rgba(255,255,255,0.05)]'
-                    }`}
+                    className={`bg-[rgba(8,14,30,0.6)] border rounded-[40px] w-12 h-12 text-center text-white text-xl font-medium font-['Inter'] focus:outline-none transition-colors ${isFocused || hasValue
+                      ? 'border-[#00c27a]'
+                      : 'border-[rgba(255,255,255,0.05)]'
+                      }`}
                   />
                 );
               })}

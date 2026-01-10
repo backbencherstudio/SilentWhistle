@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Sidebar Component
  *
@@ -16,7 +17,7 @@
 
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { UserService } from "@/service/user/user.service";
 import { LogOut, ChevronLeft, ChevronRight } from "lucide-react";
@@ -32,6 +33,8 @@ import { svg as settingIcon } from "@/components/icons/settingicon";
 import { svg as reportsIcon } from "@/components/icons/reportsicon";
 import FinanceAndPaymentIcon from "../icons/FinanceAndPaymentIcon";
 import NotificationIcon2 from "../icons/NotificationIcon2";
+import { useAdminLogoutMutation } from "@/redux/features/auth/auth.api";
+import { showDashboardToast } from "../ui/CustomToast";
 
 /**
  * Navigation item interface
@@ -63,7 +66,7 @@ interface SidebarProps {
  *
  * Main sidebar navigation component with logo, menu items, and logout button
  */
-const Sidebar: React.FC<SidebarProps> = ({
+const Sidebar: FC<SidebarProps> = ({
   isOpen,
   onClose,
   isCollapsed = false,
@@ -72,6 +75,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const pathname = usePathname();
   const router = useRouter();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [adminLogout, { isLoading: isLogoutLoading }] = useAdminLogoutMutation()
 
   /**
    * Effect hook to prevent body scrolling when sidebar is open on mobile
@@ -139,19 +143,30 @@ const Sidebar: React.FC<SidebarProps> = ({
    * Handles user logout confirmation
    * Clears authentication tokens and redirects to login page
    */
-  const handleLogoutConfirm = () => {
+  const handleLogoutConfirm = async () => {
     // Close the modal
     setShowLogoutModal(false);
 
-    // Clear the authentication token
-    UserService.logout();
+    try {
+      await adminLogout().unwrap();
 
-    // Clear any other local storage data if exists
-    localStorage.clear();
-    sessionStorage.clear();
+      showDashboardToast({
+        variant: "success",
+        title: "Logged Out",
+        description: "You have been logged out successfully.",
+      });
+    } catch (error: any) {
+      showDashboardToast({
+        variant: "error",
+        title: "Logout Failed",
+        description: error?.data?.message || "Something went wrong. Try again.",
+      });
+    } finally {
+      UserService.clearTokens()
+      router.push("/login");
+    }
 
     // Redirect to login page
-    router.push("/login");
   };
 
   /**
@@ -222,11 +237,10 @@ const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Main sidebar container */}
       <div
-        className={`${
-          isOpen
-            ? "inset-0 z-50 h-[90vh] overflow-hidden bg-black relative "
-            : "h-screen bg-black"
-        } 
+        className={`${isOpen
+          ? "inset-0 z-50 h-[90vh] overflow-hidden bg-black relative "
+          : "h-screen bg-black"
+          } 
         flex flex-col justify-between border-r border-[#262626] transition-all duration-300 ease-in-out
         ${isCollapsed ? "w-20" : "w-64 lg:w-72"}
       `}
@@ -236,9 +250,8 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div className="flex flex-col flex-1">
           {/* Logo section with toggle button */}
           <div
-            className={`p-6 flex items-center ${
-              isCollapsed ? "justify-center flex-col gap-4" : "justify-between"
-            }`}
+            className={`p-6 flex items-center ${isCollapsed ? "justify-center flex-col gap-4" : "justify-between"
+              }`}
           >
             {!isCollapsed && (
               <div className="flex items-center gap-3">
@@ -255,9 +268,8 @@ const Sidebar: React.FC<SidebarProps> = ({
             {onToggleCollapse && (
               <button
                 onClick={onToggleCollapse}
-                className={`hidden md:flex items-center justify-center w-8 h-8 rounded-lg bg-[#181818] hover:bg-[#1f1f1f] text-white transition-all duration-200 ${
-                  isCollapsed ? "" : "ml-auto"
-                }`}
+                className={`hidden md:flex items-center justify-center w-8 h-8 rounded-lg bg-[#181818] hover:bg-[#1f1f1f] text-white transition-all duration-200 ${isCollapsed ? "" : "ml-auto"
+                  }`}
                 aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
               >
                 {isCollapsed ? (
@@ -280,7 +292,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <div
                     key={index}
                     onClick={() => handleNavigation(item.href)}
-                    className="self-stretch h-[52px] relative group cursor-pointer"
+                    className="self-stretch h-13 relative group cursor-pointer"
                     role="button"
                     tabIndex={0}
                     aria-label={`Navigate to ${item.label}`}
@@ -288,28 +300,23 @@ const Sidebar: React.FC<SidebarProps> = ({
                   >
                     {/* Menu item content */}
                     <div
-                      className={`w-full ${
-                        isCollapsed ? "px-0 justify-center" : "px-4"
-                      } py-4 relative rounded-lg inline-flex ${
-                        isCollapsed ? "justify-center" : "justify-start"
-                      } items-center gap-3
+                      className={`w-full ${isCollapsed ? "px-0 justify-center" : "px-4"
+                        } py-4 relative rounded-lg inline-flex ${isCollapsed ? "justify-center" : "justify-start"
+                        } items-center gap-3
                          transition-all duration-300 ease-in-out
                          ${active ? "bg-[#181818]" : "group-hover:bg-[#181818]"}
                        `}
                     >
                       {/* Icon and text container */}
                       <div
-                        className={`inline-flex ${
-                          isCollapsed ? "justify-center" : "justify-start"
-                        } items-center gap-3 transition-all duration-300 ease-in-out ${
-                          active && !isCollapsed ? "ml-[10px]" : ""
-                        }`}
+                        className={`inline-flex ${isCollapsed ? "justify-center" : "justify-start"
+                          } items-center gap-3 transition-all duration-300 ease-in-out ${active && !isCollapsed ? "ml-2.5" : ""
+                          }`}
                       >
                         {/* Navigation icon */}
                         <div
-                          className={`w-[18px] h-[18px] flex items-center justify-center transition-transform duration-300 ease-in-out ${
-                            active ? "scale-110" : "group-hover:scale-110"
-                          }`}
+                          className={`w-4.5 h-4.5 flex items-center justify-center transition-transform duration-300 ease-in-out ${active ? "scale-110" : "group-hover:scale-110"
+                            }`}
                         >
                           <div className="[&_svg_path]:stroke-white [&_svg_circle]:stroke-white">
                             <IconComponent size={18} />
@@ -318,11 +325,10 @@ const Sidebar: React.FC<SidebarProps> = ({
                         {/* Navigation label - hidden when collapsed */}
                         {!isCollapsed && (
                           <div
-                            className={`text-center justify-start leading-tight tracking-tight whitespace-nowrap ${
-                              active
-                                ? "text-sm font-medium text-white"
-                                : "text-sm font-medium text-white"
-                            }`}
+                            className={`text-center justify-start leading-tight tracking-tight whitespace-nowrap ${active
+                              ? "text-sm font-medium text-white"
+                              : "text-sm font-medium text-white"
+                              }`}
                             style={{ fontFamily: "var(--font-inter)" }}
                           >
                             {item.label}
@@ -356,7 +362,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div className={`${isCollapsed ? "px-0" : "px-4"} pb-4 md:pb-8`}>
           <div
             onClick={handleLogoutClick}
-            className="self-stretch h-[52px] relative cursor-pointer"
+            className="self-stretch h-13 relative cursor-pointer"
             role="button"
             tabIndex={0}
             aria-label="Logout"
@@ -364,21 +370,18 @@ const Sidebar: React.FC<SidebarProps> = ({
           >
             {/* Logout button content */}
             <div
-              className={`w-full ${
-                isCollapsed ? "px-0 justify-center" : "px-4"
-              } py-4 relative rounded-lg inline-flex ${
-                isCollapsed ? "justify-center" : "justify-start"
-              } items-center gap-3 bg-[#181818] hover:bg-[#181818] transition-all duration-300 ease-in-out`}
+              className={`w-full ${isCollapsed ? "px-0 justify-center" : "px-4"
+                } py-4 relative rounded-lg inline-flex ${isCollapsed ? "justify-center" : "justify-start"
+                } items-center gap-3 bg-[#181818] hover:bg-[#181818] transition-all duration-300 ease-in-out`}
             >
               {/* Icon and text container */}
               <div
-                className={`inline-flex ${
-                  isCollapsed ? "justify-center" : "justify-start"
-                } items-center gap-3`}
+                className={`inline-flex ${isCollapsed ? "justify-center" : "justify-start"
+                  } items-center gap-3`}
               >
                 {/* Logout icon */}
-                <div className="w-[18px] h-[18px] flex items-center justify-center transition-transform duration-300 ease-in-out hover:scale-110">
-                  <LogOut className="w-[18px] h-[18px] text-white" />
+                <div className="w-4.5 h-4.5 flex items-center justify-center transition-transform duration-300 ease-in-out hover:scale-110">
+                  <LogOut className="w-4.5 h-4.5 text-white" />
                 </div>
                 {/* Logout text - hidden when collapsed */}
                 {!isCollapsed && (
@@ -400,6 +403,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         isOpen={showLogoutModal}
         onClose={() => setShowLogoutModal(false)}
         onConfirm={handleLogoutConfirm}
+        isLoading={isLogoutLoading}
       />
     </>
   );

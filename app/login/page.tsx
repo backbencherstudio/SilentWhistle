@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Login Page
  * 
@@ -7,10 +8,13 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff } from 'lucide-react';
 import { UserService } from '@/service/user/user.service';
+import Image from 'next/image';
+import { useAdminLoginMutation } from '@/redux/features/auth/auth.api';
+import { showDashboardToast } from '@/components/ui/CustomToast';
 
 /**
  * Login Page Component
@@ -22,24 +26,37 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [loginAsAdmin, { isLoading }] = useAdminLoginMutation()
 
-  // Redirect to dashboard if already authenticated
-  useEffect(() => {
-    if (UserService.isAuthenticated()) {
-      router.push('/dashboard');
-    }
-  }, [router]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    // Accept any email/password for now - verification will be added later
-    if (email && password) {
-      // Set authentication token (using a simple token for now)
-      // TODO: Replace with actual token from API response
-      UserService.setAuthToken('authenticated');
-      console.log('Login attempt:', { email, password });
-      // Navigate to dashboard after successful login
-      router.push('/dashboard');
+    if (!email || !password) {
+      showDashboardToast({
+        variant: "error",
+        title: "Missing Credentials",
+        description: "Email and password are required."
+      });
+      return;
+    }
+    try {
+      const res = await loginAsAdmin({ email, password }).unwrap();
+      UserService.setTokens(res.authorization.access_token, res.authorization.refresh_token);
+
+      showDashboardToast({
+        variant: "success",
+        title: "Login Successful",
+        description: "Welcome back!"
+      });
+
+      router.push("/dashboard");
+    } catch (error: any) {
+      showDashboardToast({
+        variant: "error",
+        title: "Login Failed",
+        description: error?.data?.message || "Invalid credentials. Try again.",
+      });
     }
   };
 
@@ -50,29 +67,15 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[#05060f] relative overflow-hidden flex items-center justify-center p-4 sm:p-6 md:p-8">
       {/* Background Ellipse 1 - Bottom Left */}
-      <div className="hidden md:block absolute left-[-97px] w-[525px] h-[525px] top-[707px] opacity-60 pointer-events-none">
-        <div className="absolute inset-[-133.33%]">
-          <img 
-            alt="" 
-            className="block max-w-none w-full h-full object-contain" 
-            src="https://www.figma.com/api/mcp/asset/5a9eed22-57ef-4e3a-a32e-31be52eaeba5" 
-          />
-        </div>
-      </div>
+
+      <Image src="/dashboard/bottom-light.svg" alt='bg bottm' width={1025} height={1025} className='hidden md:block absolute left-0 bottom-0 object-contain' />
+
 
       {/* Background Ellipse 2 - Top Right */}
-      <div className="hidden md:block absolute right-[-108px] w-[434px] h-[434px] top-[-108px] opacity-60 pointer-events-none">
-        <div className="absolute inset-[-161.29%]">
-          <img 
-            alt="" 
-            className="block max-w-none w-full h-full object-contain" 
-            src="https://www.figma.com/api/mcp/asset/4b22f9bc-b738-4e28-b8cd-c2691181c921" 
-          />
-        </div>
-      </div>
+      <Image src="/dashboard/top-light.svg" alt='bg top' width={1025} height={1025} className='hidden md:block absolute right-0 top-0 object-contain' />
 
       {/* Login Card */}
-      <div className="relative z-10 w-full max-w-[584px] bg-[#101012] rounded-[24px] p-6 sm:p-7 md:p-8">
+      <div className="relative z-10 w-full max-w-146 bg-[#101012] rounded-[24px] p-6 sm:p-7 md:p-8">
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           {/* Header */}
           <div className="flex flex-col gap-4 items-center text-center w-full">
@@ -87,14 +90,14 @@ export default function LoginPage() {
           {/* Form Fields */}
           <div className="flex flex-col gap-6 w-full">
             {/* Email Field */}
-            <div className="flex flex-col gap-[7px] w-full">
-              <label 
-                htmlFor="email" 
+            <div className="flex flex-col gap-1.75 w-full">
+              <label
+                htmlFor="email"
                 className="text-[#b2b5b8] text-base font-normal font-['Inter'] leading-[1.6] tracking-[0.08px]"
               >
                 Email
               </label>
-              <div className="border border-[#1d1f2c] rounded-[48px] h-14 px-[18px] py-4 flex items-center bg-[#101012]">
+              <div className="border border-[#1d1f2c] rounded-[48px] h-14 px-4.5 py-4 flex items-center bg-[#101012]">
                 <input
                   id="email"
                   type="email"
@@ -107,14 +110,14 @@ export default function LoginPage() {
             </div>
 
             {/* Password Field */}
-            <div className="flex flex-col gap-[7px] w-full">
-              <label 
-                htmlFor="password" 
+            <div className="flex flex-col gap-1.75 w-full">
+              <label
+                htmlFor="password"
                 className="text-[#b2b5b8] text-base font-normal font-['Inter'] leading-[1.6] tracking-[0.08px]"
               >
                 Password
               </label>
-              <div className="border border-white rounded-[48px] h-14 px-[18px] py-4 flex items-center justify-between bg-[#101012]">
+              <div className="border border-white rounded-[48px] h-14 px-4.5 py-4 flex items-center justify-between bg-[#101012]">
                 <input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
@@ -143,7 +146,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={handleForgotPassword}
-                className="text-white text-base font-normal font-['Inter'] leading-[1.6] tracking-[0.08px] hover:opacity-70 transition-opacity text-right"
+                className="text-white text-base font-normal font-['Inter'] leading-[1.6] tracking-[0.08px] hover:opacity-70 transition-opacity text-right cursor-pointer"
               >
                 Forgot Password?
               </button>
@@ -152,10 +155,10 @@ export default function LoginPage() {
             {/* Login Button */}
             <button
               type="submit"
-              className="bg-[#38e07b] rounded-[48px] h-14 px-[18px] py-4 flex items-center justify-center gap-2.5 hover:opacity-90 transition-opacity"
+              className="bg-[#38e07b] rounded-[48px] h-14 px-4.5 py-4 flex items-center justify-center gap-2.5 hover:opacity-90 transition-opacity cursor-pointer"
             >
               <span className="text-[#1d1f2c] text-lg font-medium font-['Inter'] leading-[1.6]">
-                Login
+                {isLoading ? "Logging in..." : "Login"}
               </span>
             </button>
           </div>
