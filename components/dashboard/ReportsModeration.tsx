@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronDown, User } from "lucide-react";
+import { User } from "lucide-react";
 import React, { useState } from "react";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Badge } from "../ui/badge";
@@ -18,101 +18,67 @@ import ReviewReportModal from "./modal/ReviewReportModal";
 import WarningModal from "./modal/WarningModal";
 import DeleteIcon from "../icons/DeleteIcon";
 import UserDeleteModal from "./modal/UserDeleteModal";
-
-const kpiCards = [
-  {
-    title: "Pending Reports",
-    value: "24",
-  },
-  {
-    title: "In Review",
-    value: "15",
-  },
-  {
-    title: "Resolved Today",
-    value: "1",
-  },
-  {
-    title: "High Severity",
-    value: "1",
-  },
-];
-
-const tableData = [
-  {
-    reportId: {
-      name: "Frank Flores",
-      username: "@Ludovic_Migneault",
-    },
-    time: "08:30 AM",
-    date: "2025-10-28",
-    reason: "Spam_User",
-    status: {
-      label: "Pending",
-      variant: "pending",
-    },
-    reportedUser: {
-      name: "Flores",
-      username: "@Migneault",
-    },
-  },
-  {
-    reportId: {
-      name: "Frank Flores",
-      username: "@Ludovic_Migneault",
-    },
-    time: "08:30 AM",
-    date: "2025-10-28",
-    reason: "Spam_User",
-    status: {
-      label: "Resolved",
-      variant: "resolved",
-    },
-    reportedUser: {
-      name: "Flores",
-      username: "@Migneault",
-    },
-  },
-  {
-    reportId: {
-      name: "Frank Flores",
-      username: "@Ludovic_Migneault",
-    },
-    time: "08:30 AM",
-    date: "2025-10-28",
-    reason: "Spam_User",
-    status: {
-      label: "High Severity",
-      variant: "high-severity",
-    },
-    reportedUser: {
-      name: "Flores",
-      username: "@Migneault",
-    },
-  },
-  {
-    reportId: {
-      name: "Frank Flores",
-      username: "@Ludovic_Migneault",
-    },
-    time: "08:30 AM",
-    date: "2025-10-28",
-    reason: "Spam_User",
-    status: {
-      label: "Review",
-      variant: "review",
-    },
-    reportedUser: {
-      name: "Flores",
-      username: "@Migneault",
-    },
-  },
-];
+import { useGetAllReportsQuery, useGetReportAnalyticsQuery } from "@/redux/features/reports-moderation/reports-moderation.api";
+import { Skeleton } from "../ui/skeleton";
+import TablePagination from "../common/TablePagination";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 export const ReportsModeration = (): React.ReactElement => {
   const [contentViewModal, setContentViewModalOpen] = useState(false);
   const [warningModalOpen, setWarningModalOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+
+
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [type, setType] = useState<string | undefined>(undefined);
+
+
+  const { data, isLoading } = useGetReportAnalyticsQuery();
+  const { data: allData, isLoading: allReportsLoading, isFetching, refetch } = useGetAllReportsQuery({ page, limit, type });
+
+  const allReports = allData?.data;
+  const meta = allData?.meta;
+
+  const kpiCards = [
+    {
+      title: "Pending Reports",
+      value: data?.pendingReports,
+    },
+    {
+      title: "In Review",
+      value: data?.inReview,
+    },
+    {
+      title: "Resolved Today",
+      value: data?.resolvedToday,
+    },
+    {
+      title: "High Severity",
+      value: data?.highSeverity,
+    },
+  ];
+
+  const formatDateTime = (isoString?: string) => {
+    if (!isoString) return { date: "-", time: "-" };
+
+    const dateObj = new Date(isoString);
+
+    const date = dateObj.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+    });
+
+    const time = dateObj.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+
+    return { date, time };
+  };
+
 
   return (
     <div className="w-full">
@@ -131,38 +97,61 @@ export const ReportsModeration = (): React.ReactElement => {
         {/* Filter Section */}
         <div className="flex items-center gap-4 shrink-0 w-full lg:w-auto">
           {/* All Types Filter */}
-          <div className="h-10 bg-neutral-900 rounded-lg outline-1 -outline-offset-1 outline-zinc-800 overflow-hidden relative min-w-36">
-            <button
-              onClick={() => {
-                // Handle filter
-                console.log('All Types filter clicked');
-              }}
-              className="w-full h-full inline-flex justify-between items-center gap-2 px-3 cursor-pointer"
+          <Select
+            value={type ?? "ALL"}
+            onValueChange={(value) => {
+              setPage(1);
+              setType(value === "ALL" ? undefined : value);
+            }}
+          >
+            <SelectTrigger
+              className="h-10 min-w-36 bg-neutral-900 border border-zinc-800 rounded-lg text-white text-xs font-['Inter'] focus:ring-0"
             >
-              <div className="text-white text-xs font-normal font-['Inter']">
-                All Types
-              </div>
-              <ChevronDown className="w-4 h-4 text-white shrink-0" />
-            </button>
-          </div>
+              <SelectValue>
+                {type ? type : "All Types"}
+              </SelectValue>
+            </SelectTrigger>
+
+            <SelectContent className="bg-neutral-900 border border-zinc-800 text-white">
+              <SelectItem value="ALL">All Types</SelectItem>
+              <SelectItem value="USER">USER</SelectItem>
+              <SelectItem value="SHOUT">SHOUT</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
       {/* KPI Cards Section */}
       <div className="flex w-full items-stretch gap-3 mb-6">
-        {kpiCards.map((card, index) => (
-          <Card key={index} className="flex-1 flex flex-col bg-[#101012] rounded-2xl border-0">
+        {(isLoading ? Array(4).fill(null) : kpiCards).map((card, index) => (
+          <Card
+            key={index}
+            className="flex-1 flex flex-col bg-[#101012] rounded-2xl border-0"
+          >
             <CardContent className="flex flex-col items-start gap-4 px-3.5 py-4 flex-1">
-              <div className="relative self-stretch font-['Inter'] font-normal text-gray-400 text-base tracking-[0] leading-[17.6px]">
-                {card.title}
-              </div>
-              <div className="relative self-stretch font-['Inter'] font-semibold text-white text-2xl tracking-[0] leading-[38.4px]">
-                {card.value}
-              </div>
+              {isLoading ? (
+                <>
+                  {/* Title Skeleton */}
+                  <Skeleton className="h-4 w-28 rounded-md bg-neutral-700" />
+
+                  {/* Value Skeleton */}
+                  <Skeleton className="h-8 w-20 rounded-md bg-neutral-600" />
+                </>
+              ) : (
+                <>
+                  <div className="font-['Inter'] font-normal text-gray-400 text-base">
+                    {card.title}
+                  </div>
+                  <div className="font-['Inter'] font-semibold text-white text-2xl">
+                    {card.value}
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
         ))}
       </div>
+
 
       {/* Table Section */}
       <div className="w-full overflow-x-auto">
@@ -191,7 +180,13 @@ export const ReportsModeration = (): React.ReactElement => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {tableData.map((row, index) => (
+              {allReportsLoading ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="h-24 text-center">
+                    <Skeleton className="h-6 w-40 mx-auto bg-neutral-700" />
+                  </TableCell>
+                </TableRow>
+              ) : allReports && allReports.length > 0 ? allReports?.map((row, index) => (
                 <TableRow
                   key={index}
                   className="h-16 border-t border-[#212529] hover:bg-transparent cursor-pointer"
@@ -210,10 +205,10 @@ export const ReportsModeration = (): React.ReactElement => {
                       </Avatar>
                       <div className="flex flex-col gap-1">
                         <div className="font-medium text-white text-sm font-['Inter']">
-                          {row.reportId.name}
+                          {row?.reporter?.name}
                         </div>
                         <div className="font-['Inter'] font-normal text-gray-400 text-xs">
-                          {row.reportId.username}
+                          {row?.reporter?.username}
                         </div>
                       </div>
                     </div>
@@ -221,21 +216,27 @@ export const ReportsModeration = (): React.ReactElement => {
 
                   {/* Time & Date Column */}
                   <TableCell className="p-0">
-                    <div className="flex items-start gap-1.5 px-4.5">
-                      <div className="font-['Inter'] font-medium text-gray-50 text-sm">
-                        {row.time}
-                      </div>
-                      <div className="font-['Inter'] font-medium text-gray-50 text-sm">
-                        {row.date}
-                      </div>
-                    </div>
+                    {(() => {
+                      const { date, time } = formatDateTime(row?.date);
+                      return (
+                        <div className="flex items-center gap-2">
+                          <div className="font-['Inter'] font-medium text-gray-50 text-sm">
+                            {time}
+                          </div>
+                          <div className="font-['Inter'] font-medium text-gray-50 text-sm">
+                            {date}
+                          </div>
+                        </div>
+                      );
+                    })()}
+
                   </TableCell>
 
                   {/* Reason Column */}
                   <TableCell className="p-0">
                     <div className="px-4.5">
                       <div className="font-['Inter'] font-medium text-gray-50 text-sm">
-                        {row.reason}
+                        {row?.reason}
                       </div>
                     </div>
                   </TableCell>
@@ -244,16 +245,16 @@ export const ReportsModeration = (): React.ReactElement => {
                   <TableCell className="p-0">
                     <div className="px-4.5">
                       <Badge
-                        className={`px-2.5 py-1.5 rounded-lg font-normal text-base whitespace-nowrap font-['Inter'] border-none ${row.status.variant === "pending"
+                        className={`px-2.5 py-1.5 rounded-lg font-normal text-base whitespace-nowrap font-['Inter'] border-none ${row?.status === "PENDING"
                           ? "bg-[#162924] text-[#38e07b] hover:bg-[#162924]"
-                          : row.status.variant === "resolved"
+                          : row?.status === "RESOLVED"
                             ? "bg-[#162924] text-[#38e07b] hover:bg-[#162924]"
-                            : row.status.variant === "high-severity"
+                            : row?.status === "HIGH_SEVERITY"
                               ? "bg-[#3f0005] text-[#ff0012] hover:bg-[#3f0005]"
                               : "bg-[#162924] text-[#38e07b] hover:bg-[#162924]"
                           }`}
                       >
-                        {row.status.label}
+                        {row?.status}
                       </Badge>
                     </div>
                   </TableCell>
@@ -268,10 +269,10 @@ export const ReportsModeration = (): React.ReactElement => {
                       </Avatar>
                       <div className="flex flex-col gap-1">
                         <div className="font-medium text-white text-sm font-['Inter']">
-                          {row.reportedUser.name}
+                          {row?.reportedEntity?.name}
                         </div>
                         <div className="font-['Inter'] font-normal text-gray-400 text-xs">
-                          {row.reportedUser.username}
+                          {row?.reportedEntity.username}
                         </div>
                       </div>
                     </div>
@@ -305,11 +306,36 @@ export const ReportsModeration = (): React.ReactElement => {
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
+              )) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={6}
+                    className="h-24 text-center text-gray-400 text-sm font-['Inter']"
+                  >
+                    No reports found
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </div>
       </div>
+
+      {meta && meta.totalPages > 10 && (
+        <div className="flex justify-center">
+          <TablePagination
+            page={page}
+            totalPages={meta?.totalPages ?? 1}
+            onPageChange={setPage}
+            pageSize={limit}
+            onPageSizeChange={setLimit}
+            showRefresh
+            onRefresh={!allReportsLoading ? refetch : undefined}
+            isFetching={isFetching}
+          />
+        </div>
+      )}
+
       <WarningModal
         open={warningModalOpen}
         onOpenChange={setWarningModalOpen}

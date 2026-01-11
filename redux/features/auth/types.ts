@@ -30,3 +30,36 @@ export interface IForgotPasswordResponse {
   statusCode: number;
   message: string;
 }
+
+export interface IVerifyOtpPayload {
+  email: string;
+  otp: string;
+}
+
+export interface IVerifyOtpResponse {
+  success: boolean;
+  statusCode: number;
+  message: string;
+}
+
+export interface IResendVerificationPayload {
+  email: string;
+}
+
+export interface IResendVerificationResponse {
+	success: boolean,
+	statusCode: number,
+	message: string
+}
+
+export interface IResetPasswordPayload {
+  email: string;
+  otp: string;
+  new_password:string
+}
+
+export interface IResetPasswordResponse {
+	success: boolean,
+	statusCode: number,
+	message: string
+}
