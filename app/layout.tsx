@@ -13,6 +13,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import ReduxProvider from "@/providers/ReduxProvider";
+import { Toaster } from "sonner";
 
 // Configure Inter font with all available weights
 const inter = Inter({
@@ -43,7 +45,10 @@ export default function RootLayout({
       <body
         className={`${inter.variable} font-inter antialiased`}
       >
-        {children}
+        <ReduxProvider>
+          {children}
+          <Toaster />
+        </ReduxProvider>
       </body>
     </html>
   );

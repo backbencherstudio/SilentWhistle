@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Forgot Password Page
  * 
@@ -9,6 +10,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { useForgotPasswordMutation } from '@/redux/features/auth/auth.api';
+import { showDashboardToast } from '@/components/ui/CustomToast';
 
 /**
  * Forgot Password Page Component
@@ -18,43 +22,56 @@ import { useRouter } from 'next/navigation';
 export default function ForgotPasswordPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
+  const [forgotPassword, { isLoading }] = useForgotPasswordMutation()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) {
-      // Store email for OTP verification page
-      sessionStorage.setItem('resetEmail', email);
-      // Navigate to OTP verification
-      router.push('/login/otp-verify');
+
+    if (!email) {
+      showDashboardToast({
+        variant: "error",
+        title: "Email Required",
+        description: "Please enter your email to continue.",
+      });
+      return;
     }
+
+    try {
+      const res = await forgotPassword({ email }).unwrap();
+
+      showDashboardToast({
+        variant: "success",
+        title: "OTP Sent",
+        description: res.message || "An OTP has been sent to your email.",
+      });
+
+      sessionStorage.setItem("resetEmail", email);
+
+
+      setTimeout(() => {
+        router.push("/login/otp-verify");
+      }, 400);
+
+    } catch (error: any) {
+      showDashboardToast({
+        variant: "error",
+        title: "Request Failed",
+        description: error?.data?.message || "Something went wrong. Try again.",
+      });
+
+    }
+    router.push('/login/otp-verify');
   };
 
   return (
     <div className="min-h-screen bg-[#05060f] relative overflow-hidden flex items-center justify-center p-4 sm:p-6 md:p-8">
-      {/* Background Ellipse 1 - Bottom Left */}
-      <div className="hidden md:block absolute left-[-97px] w-[525px] h-[525px] top-[707px] opacity-60 pointer-events-none">
-        <div className="absolute inset-[-133.33%]">
-          <img 
-            alt="" 
-            className="block max-w-none w-full h-full object-contain" 
-            src="https://www.figma.com/api/mcp/asset/67cc15b8-8b07-4aee-b6fb-25e1009a5cc1" 
-          />
-        </div>
-      </div>
+      <Image src="/dashboard/bottom-light.svg" alt='bg bottm' width={1025} height={1025} className='hidden md:block absolute left-0 bottom-0 object-contain' />
+
 
       {/* Background Ellipse 2 - Top Right */}
-      <div className="hidden md:block absolute right-[-108px] w-[434px] h-[434px] top-[-108px] opacity-60 pointer-events-none">
-        <div className="absolute inset-[-161.29%]">
-          <img 
-            alt="" 
-            className="block max-w-none w-full h-full object-contain" 
-            src="https://www.figma.com/api/mcp/asset/88a4934f-2cf1-4902-b642-36304ad01f6f" 
-          />
-        </div>
-      </div>
-
+      <Image src="/dashboard/top-light.svg" alt='bg top' width={1025} height={1025} className='hidden md:block absolute right-0 top-0 object-contain' />
       {/* Forgot Password Card */}
-      <div className="relative z-10 w-full max-w-[584px] bg-[#101012] rounded-[24px] p-6 sm:p-7 md:p-8">
+      <div className="relative z-10 w-full max-w-146 bg-[#101012] rounded-[24px] p-6 sm:p-7 md:p-8">
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           {/* Header */}
           <div className="flex flex-col gap-0 w-full">
@@ -66,14 +83,14 @@ export default function ForgotPasswordPage() {
           {/* Form Fields */}
           <div className="flex flex-col gap-6 w-full">
             {/* Email Field */}
-            <div className="flex flex-col gap-[7px] w-full">
-              <label 
-                htmlFor="email" 
+            <div className="flex flex-col gap-1.75 w-full">
+              <label
+                htmlFor="email"
                 className="text-[#b2b5b8] text-base font-normal font-['Inter'] leading-[1.6] tracking-[0.08px]"
               >
                 Email
               </label>
-              <div className="border border-[#1d1f2c] rounded-[48px] h-14 px-[18px] py-4 flex items-center bg-[#101012]">
+              <div className="border border-[#1d1f2c] rounded-[48px] h-14 px-4.5 py-4 flex items-center bg-[#101012]">
                 <input
                   id="email"
                   type="email"
@@ -89,10 +106,10 @@ export default function ForgotPasswordPage() {
             {/* Send Button */}
             <button
               type="submit"
-              className="bg-[#38e07b] rounded-[48px] h-14 px-[18px] py-4 flex items-center justify-center gap-2.5 hover:opacity-90 transition-opacity"
+              className="bg-[#38e07b] rounded-[48px] h-14 px-4.5 py-4 flex items-center justify-center gap-2.5 hover:opacity-90 transition-opacity"
             >
               <span className="text-[#1d1f2c] text-lg font-medium font-['Inter'] leading-[1.6]">
-                Send
+                {isLoading ? "Sending..." : "Send"}
               </span>
             </button>
           </div>

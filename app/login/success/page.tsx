@@ -9,6 +9,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 /**
  * Password Reset Success Page Component
@@ -31,26 +32,11 @@ export default function SuccessPage() {
   return (
     <div className="min-h-screen bg-[#05060f] relative overflow-hidden flex items-center justify-center p-4 sm:p-6 md:p-8">
       {/* Background Ellipse 1 - Bottom Left */}
-      <div className="hidden md:block absolute left-[-97px] w-[525px] h-[525px] top-[707px] opacity-60 pointer-events-none">
-        <div className="absolute inset-[-133.33%]">
-          <img 
-            alt="" 
-            className="block max-w-none w-full h-full object-contain" 
-            src="https://www.figma.com/api/mcp/asset/681597a3-efb1-4d6d-9ef4-8ddf2b8556a8" 
-          />
-        </div>
-      </div>
+      <Image src="/dashboard/bottom-light.svg" alt='bg bottm' width={1025} height={1025} className='hidden md:block absolute left-0 bottom-0 object-contain' />
+
 
       {/* Background Ellipse 2 - Top Right */}
-      <div className="hidden md:block absolute right-[-108px] w-[434px] h-[434px] top-[-108px] opacity-60 pointer-events-none">
-        <div className="absolute inset-[-161.29%]">
-          <img 
-            alt="" 
-            className="block max-w-none w-full h-full object-contain" 
-            src="https://www.figma.com/api/mcp/asset/7d3d5c4a-01ab-44b4-b050-be8539c35942" 
-          />
-        </div>
-      </div>
+      <Image src="/dashboard/top-light.svg" alt='bg top' width={1025} height={1025} className='hidden md:block absolute right-0 top-0 object-contain' />
 
       {/* Success Modal */}
       {showModal && (

@@ -1,56 +1,55 @@
-/**
- * OTP Verification Page
- * 
- * @page
- * @route /login/otp-verify
- */
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+// import Image from 'next/image';
+import { useResendVerficationMutation, useVerifyOtpMutation } from '@/redux/features/auth/auth.api';
+import { showDashboardToast } from '@/components/ui/CustomToast';
 
-/**
- * OTP Verification Page Component
- * 
- * Allows users to enter 4-digit OTP code
- */
 export default function OTPVerifyPage() {
   const router = useRouter();
-  const [otp, setOtp] = useState(['', '', '', '']);
-  const [email, setEmail] = useState('');
-  const [focusedIndex, setFocusedIndex] = useState<number | null>(0);
+
+  const OTP_LENGTH = 6;
+
+  const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(''));
+  const [email, setEmail] = useState<string | null>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
+
+  const [verifyOtp, { isLoading }] = useVerifyOtpMutation();
+  const [resendVerification, { isLoading: isResending }] =
+    useResendVerficationMutation();
 
   useEffect(() => {
-    // Get email from sessionStorage
     const resetEmail = sessionStorage.getItem('resetEmail');
-    if (resetEmail) {
-      setEmail(resetEmail);
-    } else {
-      // If no email found, redirect to forgot password
+
+    if (!resetEmail) {
       router.push('/login/forgot-password');
+      return;
     }
-    // Focus first input on mount
+
+    setEmail((prev) => (prev === null ? resetEmail : prev));
     inputRefs.current[0]?.focus();
   }, [router]);
 
+
   const handleChange = (index: number, value: string) => {
-    // Only allow digits
     if (value && !/^\d$/.test(value)) return;
 
-    const newOtp = [...otp];
-    newOtp[index] = value;
-    setOtp(newOtp);
+    const updatedOtp = [...otp];
+    updatedOtp[index] = value;
+    setOtp(updatedOtp);
 
-    // Auto-focus next input
-    if (value && index < 3) {
+    if (value && index < OTP_LENGTH - 1) {
       inputRefs.current[index + 1]?.focus();
     }
   };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    // Handle backspace
+  const handleKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
@@ -58,64 +57,76 @@ export default function OTPVerifyPage() {
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData('text').slice(0, 4);
-    if (/^\d+$/.test(pastedData)) {
-      const newOtp = [...otp];
-      for (let i = 0; i < 4; i++) {
-        newOtp[i] = pastedData[i] || '';
-      }
-      setOtp(newOtp);
-      // Focus last filled input or last input
-      const lastIndex = Math.min(pastedData.length - 1, 3);
-      inputRefs.current[lastIndex]?.focus();
-    }
+    const pasted = e.clipboardData.getData('text').slice(0, OTP_LENGTH);
+
+    if (!/^\d+$/.test(pasted)) return;
+
+    const updatedOtp = [...otp];
+    pasted.split('').forEach((char, i) => {
+      updatedOtp[i] = char;
+    });
+
+    setOtp(updatedOtp);
+    inputRefs.current[Math.min(pasted.length - 1, OTP_LENGTH - 1)]?.focus();
   };
 
-  const handleVerify = (e: React.FormEvent) => {
+  const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
+
     const otpCode = otp.join('');
-    if (otpCode.length === 4) {
-      // Accept any 4-digit code for now - verification will be added later
-      console.log('OTP verification:', { email, otp: otpCode });
-      // Navigate to set new password
-      router.push('/login/set-password');
+    if (otpCode.length !== OTP_LENGTH) return;
+
+    try {
+      const res = await verifyOtp({
+        email: email!,
+        otp: otpCode,
+      }).unwrap();
+
+      if (res.success) {
+        showDashboardToast({
+          variant: "success",
+          title: "OTP Verified",
+          description: "Your OTP has been verified successfully.",
+        });
+
+        sessionStorage.setItem('resetOtp', otpCode);
+        router.push('/login/set-password');
+      }
+    } catch (err: any) {
+      showDashboardToast({
+        variant: "error",
+        title: "Verification Failed",
+        description: err?.data?.message || "Invalid or expired OTP.",
+      });
     }
   };
 
-  const handleResend = () => {
-    // TODO: Implement resend OTP logic
-    console.log('Resend OTP to:', email);
-    // Reset OTP inputs
-    setOtp(['', '', '', '']);
-    inputRefs.current[0]?.focus();
+  const handleResend = async () => {
+    if (!email) return;
+
+    try {
+      await resendVerification({ email }).unwrap();
+
+      showDashboardToast({
+        variant: "success",
+        title: "OTP Sent",
+        description: "A new OTP has been sent to your email.",
+      });
+
+      setOtp(Array(OTP_LENGTH).fill(''));
+      inputRefs.current[0]?.focus();
+    } catch (err: any) {
+      showDashboardToast({
+        variant: "error",
+        title: "Request Failed",
+        description: err?.data?.message || "Failed to resend OTP. Please try again.",
+      });
+    }
   };
 
   return (
-    <div className="min-h-screen bg-[#05060f] relative overflow-hidden flex items-center justify-center p-4 sm:p-6 md:p-8">
-      {/* Background Ellipse 1 - Bottom Left */}
-      <div className="hidden md:block absolute left-[-97px] w-[525px] h-[525px] top-[707px] opacity-60 pointer-events-none">
-        <div className="absolute inset-[-133.33%]">
-          <img 
-            alt="" 
-            className="block max-w-none w-full h-full object-contain" 
-            src="https://www.figma.com/api/mcp/asset/7ea6ac30-6a35-48e1-91ed-0d2ea924377f" 
-          />
-        </div>
-      </div>
-
-      {/* Background Ellipse 2 - Top Right */}
-      <div className="hidden md:block absolute right-[-108px] w-[434px] h-[434px] top-[-108px] opacity-60 pointer-events-none">
-        <div className="absolute inset-[-161.29%]">
-          <img 
-            alt="" 
-            className="block max-w-none w-full h-full object-contain" 
-            src="https://www.figma.com/api/mcp/asset/9b049881-d08e-4bc9-bda4-39ea741e6d49" 
-          />
-        </div>
-      </div>
-
-      {/* OTP Verification Card */}
-      <div className="relative z-10 w-full max-w-[368px] bg-[#101012] rounded-[24px] p-6 sm:p-7 md:p-8">
+    <div className="min-h-screen bg-[#05060f] flex items-center justify-center p-4">
+      <div className="w-full max-w-92 bg-[#101012] rounded-[24px] p-8">
         <form onSubmit={handleVerify} className="flex flex-col gap-6">
           {/* Header */}
           <div className="flex flex-col gap-3 w-full">
@@ -123,7 +134,7 @@ export default function OTPVerifyPage() {
               Enter OTP
             </p>
             <p className="text-white text-sm font-normal font-['Inter'] leading-[1.4] tracking-[0.07px] w-full">
-              We have just sent you 4 digit code via your email {email || 'your email'}
+              We have just sent you a 6-digit code via your email {email}
             </p>
           </div>
 
@@ -152,11 +163,10 @@ export default function OTPVerifyPage() {
                       inputRefs.current[index]?.select();
                     }}
                     onBlur={() => setFocusedIndex(null)}
-                    className={`bg-[rgba(8,14,30,0.6)] border rounded-[40px] w-12 h-12 text-center text-white text-xl font-medium font-['Inter'] focus:outline-none transition-colors ${
-                      isFocused || hasValue
-                        ? 'border-[#00c27a]'
-                        : 'border-[rgba(255,255,255,0.05)]'
-                    }`}
+                    className={`bg-[rgba(8,14,30,0.6)] border rounded-[40px] w-10 h-10 text-center text-white text-xl font-medium font-['Inter'] focus:outline-none transition-colors ${isFocused || hasValue
+                      ? 'border-[#00c27a]'
+                      : 'border-[rgba(255,255,255,0.05)]'
+                      }`}
                   />
                 );
               })}
@@ -166,22 +176,26 @@ export default function OTPVerifyPage() {
             <div className="flex flex-col gap-3 w-full">
               <button
                 type="submit"
-                className="bg-[#38e07b] rounded-[48px] h-14 px-[18px] py-4 flex items-center justify-center gap-2.5 hover:opacity-90 transition-opacity"
+                disabled={isLoading}
+                className={`bg-[#38e07b] rounded-[48px] h-14 px-4.5 py-4 flex items-center justify-center gap-2.5 transition-opacity cursor-pointer ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'
+                  }`}
               >
                 <span className="text-[#1d1f2c] text-lg font-medium font-['Inter'] leading-[1.6]">
-                  Verify
+                  {isLoading ? 'Verifying...' : 'Verify'}
                 </span>
               </button>
 
               {/* Resend Code Link */}
               <p className="text-[#d2d2d5] text-sm text-center font-normal font-['Inter'] leading-[1.6] tracking-[0.2px]">
-                Didn't receive code?{' '}
+                Didn&apos;t receive code?{' '}
                 <button
                   type="button"
                   onClick={handleResend}
-                  className="text-[#38e07b] hover:opacity-80 transition-opacity"
+                  disabled={isResending}
+                  className={`text-[#38e07b] transition-opacity cursor-pointer ${isResending ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-80'
+                    }`}
                 >
-                  Resend Code
+                  {isResending ? 'Sending...' : 'Resend Code'}
                 </button>
               </p>
             </div>
@@ -191,4 +205,3 @@ export default function OTPVerifyPage() {
     </div>
   );
 }
-

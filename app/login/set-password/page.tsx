@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Set New Password Page
  * 
@@ -7,9 +8,12 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff } from 'lucide-react';
+import Image from 'next/image';
+import { useResetPasswordMutation } from '@/redux/features/auth/auth.api';
+import { showDashboardToast } from '@/components/ui/CustomToast';
 
 /**
  * Set New Password Page Component
@@ -18,47 +22,85 @@ import { Eye, EyeOff } from 'lucide-react';
  */
 export default function SetPasswordPage() {
   const router = useRouter();
+  const [email, setEmail] = useState<string | null>(null);
+  const [otp, setOtp] = useState<string | null>(null);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [resetPassword, { isLoading }] = useResetPasswordMutation();
+
+  useEffect(() => {
+    const storedEmail = sessionStorage.getItem('resetEmail');
+    const storedOtp = sessionStorage.getItem('resetOtp');
+
+    if (!storedEmail || !storedOtp) {
+      router.push('/login/forgot-password');
+      return;
+    }
+
+    setEmail(storedEmail);
+    setOtp(storedOtp);
+  }, [router]);
+
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password && confirmPassword && password === confirmPassword) {
-      // Accept any password for now - validation will be added later
-      console.log('Password updated');
-      // Show success modal and navigate
-      router.push('/login/success');
+
+    if (!password || !confirmPassword) return;
+
+    if (password !== confirmPassword) {
+      showDashboardToast({
+        variant: "error",
+        title: "Request Failed",
+        description: 'Passwords do not match',
+      });
+      return;
+    }
+
+    if (!email || !otp) return;
+
+    try {
+      const res = await resetPassword({
+        email,
+        otp,
+        new_password: password,
+      }).unwrap();
+
+      if (res.success) {
+        showDashboardToast({
+          variant: "success",
+          title: "Password Updated",
+          description: res.message || "Your password has been updated successfully.",
+        });
+
+        sessionStorage.removeItem('resetOtp');
+        sessionStorage.removeItem('resetEmail');
+
+        router.push('/login/success');
+      }
+    } catch (error: any) {
+      showDashboardToast({
+        variant: "error",
+        title: "Request Failed",
+        description: error?.data?.message || 'Failed to reset password',
+      });
     }
   };
+
 
   return (
     <div className="min-h-screen bg-[#05060f] relative overflow-hidden flex items-center justify-center p-4 sm:p-6 md:p-8">
       {/* Background Ellipse 1 - Bottom Left */}
-      <div className="hidden md:block absolute left-[-97px] w-[525px] h-[525px] top-[707px] opacity-60 pointer-events-none">
-        <div className="absolute inset-[-133.33%]">
-          <img 
-            alt="" 
-            className="block max-w-none w-full h-full object-contain" 
-            src="https://www.figma.com/api/mcp/asset/de9931af-84a6-4c5f-a5ec-fc3b310a2935" 
-          />
-        </div>
-      </div>
+      <Image src="/dashboard/bottom-light.svg" alt='bg bottm' width={1025} height={1025} className='hidden md:block absolute left-0 bottom-0 object-contain' />
+
 
       {/* Background Ellipse 2 - Top Right */}
-      <div className="hidden md:block absolute right-[-108px] w-[434px] h-[434px] top-[-108px] opacity-60 pointer-events-none">
-        <div className="absolute inset-[-161.29%]">
-          <img 
-            alt="" 
-            className="block max-w-none w-full h-full object-contain" 
-            src="https://www.figma.com/api/mcp/asset/59f7df12-74b2-43a9-b4a0-ff579c22d464" 
-          />
-        </div>
-      </div>
+      <Image src="/dashboard/top-light.svg" alt='bg top' width={1025} height={1025} className='hidden md:block absolute right-0 top-0 object-contain' />
 
       {/* Set Password Card */}
-      <div className="relative z-10 w-full max-w-[584px] bg-[#101012] rounded-[24px] p-6 sm:p-7 md:p-8">
+      <div className="relative z-10 w-full max-w-146 bg-[#101012] rounded-[24px] p-6 sm:p-7 md:p-8">
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           {/* Header */}
           <div className="flex flex-col gap-3 w-full">
@@ -66,7 +108,7 @@ export default function SetPasswordPage() {
               Set New Password
             </p>
             <p className="text-white text-sm font-normal font-['Inter'] leading-[1.4] tracking-[0.07px] w-full">
-              Make sure it's strong and unique to keep your account secure.
+              Make sure it&apos;s strong and unique to keep your account secure.
             </p>
           </div>
 
@@ -75,8 +117,8 @@ export default function SetPasswordPage() {
             <div className="flex flex-col gap-5 w-full">
               {/* Password Field */}
               <div className="flex flex-col gap-2 w-full">
-                <label 
-                  htmlFor="password" 
+                <label
+                  htmlFor="password"
                   className="text-white text-base font-normal font-['Inter'] leading-[1.6] tracking-[0.2px]"
                 >
                   Password
@@ -108,8 +150,8 @@ export default function SetPasswordPage() {
 
               {/* Confirm Password Field */}
               <div className="flex flex-col gap-2 w-full">
-                <label 
-                  htmlFor="confirmPassword" 
+                <label
+                  htmlFor="confirmPassword"
                   className="text-white text-base font-normal font-['Inter'] leading-[1.6] tracking-[0.2px]"
                 >
                   Confirm Password
@@ -143,12 +185,17 @@ export default function SetPasswordPage() {
             {/* Update Password Button */}
             <button
               type="submit"
-              className="bg-[#38e07b] rounded-[48px] h-14 px-[18px] py-4 flex items-center justify-center gap-2.5 hover:opacity-90 transition-opacity w-full"
+              disabled={isLoading}
+              className={`rounded-[48px] h-14 px-4.5 py-4 w-full transition-opacity ${isLoading
+                ? 'bg-[#38e07b] opacity-60 cursor-not-allowed'
+                : 'bg-[#38e07b] hover:opacity-90'
+                }`}
             >
-              <span className="text-[#1d1f2c] text-lg font-medium font-['Inter'] leading-[1.6]">
-                Update Password
+              <span className="text-[#1d1f2c] text-lg font-medium">
+                {isLoading ? 'Updating...' : 'Update Password'}
               </span>
             </button>
+
           </div>
         </form>
       </div>

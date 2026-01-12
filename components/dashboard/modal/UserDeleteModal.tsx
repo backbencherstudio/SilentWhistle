@@ -12,9 +12,10 @@ import {
 interface UserProfileModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  desc: string
 }
 
-const UserDeleteModal = ({ open, onOpenChange }: UserProfileModalProps) => {
+const UserDeleteModal = ({ open, onOpenChange, desc = "Are you sure you to Delete this Account?" }: UserProfileModalProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogOverlay className="bg-black/40 backdrop-blur-xs" />
@@ -33,17 +34,17 @@ const UserDeleteModal = ({ open, onOpenChange }: UserProfileModalProps) => {
           </DialogTitle>
         </DialogHeader>
         <div className="w-full flex flex-col items-center">
-          <p className="text-sm leading-[160%] tracking-[0.2px] text-[#E9E9EA]">
-            Are you sure you to Delete this Account?
+          <p className="text-sm leading-[160%] tracking-[0.2px] text-[#E9E9EA] text-center">
+            {desc}
           </p>
 
           <div className="w-full flex items-center gap-4">
             <DialogClose asChild>
-              <Button className="mt-4 w-full rounded-xl bg-[#0C2A16] text-[#E9E9EA] hover:bg-[#0E341B] h-11 font-medium focus-visible:ring-0 focus-visible:ring-offset-0">
+              <Button className="mt-4 w-full rounded-xl bg-[#0C2A16] text-[#E9E9EA] hover:bg-[#0E341B] h-11 font-medium focus-visible:ring-0 focus-visible:ring-offset-0 cursor-pointer">
                 Cancel
               </Button>
             </DialogClose>
-            <Button className=" mt-4 w-full rounded-xl bg-[#0C2A16] text-[#EB3D4D] hover:bg-[#0E341B] h-11 font-medium">
+            <Button className=" mt-4 w-full rounded-xl bg-[#0C2A16] text-[#EB3D4D] hover:bg-[#0E341B] h-11 font-medium cursor-pointer">
               Delete
             </Button>
           </div>
