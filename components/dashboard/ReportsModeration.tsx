@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { User } from "lucide-react";
 import React, { useState } from "react";
@@ -18,24 +18,40 @@ import ReviewReportModal from "./modal/ReviewReportModal";
 import WarningModal from "./modal/WarningModal";
 import DeleteIcon from "../icons/DeleteIcon";
 import UserDeleteModal from "./modal/UserDeleteModal";
-import { useGetAllReportsQuery, useGetReportAnalyticsQuery } from "@/redux/features/reports-moderation/reports-moderation.api";
+import {
+  useGetAllReportsQuery,
+  useGetReportAnalyticsQuery,
+} from "@/redux/features/reports-moderation/reports-moderation.api";
 import { Skeleton } from "../ui/skeleton";
 import TablePagination from "../common/TablePagination";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 export const ReportsModeration = (): React.ReactElement => {
   const [contentViewModal, setContentViewModalOpen] = useState(false);
   const [warningModalOpen, setWarningModalOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-
+  const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
+  const [selectedReportType, setSelectedReportType] = useState<
+    "USER" | "SHOUT" | null
+  >(null);
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [type, setType] = useState<string | undefined>(undefined);
 
-
   const { data, isLoading } = useGetReportAnalyticsQuery();
-  const { data: allData, isLoading: allReportsLoading, isFetching, refetch } = useGetAllReportsQuery({ page, limit, type });
+  const {
+    data: allData,
+    isLoading: allReportsLoading,
+    isFetching,
+    refetch,
+  } = useGetAllReportsQuery({ page, limit, type });
 
   const allReports = allData?.data;
   const meta = allData?.meta;
@@ -79,7 +95,6 @@ export const ReportsModeration = (): React.ReactElement => {
     return { date, time };
   };
 
-
   return (
     <div className="w-full">
       {/* Header Section with Filter */}
@@ -104,12 +119,8 @@ export const ReportsModeration = (): React.ReactElement => {
               setType(value === "ALL" ? undefined : value);
             }}
           >
-            <SelectTrigger
-              className="h-10 min-w-36 bg-neutral-900 border border-zinc-800 rounded-lg text-white text-xs font-['Inter'] focus:ring-0"
-            >
-              <SelectValue>
-                {type ? type : "All Types"}
-              </SelectValue>
+            <SelectTrigger className="h-10 min-w-36 bg-neutral-900 border border-zinc-800 rounded-lg text-white text-xs font-['Inter'] focus:ring-0">
+              <SelectValue>{type ? type : "All Types"}</SelectValue>
             </SelectTrigger>
 
             <SelectContent className="bg-neutral-900 border border-zinc-800 text-white">
@@ -152,7 +163,6 @@ export const ReportsModeration = (): React.ReactElement => {
         ))}
       </div>
 
-
       {/* Table Section */}
       <div className="w-full overflow-x-auto">
         <div className="flex flex-col w-full items-start bg-[#101012] rounded-xl overflow-hidden">
@@ -186,127 +196,129 @@ export const ReportsModeration = (): React.ReactElement => {
                     <Skeleton className="h-6 w-40 mx-auto bg-neutral-700" />
                   </TableCell>
                 </TableRow>
-              ) : allReports && allReports.length > 0 ? allReports?.map((row, index) => (
-                <TableRow
-                  key={index}
-                  className="h-16 border-t border-[#212529] hover:bg-transparent cursor-pointer"
-                  onClick={() => {
-                    setWarningModalOpen(true);
-                    console.log("Row clicked", index);
-                  }}
-                >
-                  {/* Report ID Column */}
-                  <TableCell className="p-0">
-                    <div className="flex items-center gap-2 px-4.5">
-                      <Avatar className="w-9 h-9 rounded-full border border-solid border-[#e3e5e6] bg-gray-700">
-                        <AvatarFallback className="bg-gray-700 text-gray-300">
-                          <User className="w-5 h-5" />
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex flex-col gap-1">
-                        <div className="font-medium text-white text-sm font-['Inter']">
-                          {row?.reporter?.name}
-                        </div>
-                        <div className="font-['Inter'] font-normal text-gray-400 text-xs">
-                          {row?.reporter?.username}
-                        </div>
-                      </div>
-                    </div>
-                  </TableCell>
-
-                  {/* Time & Date Column */}
-                  <TableCell className="p-0">
-                    {(() => {
-                      const { date, time } = formatDateTime(row?.date);
-                      return (
-                        <div className="flex items-center gap-2">
-                          <div className="font-['Inter'] font-medium text-gray-50 text-sm">
-                            {time}
+              ) : allReports && allReports.length > 0 ? (
+                allReports?.map((row, index) => (
+                  <TableRow
+                    key={index}
+                    className="h-16 border-t border-[#212529] hover:bg-transparent cursor-pointer"
+                    onClick={() => {
+                      setWarningModalOpen(true);
+                      console.log("Row clicked", index);
+                    }}
+                  >
+                    {/* Report ID Column */}
+                    <TableCell className="p-0">
+                      <div className="flex items-center gap-2 px-4.5">
+                        <Avatar className="w-9 h-9 rounded-full border border-solid border-[#e3e5e6] bg-gray-700">
+                          <AvatarFallback className="bg-gray-700 text-gray-300">
+                            <User className="w-5 h-5" />
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col gap-1">
+                          <div className="font-medium text-white text-sm font-['Inter']">
+                            {row?.reporter?.name}
                           </div>
-                          <div className="font-['Inter'] font-medium text-gray-50 text-sm">
-                            {date}
+                          <div className="font-['Inter'] font-normal text-gray-400 text-xs">
+                            {row?.reporter?.username}
                           </div>
                         </div>
-                      );
-                    })()}
-
-                  </TableCell>
-
-                  {/* Reason Column */}
-                  <TableCell className="p-0">
-                    <div className="px-4.5">
-                      <div className="font-['Inter'] font-medium text-gray-50 text-sm">
-                        {row?.reason}
                       </div>
-                    </div>
-                  </TableCell>
+                    </TableCell>
 
-                  {/* Status Column */}
-                  <TableCell className="p-0">
-                    <div className="px-4.5">
-                      <Badge
-                        className={`px-2.5 py-1.5 rounded-lg font-normal text-base whitespace-nowrap font-['Inter'] border-none ${row?.status === "PENDING"
-                          ? "bg-[#162924] text-[#38e07b] hover:bg-[#162924]"
-                          : row?.status === "RESOLVED"
-                            ? "bg-[#162924] text-[#38e07b] hover:bg-[#162924]"
-                            : row?.status === "HIGH_SEVERITY"
+                    {/* Time & Date Column */}
+                    <TableCell className="p-0">
+                      {(() => {
+                        const { date, time } = formatDateTime(row?.date);
+                        return (
+                          <div className="flex items-center gap-2">
+                            <div className="font-['Inter'] font-medium text-gray-50 text-sm">
+                              {time}
+                            </div>
+                            <div className="font-['Inter'] font-medium text-gray-50 text-sm">
+                              {date}
+                            </div>
+                          </div>
+                        );
+                      })()}
+                    </TableCell>
+
+                    {/* Reason Column */}
+                    <TableCell className="p-0">
+                      <div className="px-4.5">
+                        <div className="font-['Inter'] font-medium text-gray-50 text-sm">
+                          {row?.reason}
+                        </div>
+                      </div>
+                    </TableCell>
+
+                    {/* Status Column */}
+                    <TableCell className="p-0">
+                      <div className="px-4.5">
+                        <Badge
+                          className={`px-2.5 py-1.5 rounded-lg font-normal text-base whitespace-nowrap font-['Inter'] border-none ${
+                            row?.status === "PENDING"
+                              ? "bg-yellow-800 text-yellow-500 hover:bg-yellow-800"
+                              : row?.status === "RESOLVED"
+                              ? "bg-[#162924] text-[#38e07b] hover:bg-[#162924]"
+                              : row?.status === "HIGH_SEVERITY"
                               ? "bg-[#3f0005] text-[#ff0012] hover:bg-[#3f0005]"
                               : "bg-[#162924] text-[#38e07b] hover:bg-[#162924]"
                           }`}
-                      >
-                        {row?.status}
-                      </Badge>
-                    </div>
-                  </TableCell>
+                        >
+                          {row?.status}
+                        </Badge>
+                      </div>
+                    </TableCell>
 
-                  {/* Reported User Column */}
-                  <TableCell className="p-0">
-                    <div className="flex items-center gap-2 px-4.5">
-                      <Avatar className="w-9 h-9 rounded-full border border-solid border-[#e3e5e6] bg-gray-700">
-                        <AvatarFallback className="bg-gray-700 text-gray-300">
-                          <User className="w-5 h-5" />
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex flex-col gap-1">
-                        <div className="font-medium text-white text-sm font-['Inter']">
-                          {row?.reportedEntity?.name}
-                        </div>
-                        <div className="font-['Inter'] font-normal text-gray-400 text-xs">
-                          {row?.reportedEntity.username}
+                    {/* Reported User Column */}
+                    <TableCell className="p-0">
+                      <div className="flex items-center gap-2 px-4.5">
+                        <Avatar className="w-9 h-9 rounded-full border border-solid border-[#e3e5e6] bg-gray-700">
+                          <AvatarFallback className="bg-gray-700 text-gray-300">
+                            <User className="w-5 h-5" />
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col gap-1">
+                          <div className="font-medium text-white text-sm font-['Inter']">
+                            {row?.reportedEntity?.name}
+                          </div>
+                          <div className="font-['Inter'] font-normal text-gray-400 text-xs">
+                            {row?.reportedEntity.username}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </TableCell>
+                    </TableCell>
 
-                  {/* Actions Column */}
-                  <TableCell className="p-0">
-                    <div className="px-4.5 flex items-center">
-                      <Button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          // Handle review action
-                          console.log('Review clicked for row', index);
-                          setContentViewModalOpen(true)
-                        }}
-                        className="px-4 py-2 bg-[#38e07b] text-black hover:bg-[#38e07b] hover:opacity-90 rounded-lg font-['Inter'] font-medium text-sm cursor-pointer"
-                      >
-                        Review
-                      </Button>
-                      <Button
-                        onClick={(e) => {
-                          e.stopPropagation();
+                    {/* Actions Column */}
+                    <TableCell className="p-0">
+                      <div className="px-4.5 flex items-center">
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedReportId(row.id);
+                            setSelectedReportType(row.type);
+                            setContentViewModalOpen(true);
+                          }}
+                          className="px-4 py-2 bg-[#38e07b] text-black hover:bg-[#38e07b] hover:opacity-90 rounded-lg font-['Inter'] font-medium text-sm cursor-pointer"
+                        >
+                          Review
+                        </Button>
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
 
-                          console.log('Review clicked for row', index);
-                          setDeleteOpen(true)
-                        }}
-                        className="bg-transparent hover:bg-transparent cursor-pointer"
-                      >
-                        <DeleteIcon stroke="#f84355" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              )) : (
+                            console.log("Review clicked for row", index);
+                            setDeleteOpen(true);
+                          }}
+                          className="bg-transparent hover:bg-transparent cursor-pointer"
+                        >
+                          <DeleteIcon stroke="#f84355" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
                 <TableRow>
                   <TableCell
                     colSpan={6}
@@ -344,12 +356,15 @@ export const ReportsModeration = (): React.ReactElement => {
       <ReviewReportModal
         open={contentViewModal}
         onOpenChange={setContentViewModalOpen}
+        reportId={selectedReportId}
+        reportType={selectedReportType}
       />
 
-      <UserDeleteModal desc="This can't be undone. Visit your settings to delete any memories saved during this chat."
-        open={deleteOpen} onOpenChange={setDeleteOpen}
+      <UserDeleteModal
+        desc="This can't be undone. Visit your settings to delete any memories saved during this chat."
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
       />
     </div>
   );
 };
-
