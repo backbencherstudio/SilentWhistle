@@ -1,13 +1,13 @@
 /**
  * Dashboard Layout Component
- * 
+ *
  * A layout wrapper component that provides the common structure for dashboard pages.
  * Includes:
  * - Sidebar navigation (desktop and mobile)
  * - Top header with user info and notifications
  * - Responsive mobile menu button
  * - Consistent styling and spacing
- * 
+ *
  * @component
  * @example
  * <DashboardLayout>
@@ -15,12 +15,12 @@
  * </DashboardLayout>
  */
 
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Sidebar from './Sidebar';
-import { User } from 'lucide-react';
-import { svg as notificationIcon } from '@/components/icons/notificationicon';
+import { useState } from "react";
+import Sidebar from "./Sidebar";
+import { User } from "lucide-react";
+import { svg as notificationIcon } from "@/components/icons/notificationicon";
 
 /**
  * Props for DashboardLayout component
@@ -32,7 +32,7 @@ interface DashboardLayoutProps {
 
 /**
  * Dashboard Layout Component
- * 
+ *
  * Provides the main layout structure for all dashboard pages.
  * Handles sidebar visibility, header, and responsive behavior.
  */
@@ -40,47 +40,52 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   // State to control mobile sidebar visibility
   const [sidebarOpen, setSidebarOpen] = useState(false);
   // State to control desktop sidebar collapse
-  const [isCollapsed, setIsCollapsed] = useState(() => {
-    // Get collapsed state from localStorage if available
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('sidebarCollapsed');
-      return saved === 'true';
-    }
-    return false;
+
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("sidebarCollapsed") === "true";
   });
 
   // Save collapsed state to localStorage
   const handleToggleCollapse = () => {
     const newState = !isCollapsed;
     setIsCollapsed(newState);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('sidebarCollapsed', String(newState));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("sidebarCollapsed", String(newState));
     }
   };
 
   return (
     <div className="flex min-h-screen bg-black font-sans">
       {/* Desktop Sidebar - Fixed position, always visible on medium screens and up */}
-      <aside className={`hidden md:block fixed left-0 top-0 h-screen bg-black z-20 transition-all duration-300 ease-in-out ${
-        isCollapsed ? 'w-20' : 'w-64 lg:w-72'
-      }`}>
-        <Sidebar 
-          isOpen={false} 
-          onClose={() => {}} 
+      <aside
+        className={`hidden md:block fixed left-0 top-0 h-screen bg-black z-20 transition-all duration-300 ease-in-out ${
+          isCollapsed ? "w-20" : "w-64 lg:w-72"
+        }`}
+      >
+        <Sidebar
+          isOpen={false}
+          onClose={() => {}}
           isCollapsed={isCollapsed}
           onToggleCollapse={handleToggleCollapse}
         />
       </aside>
-      
+
       {/* Mobile Sidebar - Overlay that appears when opened */}
-      <div className={`fixed inset-y-0 left-0 z-50 md:hidden ${sidebarOpen ? 'block' : 'hidden'}`}>
+      <div
+        className={`fixed inset-y-0 left-0 z-50 md:hidden ${
+          sidebarOpen ? "block" : "hidden"
+        }`}
+      >
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       </div>
 
       {/* Main Content Area - Adjusted for fixed sidebar */}
-      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out ${
-        isCollapsed ? 'md:ml-20' : 'md:ml-64 lg:ml-72'
-      }`}>
+      <div
+        className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out ${
+          isCollapsed ? "md:ml-20" : "md:ml-64 lg:ml-72"
+        }`}
+      >
         {/* Mobile Menu Button - Only visible on mobile devices */}
         <button
           onClick={() => setSidebarOpen(true)}
@@ -107,7 +112,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <header className="sticky top-0 z-30 bg-black border-b border-gray-800 px-6 py-4">
           <div className="flex items-center justify-end gap-4">
             {/* Notification Bell Button */}
-            <button 
+            <button
               className="p-2 rounded-full bg-zinc-800 hover:bg-zinc-700 text-white hover:text-gray-300 transition-colors cursor-pointer"
               aria-label="Notifications"
             >
@@ -120,7 +125,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <div className="flex items-center gap-3">
               {/* User Name and Role */}
               <div className="text-right">
-                <div className="text-white text-sm font-medium">Gustavo Xavier</div>
+                <div className="text-white text-sm font-medium">
+                  Gustavo Xavier
+                </div>
                 <div className="flex items-center justify-end gap-2 mt-1">
                   {/* Admin Badge */}
                   <span className="px-2 py-0.5 bg-[#22c55e] text-white text-xs font-medium rounded-full">
@@ -137,11 +144,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </header>
 
         {/* Page Content Area */}
-        <main className="flex-1 overflow-y-auto bg-black">
-          {children}
-        </main>
+        <main className="flex-1 overflow-y-auto bg-black">{children}</main>
       </div>
     </div>
   );
 }
-
