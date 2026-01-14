@@ -12,10 +12,14 @@ import {
 interface UserProfileModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  desc: string
+  desc?: string;
 }
 
-const UserDeleteModal = ({ open, onOpenChange, desc = "Are you sure you to Delete this Account?" }: UserProfileModalProps) => {
+const UserDeleteModal = ({
+  open,
+  onOpenChange,
+  desc = "Are you sure you to Delete this Account?",
+}: UserProfileModalProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogOverlay className="bg-black/40 backdrop-blur-xs" />

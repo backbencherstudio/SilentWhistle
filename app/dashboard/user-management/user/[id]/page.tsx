@@ -17,9 +17,21 @@ import {
 import { Ellipsis, MapPin, Search } from "lucide-react";
 import Image from "next/image";
 import UserDataTab from "../../_components/UserDataTab";
+import { useGetSingleUserByIdQuery } from "@/redux/features/user-management/user-management.api";
+import { useParams } from "next/navigation";
 
 const SingleUserProfilePage = () => {
+  const { id } = useParams<{ id: string }>();
+
   //   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  // need to look at shouts response
+  const { data } = useGetSingleUserByIdQuery({
+    id,
+    shout_page: 1,
+    shout_limit: 10,
+  });
+
+  console.log("single data", data);
 
   return (
     <DashboardLayout>
