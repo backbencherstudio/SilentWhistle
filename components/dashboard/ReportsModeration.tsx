@@ -333,7 +333,7 @@ export const ReportsModeration = (): React.ReactElement => {
         </div>
       </div>
 
-      {meta && meta.totalPages > 10 && (
+      {meta && meta.totalPages > 1 && (
         <div className="flex justify-center">
           <TablePagination
             page={page}
