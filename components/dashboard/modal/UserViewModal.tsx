@@ -8,26 +8,13 @@ import {
   DialogOverlay,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { IUser } from "@/redux/features/user-management/types";
 import { useRouter } from "next/navigation";
-
-type UserData = {
-  id: string;
-  name: string;
-  username: string;
-  email: string;
-  status: "Active" | "Inactive";
-  documentCount: number;
-  joinedDate: string;
-  location?: string;
-  role?: string;
-  totalPosts?: number;
-  reportsAgainst?: number;
-};
 
 interface UserProfileModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  user: UserData | null;
+  user: IUser | null;
 }
 
 const UserProfileModal = ({
@@ -39,18 +26,33 @@ const UserProfileModal = ({
 
   if (!user) return null;
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear().toString().slice(-2);
+
+    return `${day}/${month}/${year}`;
+  };
+
   const data = [
-    { label: "Username:", value: user.username },
-    { label: "Location:", value: user.location ?? "New York, USA" },
-    { label: "Email:", value: user.email },
-    { label: "Role:", value: user.role ?? "Free User" },
-    { label: "Join Date:", value: user.joinedDate },
+    { label: "Username:", value: user?.username },
+    { label: "Phone:", value: user?.phone_number || "N/A" },
+    { label: "Email:", value: user?.email },
+    { label: "Role:", value: user?.type ?? "user" },
+    { label: "Join Date:", value: formatDate(user?.created_at) },
     {
-      label: "Total Posts:",
-      value: String(user.totalPosts ?? user.documentCount),
+      label: "Account:",
+      value: user?.subscription_status,
+      // String(user.totalPosts ?? user.documentCount),
     },
     { label: "Status:", value: user.status },
-    { label: "Reports Against:", value: String(user.reportsAgainst ?? 2) },
+    // {
+    //   label: "Reports Against:",
+    //   value: 0,
+    //   // String(user.reportsAgainst ?? 2)
+    // },
   ];
 
   return (
@@ -75,7 +77,7 @@ const UserProfileModal = ({
         </div>
 
         <Button
-          className="mt-8 w-full rounded-xl bg-[#0C2A16] text-[#58FF9E] hover:bg-[#0E341B] h-11 font-medium"
+          className="mt-8 w-full rounded-xl bg-[#0C2A16] text-[#58FF9E] hover:bg-[#0E341B] h-11 font-medium focus-visible:outline-0 cursor-pointer"
           onClick={() => {
             onOpenChange(false);
             router.push(`/dashboard/user-management/user/${user.id}`);
