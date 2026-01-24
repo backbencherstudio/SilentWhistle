@@ -1,6 +1,8 @@
 import Image from "next/image";
 import LoopIcon from "../icons/LoopIcon";
 import LoveIcon from "../icons/LoveIcon";
+import { MdDelete } from "react-icons/md";
+import { LucideLoader } from "lucide-react";
 
 interface NotificationCardProps {
   notification: {
@@ -14,11 +16,17 @@ interface NotificationCardProps {
       name: string;
       avatar: string;
     };
-    icon?: "echo" | "heart";
+    icon: any;
   };
+  onDelete?: () => void;
+  isDeleting?: boolean;
 }
 
-const NotificationCard = ({ notification }: NotificationCardProps) => {
+const NotificationCard = ({
+  notification,
+  onDelete,
+  isDeleting,
+}: NotificationCardProps) => {
   return (
     <div className="bg-[#141414] p-4 rounded-3xl border-l border-transparent hover:border-l-[#38E07B] transition-all ease-in-out duration-500 flex items-start justify-between">
       <div className="flex items-center gap-3">
@@ -50,9 +58,21 @@ const NotificationCard = ({ notification }: NotificationCardProps) => {
           </p>
         </div>
       </div>
-      <p className="text-[#777980] text-sm font-light leading-[110%] -tracking-[1%]">
-        {notification.time}
-      </p>
+      <div className="flex flex-col items-end gap-2">
+        <p className="text-[#777980] text-sm font-light leading-[110%] -tracking-[1%]">
+          {notification.time}
+        </p>
+        {onDelete && (
+          <button
+            type="button"
+            onClick={onDelete}
+            disabled={isDeleting}
+            className="p-1 rounded text-xs bg-red-500/20 text-red-500 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {isDeleting ? <p><LucideLoader size={24} className="animate-spin" /></p> : <MdDelete size={24} />}
+          </button>
+        )}
+      </div>
     </div>
   );
 };
