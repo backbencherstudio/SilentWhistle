@@ -11,7 +11,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-// 🔥 Disable SSR for UserTable
 const UserTable = dynamic(() => import("@/components/dashboard/UserTable"), {
   ssr: false,
 });

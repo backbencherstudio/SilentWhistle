@@ -1,3 +1,4 @@
+import { PaymentOverviewResponse } from "@/types/transactions";
 import baseApi from "../baseApi";
 
 export const paymentsApis = baseApi.injectEndpoints({
@@ -19,7 +20,7 @@ export const paymentsApis = baseApi.injectEndpoints({
       providesTags: ["NOTIFICATIONS"],
     }),
 
-    getTransactionAnalytics: builder.query<any, void>({
+    getTransactionAnalytics: builder.query<PaymentOverviewResponse, void>({
       query: () => ({
         url: "/admin/payment-transaction/analytics",
         method: "GET",

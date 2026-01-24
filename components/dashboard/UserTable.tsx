@@ -203,16 +203,6 @@ export const UserTable = ({ status, search }: UserTableProps): ReactElement => {
                 {/* {user?.subscription_status} */}
               </div>
 
-              {/* Shouts/Post */}
-              {/* <div className="flex-1 flex items-center px-2">
-        <div className="inline-flex items-center gap-2 px-2 py-1.5 rounded-lg">
-          <FileText />
-          <div className="font-['Inter'] font-normal text-gray-50 text-base whitespace-nowrap">
-            user.documentCount
-          </div>
-        </div>
-      </div> */}
-
               {/* Joined Date */}
               <div className="flex-1 flex items-center px-4.5">
                 <div className="font-['Inter'] font-medium text-gray-50 text-sm">

@@ -1,41 +1,45 @@
+import { amountFormated } from "@/lib/transactions/AmountFormated";
 import { Card, CardContent } from "../ui/card";
+import type { PaymentOverviewResponse } from "@/types/transactions";
 
-const FinanceAndPaymentStats = () => {
+type FinanceAndPaymentStatsProps = {
+  analytics?: PaymentOverviewResponse;
+};
+
+const FinanceAndPaymentStats = ({ analytics }: FinanceAndPaymentStatsProps) => {
   const statsData = [
     {
       title: "Total Payment",
-      value: "44.97",
+      value:
+        amountFormated(Number(analytics?.totalPayment || 0).toString()) || 0,
       badge: {
-        text: "Paid User: 15",
+        text: "Paid User: " + analytics?.paidUsers,
         bgColor: "bg-[#0a160d]",
         textColor: "text-[#38e07b]",
       },
     },
     {
-      title: "Debit / Credit Card",
-      value: "14.99",
+      title: "Provider" + " - " + (analytics?.breakdown[0]?.provider || ""),
+      value:
+        amountFormated(
+          Number(analytics?.breakdown[0]?.amount || 0).toString(),
+        ) || 0,
       badge: {
-        text: "5 User",
+        text: analytics?.breakdown[0]?.users + " " + "Users ",
         bgColor: "bg-[#14151c]",
         textColor: "text-[#7485ff]",
       },
     },
     {
-      title: "Internet Banking",
-      value: "14.99",
+      title: "Total Refunded",
+      value:
+        amountFormated(
+          Number(analytics?.totalCancelledRefunded || 0).toString(),
+        ) || 0,
       badge: {
-        text: "5 User",
+        text: analytics?.cancelledRefundedUsers + " User",
         bgColor: "bg-[#1a1600]",
         textColor: "text-[#8ac45c]",
-      },
-    },
-    {
-      title: "USSD",
-      value: "14.99",
-      badge: {
-        text: "5 User",
-        bgColor: "bg-[#00141A]",
-        textColor: "text-[#00C4FF]",
       },
     },
   ];

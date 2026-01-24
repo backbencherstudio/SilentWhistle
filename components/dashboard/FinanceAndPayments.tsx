@@ -1,9 +1,14 @@
+"use client";
 import { ChevronDown, Search } from "lucide-react";
 import { Button } from "../ui/button";
 import FinanceAndPaymentStats from "./FinanceAndPaymentStats";
 import FinanceAndPaymentTable from "./FinanceAndPaymentTable";
+import { useGetTransactionAnalyticsQuery } from "@/redux/features/payments/payments.api";
 
 const FinanceAndPayments = () => {
+  const { data: analytics, isLoading } = useGetTransactionAnalyticsQuery();
+  
+
   return (
     <div className="text-white">
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-5">
@@ -46,7 +51,7 @@ const FinanceAndPayments = () => {
         </div>
       </div>
       <div className="mb-6">
-        <FinanceAndPaymentStats />
+        <FinanceAndPaymentStats analytics={analytics} />
       </div>
       <div>
         <div className="w-full overflow-x-auto">
