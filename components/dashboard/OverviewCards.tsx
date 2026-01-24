@@ -1,58 +1,48 @@
-/**
- * Overview Cards Component
- * 
- * Displays four key metric cards on the dashboard:
- * - Total Users (with active/inactive breakdown)
- * - Total Shouts/Posts (with text/voice breakdown)
- * - Total Reports (with pending/resolved breakdown)
- * - Global Reach (world map visualization)
- * 
- * @component
- * @example
- * <OverviewCards />
- */
-
-'use client';
-
-import React from "react";
+"use client";
 import Image from "next/image";
 import { Card, CardContent } from "../ui/card";
 
-const statsData = [
+export default function OverviewCards({ CardData }: { CardData: any }) {
+
+  console.log(CardData)
+
+ const statsData = [
   {
     title: "Total Users",
-    value: "24,592",
+    value: CardData?.totalUsers?.total ?? 0,
     badge: {
-      text: "Active: 18,234 | Inactive: 6,358",
+      text: `Active: ${CardData?.totalUsers?.active ?? 0} | Inactive: ${CardData?.totalUsers?.inactive ?? 0}`,
       bgColor: "bg-[#0a160d]",
       textColor: "text-[#38e07b]",
     },
   },
   {
     title: "Total Shouts/Posts",
-    value: "156,428",
+    value: CardData?.totalShouts?.total ?? 0,
     badge: {
-      text: "Text: 124,562 | Voice: 31,866",
+      text: `Text: ${CardData?.totalShouts?.text ?? 0} | Voice: ${CardData?.totalShouts?.voice ?? 0}`,
       bgColor: "bg-[#14151c]",
       textColor: "text-[#7485ff]",
     },
   },
   {
     title: "Total Reports",
-    value: "1,248",
+    value: CardData?.totalReports?.total ?? 0,
     badge: {
-      text: "Pending: 89 | Resolved: 1,159",
+      text: `Pending: ${CardData?.totalReports?.pending ?? 0} | Resolved: ${CardData?.totalReports?.resolved ?? 0}`,
       bgColor: "bg-[#1a1600]",
       textColor: "text-[#8ac45c]",
     },
   },
 ];
 
-export default function OverviewCards() {
   return (
     <section className="flex w-full items-stretch gap-3">
       {statsData.map((stat, index) => (
-        <Card key={index} className="flex-1 flex flex-col bg-[#101012] rounded-2xl border-0">
+        <Card
+          key={index}
+          className="flex-1 flex flex-col bg-[#101012] rounded-2xl border-0"
+        >
           <CardContent className="flex flex-col items-start gap-4 px-3.5 py-4 flex-1">
             <div className="relative self-stretch -mt-px font-['Inter',Helvetica] font-normal text-gray-400 text-base tracking-[0] leading-[17.6px]">
               {stat.title}

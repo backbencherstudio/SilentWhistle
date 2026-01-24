@@ -21,8 +21,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "catalyst-actually-flows-jvc.trycloudflare.com",
-        pathname: "/**",
+        hostname: "**",
+      },
+      {
+        protocol: "http",
+        hostname: "**",
       },
     ],
   },
