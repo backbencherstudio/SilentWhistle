@@ -1,15 +1,3 @@
-/**
- * Shout Categories Component
- *
- * Displays a list of shout/post categories with their respective counts.
- * Shows both text posts and voice posts for each category.
- * Categories include: Idea, Observation, Thought, Gratitude, Concern, Gossip
- *
- * @component
- * @example
- * <ShoutCategories />
- */
-
 "use client";
 
 import { useState } from "react";
@@ -21,26 +9,20 @@ import handHeart from "../icons/shout-categories/handHeart";
 import alertTriangle from "../icons/shout-categories/alertTriangle";
 import messageSquare from "../icons/shout-categories/messageSquare";
 
-/**
- * Category interface
- * Defines the structure of each shout category
- */
 interface Category {
-  /** Icon component for the category */
   icon: React.ComponentType<{ className?: string }>;
-  /** Category name */
   name: string;
-  /** Number of text posts in this category */
   textPosts: number;
-  /** Number of voice posts in this category */
   voicePosts: number;
 }
 
-/**
- * Categories data
- * Array of all shout categories with their icons and counts
- */
-const categories: Category[] = [
+interface ShoutCategoryData {
+  category: string;
+  textPosts: number;
+  voicePosts: number;
+}
+
+const defaultCategories: Category[] = [
   { icon: light, name: "Idea", textPosts: 240, voicePosts: 240 },
   { icon: eye, name: "Observation", textPosts: 240, voicePosts: 240 },
   { icon: brain, name: "Thought", textPosts: 240, voicePosts: 240 },
@@ -49,13 +31,34 @@ const categories: Category[] = [
   { icon: messageSquare, name: "Gossip", textPosts: 240, voicePosts: 240 },
 ];
 
-/**
- * Shout Categories Component
- *
- * Renders a list of categories with their post counts
- */
-export default function ShoutCategories() {
+
+export default function ShoutCategories({
+  categories,
+}: {
+  categories?: ShoutCategoryData[];
+}) {
   const [selectedType, setSelectedType] = useState<"text" | "voice">("text");
+  const categoryIconMap: Record<
+    string,
+    React.ComponentType<{ className?: string }>
+  > = {
+    Idea: light,
+    Observation: eye,
+    Thought: brain,
+    Gratitude: handHeart,
+    Concern: alertTriangle,
+    Gossip: messageSquare,
+  };
+
+  const listToRender: Category[] =
+    categories && categories.length > 0
+      ? categories.map((item) => ({
+          icon: categoryIconMap[item.category] ?? messageSquare,
+          name: item.category,
+          textPosts: item.textPosts,
+          voicePosts: item.voicePosts,
+        }))
+      : defaultCategories;
 
   return (
     <Card className="bg-[#101012] rounded-2xl border-0 h-full flex flex-col">
@@ -90,9 +93,9 @@ export default function ShoutCategories() {
 
       {/* Categories List */}
       <div className="flex-1 px-6 pb-6 flex flex-col justify-start items-start overflow-y-auto">
-        {categories.map((category, index) => {
+        {listToRender.map((category, index) => {
           const IconComponent = category.icon;
-          const isLast = index === categories.length - 1;
+          const isLast = index === listToRender.length - 1;
 
           return (
             <div

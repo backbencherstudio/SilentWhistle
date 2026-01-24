@@ -40,6 +40,7 @@ const formatDate = (monthIndex: number) => {
  */
 interface UserGrowthChartProps {
   selectedPeriod: 'year' | 'month' | 'week';
+  data?: { label: string; active: number; anonymous: number }[];
 }
 
 /**
@@ -47,7 +48,7 @@ interface UserGrowthChartProps {
  * 
  * Renders a line chart visualization of user growth data using ApexCharts
  */
-export default function UserGrowthChart({ selectedPeriod }: UserGrowthChartProps) {
+export default function UserGrowthChart({ selectedPeriod, data }: UserGrowthChartProps) {
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const [tooltipData, setTooltipData] = useState<{
     value: string;
@@ -55,12 +56,19 @@ export default function UserGrowthChart({ selectedPeriod }: UserGrowthChartProps
     left: number;
     top: number;
   }>({
-    value: '241K',
-    date: 'June 21, 2025',
+    value: '0',
+    date: '',
     left: 37.42,
     top: 30,
   });
   const chartContainerRef = useRef<HTMLDivElement>(null);
+
+  const formatCount = (value: number) => {
+    if (value >= 1000) {
+      return `${Math.round(value / 100) / 10}K`;
+    }
+    return `${Math.round(value)}`;
+  };
   
   // Helper function to calculate Y position of green line center based on values
   const calculateGreenLineCenterY = (activeValue: number, anonymousValue: number) => {
@@ -117,13 +125,34 @@ export default function UserGrowthChart({ selectedPeriod }: UserGrowthChartProps
     }
   };
 
+  const hasApiData = Array.isArray(data) && data.length > 0;
+  const apiSeries = hasApiData
+    ? {
+        labels: data.map((item) => item.label),
+        active: data.map((item) => item.active),
+        anonymous: data.map((item) => item.anonymous),
+      }
+    : null;
+
   const currentData = getCurrentData();
-  const activeData = currentData.active;
-  const anonymousData = currentData.anonymous;
-  const xAxisCategories = 'months' in currentData ? currentData.months : 'weeks' in currentData ? currentData.weeks : currentData.days;
+  const activeData = hasApiData ? apiSeries!.active : currentData.active;
+  const anonymousData = hasApiData ? apiSeries!.anonymous : currentData.anonymous;
+  const xAxisCategories = hasApiData
+    ? apiSeries!.labels
+    : 'months' in currentData
+      ? currentData.months
+      : 'weeks' in currentData
+        ? currentData.weeks
+        : currentData.days;
+  const latestActive = activeData[activeData.length - 1] ?? 0;
+  const latestAnonymous = anonymousData[anonymousData.length - 1] ?? 0;
+  const totalUsers = latestActive + latestAnonymous;
 
   // Helper function to format date based on period
   const formatDateByPeriod = (index: number) => {
+    if (hasApiData) {
+      return data?.[index]?.label ?? '';
+    }
     if (selectedPeriod === 'year') {
       return formatDate(index);
     } else if (selectedPeriod === 'month') {
@@ -173,7 +202,7 @@ export default function UserGrowthChart({ selectedPeriod }: UserGrowthChartProps
               const topPercentage = (greenLineCenterY / 394) * 100;
               
             setTooltipData({
-              value: `${Math.round(value)}K`,
+              value: formatCount(value),
               date: date,
               left: Math.max(5, Math.min(95, leftPercentage)),
               top: Math.max(5, Math.min(85, topPercentage - 8)),
@@ -194,7 +223,7 @@ export default function UserGrowthChart({ selectedPeriod }: UserGrowthChartProps
                 const topPercentage = (greenLineCenterY / 394) * 100;
                 
             setTooltipData({
-              value: `${Math.round(value)}K`,
+              value: formatCount(value),
               date: date,
               left: Math.max(5, Math.min(95, leftPercentage)),
               top: Math.max(5, Math.min(85, topPercentage - 8)),
@@ -207,7 +236,7 @@ export default function UserGrowthChart({ selectedPeriod }: UserGrowthChartProps
                 const topPercentage = (greenLineCenterY / 394) * 100;
                 
                 setTooltipData({
-                  value: `${Math.round(value)}K`,
+                  value: formatCount(value),
                   date: date,
                   left: leftPercentage,
                   top: Math.max(5, Math.min(85, topPercentage - 8)),
@@ -243,7 +272,7 @@ export default function UserGrowthChart({ selectedPeriod }: UserGrowthChartProps
                 const topPercentage = (greenLineCenterY / 394) * 100;
                 
             setTooltipData({
-              value: `${Math.round(value)}K`,
+              value: formatCount(value),
               date: date,
               left: Math.max(5, Math.min(95, leftPercentage)),
               top: Math.max(5, Math.min(85, topPercentage - 8)),
@@ -257,7 +286,7 @@ export default function UserGrowthChart({ selectedPeriod }: UserGrowthChartProps
                 const topPercentage = (greenLineCenterY / 394) * 100;
                 
                 setTooltipData({
-                  value: `${Math.round(value)}K`,
+                  value: formatCount(value),
                   date: date,
                   left: leftPercentage,
                   top: Math.max(5, Math.min(85, topPercentage - 8)),
@@ -302,7 +331,7 @@ export default function UserGrowthChart({ selectedPeriod }: UserGrowthChartProps
     yaxis: {
       labels: {
         formatter: (value: number) => {
-          return `${Math.round(value)}K`;
+          return formatCount(value);
         },
         style: {
           colors: '#9ca3af',
@@ -380,20 +409,20 @@ export default function UserGrowthChart({ selectedPeriod }: UserGrowthChartProps
                 User
               </div>
               <div className="font-['Inter',Helvetica] font-semibold text-white text-2xl tracking-[0] leading-[38.4px]">
-                240.8K
+                {formatCount(totalUsers)}
       </div>
         </div>
             <div className="flex items-center gap-[18px]">
           <div className="flex items-center gap-2">
                 <div className="w-[7px] h-[7px] bg-[#38e07b] rounded-full" />
                 <div className="font-['Inter',Helvetica] font-light text-gray-400 text-sm tracking-[0] leading-[15.4px]">
-                  Active: 18,234
+                  Active: {formatCount(latestActive)}
                 </div>
           </div>
           <div className="flex items-center gap-2">
                 <div className="w-[7px] h-[7px] bg-[#7485ff] rounded-full" />
                 <div className="font-['Inter',Helvetica] font-light text-gray-400 text-sm tracking-[0] leading-[15.4px]">
-                  Anonymous: 6,358
+                  Anonymous: {formatCount(latestAnonymous)}
                 </div>
               </div>
           </div>
@@ -471,11 +500,11 @@ export default function UserGrowthChart({ selectedPeriod }: UserGrowthChartProps
                       const topPercentage = (greenLineCenterY / rect.height) * 100;
                       
             setTooltipData({
-              value: `${Math.round(value)}K`,
-              date: date,
-              left: Math.max(5, Math.min(95, leftPercentage)),
-              top: Math.max(5, Math.min(85, topPercentage - 8)),
-            });
+                      value: formatCount(value),
+                      date: date,
+                      left: Math.max(5, Math.min(95, leftPercentage)),
+                      top: Math.max(5, Math.min(85, topPercentage - 8)),
+                    });
                       setTooltipVisible(true);
                     }
                   }

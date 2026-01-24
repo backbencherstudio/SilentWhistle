@@ -125,12 +125,15 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
             {/* User Growth Chart - Takes 2 columns on large screens */}
             <div className="lg:col-span-2">
-              <UserGrowthChart selectedPeriod={selectedPeriod} />
+              <UserGrowthChart
+                selectedPeriod={selectedPeriod}
+                data={overviews?.overview}
+              />
             </div>
 
             {/* Shout Categories - Takes 1 column on large screens */}
             <div className="lg:col-span-1">
-              <ShoutCategories />
+              <ShoutCategories categories={overviews?.shoutCategories} />
             </div>
           </div>
         </div>
