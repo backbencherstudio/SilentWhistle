@@ -131,48 +131,45 @@ const Notification = () => {
           <button
             type="button"
             onClick={handleDeleteAll}
-            disabled={isDeletingAll || rawItems.length === 0}
+            disabled={isDeletingAll || isDeleting || rawItems.length === 0}
             className="px-3 py-2 text-sm text-red-500 border bg-red-500/20 border-red-500/60 rounded-lg hover:text-red-200 hover:border-red-400/60 disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {isDeletingAll ? "Deleting..." : "Delete all"}
+            {isDeletingAll || isDeleting ? "Deleting..." : "Delete all"}
           </button>
         </div>
 
-        {/* Today */}
-        <div className="mb-5">
-          <h1 className="font-medium text-lg leading-[132%] -tracking-[1%] mb-3">
-            Today
-          </h1>
-          <div className="space-y-3">
-            {notificationData.today.length === 0 && (
-              <div className="text-sm text-neutral-400">No notifications.</div>
-            )}
-            {notificationData.today.map((item) => (
-              <NotificationCard
-                key={item.id}
-                notification={item}
-                onDelete={() => handleDelete(item.id)}
-                isDeleting={isDeleting}
-              />
-            ))}
+        {notificationData.today.length > 0 && (
+          <div className="mb-5">
+            <h1 className="font-medium text-lg leading-[132%] -tracking-[1%] mb-3">
+              Today
+            </h1>
+            <div className="space-y-3">
+              {notificationData.today.map((item) => (
+                <NotificationCard
+                  key={item.id}
+                  notification={item}
+                  onDelete={() => handleDelete(item.id)}
+                  isDeleting={isDeleting}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-        <div>
-          <h2 className="mb-3 text-lg font-medium">Yesterday</h2>
-          <div className="space-y-3">
-            {notificationData.yesterday.length === 0 && (
-              <div className="text-sm text-neutral-400">No notifications.</div>
-            )}
-            {notificationData.yesterday.map((item) => (
-              <NotificationCard
-                key={item.id}
-                notification={item}
-                onDelete={() => handleDelete(item.id)}
-                isDeleting={isDeleting}
-              />
-            ))}
+        )}
+        {notificationData.yesterday.length > 0 && (
+          <div>
+            <h2 className="mb-3 text-lg font-medium">Yesterday</h2>
+            <div className="space-y-3">
+              {notificationData.yesterday.map((item) => (
+                <NotificationCard
+                  key={item.id}
+                  notification={item}
+                  onDelete={() => handleDelete(item.id)}
+                  isDeleting={isDeleting}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
