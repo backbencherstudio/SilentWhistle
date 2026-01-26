@@ -3,11 +3,14 @@ import baseApi from "../baseApi";
 
 export const paymentsApis = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getTransactions: builder.query<any, { page: number; limit: number }>({
-      query: ({ page, limit }) => ({
+    getTransactions: builder.query<
+      any,
+      { page: number; limit: number; search?: string }
+    >({
+      query: ({ page, limit, search }) => ({
         url: "/admin/payment-transaction",
         method: "GET",
-        params: { page, limit },
+        params: { page, limit, search },
       }),
       providesTags: ["TRANSACTIONS"],
     }),
@@ -27,6 +30,19 @@ export const paymentsApis = baseApi.injectEndpoints({
       }),
       providesTags: ["NOTIFICATIONS"],
     }),
+
+    getSearchTransactions: builder.query<
+      PaymentOverviewResponse,
+      { page: number; limit: number; search?: string },
+      void
+    >({
+      query: ({ page, limit, search }) => ({
+        url: "/admin/payment-transaction",
+        method: "GET",
+        params: { page, limit, search },
+      }),
+      providesTags: ["NOTIFICATIONS"],
+    }),
   }),
   overrideExisting: true,
 });
@@ -35,4 +51,5 @@ export const {
   useGetTransactionsQuery,
   useGetTransactionDetailsQuery,
   useGetTransactionAnalyticsQuery,
+  useGetSearchTransactionsQuery,
 } = paymentsApis;

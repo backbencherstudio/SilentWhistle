@@ -1,58 +1,56 @@
 "use client";
 
-import { MoreVerticalIcon, User } from "lucide-react";
-import React, { useState } from "react";
+import { User } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
+import TablePagination from "../common/TablePagination";
+import { useGetTransactionsQuery } from "@/redux/features/payments/payments.api";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import UserProfileModal from "./modal/UserViewModal";
-import UserEditModal from "./modal/UserEditModal";
-import UserDeleteModal from "./modal/UserDeleteModal";
-import { BaseUser, UserFinance, UserProfileData } from "@/app/types/user";
+interface FinanceAndPaymentTableProps {
+  search?: string;
+}
 
-export type FinanceUserRow = BaseUser & UserFinance;
-const userData: FinanceUserRow[] = [
-  {
-    id: "1",
-    avatar: "/frame-1597883940.svg",
-    name: "Frank Flores",
-    username: "@Ludovic_Migneault",
-    transactionId: "TXN-2024-001",
-    date: "05/12/2024",
-    status: "Active",
-    amount: 14.99,
-    paymentPlan: "Yearly",
-  },
-  {
-    id: "2",
-    avatar: "/frame-1597883940.svg",
-    name: "Frank Flores",
-    username: "@Ludovic_Migneault",
-    transactionId: "TXN-2024-001",
-    date: "05/12/2024",
-    status: "Active",
-    amount: 14.99,
-    paymentPlan: "Monthly",
-  },
-  {
-    id: "3",
-    avatar: "/frame-1597883940.svg",
-    name: "Frank Flores",
-    username: "@Ludovic_Migneault",
-    transactionId: "TXN-2024-001",
-    date: "05/12/2024",
-    status: "Active",
-    amount: 14.99,
-    paymentPlan: "Yearly",
-  },
-];
+interface TransactionUser {
+  id?: string;
+  name?: string;
+  username?: string;
+  avatar?: string;
+  email?: string;
+}
+
+interface TransactionPlan {
+  name?: string;
+  interval?: string;
+  price?: number | string;
+}
+
+interface PaymentTransaction {
+  id: string;
+  transactionId?: string;
+  date?: string;
+  status?: string;
+  amount?: number | string;
+  currency?: string;
+  provider?: string;
+  type?: string;
+  user?: TransactionUser;
+  plan?: TransactionPlan;
+  subscriptionStatus?: string;
+}
+
+interface TransactionMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+interface TransactionsResponse {
+  data: PaymentTransaction[];
+  meta: TransactionMeta;
+}
 
 const headerColumns = [
   { label: "Name" },
@@ -64,26 +62,99 @@ const headerColumns = [
   { label: "Actions" },
 ];
 
-export const FinanceAndPaymentTable = (): React.ReactElement => {
-  const [profileOpen, setProfileOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<BaseUser | null>(null);
+const formatDate = (dateString?: string) => {
+  if (!dateString) return "N/A";
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return "N/A";
 
-  const mapToProfileUser = (user: BaseUser): UserProfileData => ({
-    id: user.id,
-    name: user.name,
-    username: user.username,
-    status: user.status,
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear().toString().slice(-2);
 
-    email: user.email ?? "notprovided@email.com",
-    joinedDate: user.joinedDate ?? "05/12/2024",
-    documentCount: user.documentCount ?? 0,
+  return `${day}/${month}/${year}`;
+};
 
-    location: "New York, USA",
-    role: "Free User",
-    reportsAgainst: 2,
+const getStatusStyles = (status?: string) => {
+  const normalized = status?.toLowerCase();
+  if (normalized === "success" || normalized === "paid") {
+    return { bg: "bg-[#162924]", text: "text-[#38e07b]" };
+  }
+  if (normalized === "failed" || normalized === "cancelled") {
+    return { bg: "bg-[#2f1300]", text: "text-red-500" };
+  }
+  if (normalized === "pending") {
+    return { bg: "bg-[#2f1300]", text: "text-[#ff8000]" };
+  }
+  return { bg: "bg-neutral-800", text: "text-gray-300" };
+};
+
+const formatAmount = (amount?: number | string, currency?: string) => {
+  if (amount === undefined || amount === null) return "N/A";
+  const numericAmount = Number(amount);
+  if (Number.isNaN(numericAmount)) return "N/A";
+
+  try {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: currency || "USD",
+      maximumFractionDigits: 0,
+    }).format(numericAmount);
+  } catch {
+    return `${numericAmount}`;
+  }
+};
+
+export const FinanceAndPaymentTable = ({
+  search,
+}: FinanceAndPaymentTableProps): React.ReactElement => {
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  const {
+    data,
+    isLoading,
+    isFetching,
+    isError,
+    refetch,
+  } = useGetTransactionsQuery({
+    page,
+    limit,
+    search: search || undefined,
   });
+
+  const transactions = (data as TransactionsResponse | undefined)?.data ?? [];
+  const meta = (data as TransactionsResponse | undefined)?.meta;
+
+  const formattedTransactions = useMemo(() => {
+    return transactions.map((transaction) => ({
+      ...transaction,
+      displayName: transaction.user?.name || "Unknown User",
+      displayUsername: transaction.user?.username || "N/A",
+      displayAvatar: transaction.user?.avatar || "",
+      displayPlan: transaction.plan?.name || "N/A",
+      displayStatus: transaction.status || "Unknown",
+    }));
+  }, [transactions]);
+
+  const handlePageSizeChange = (size: number) => {
+    setLimit(size);
+    setPage(1);
+  };
+
+  if (isError) {
+    return (
+      <div className="p-6 text-red-400">
+        Failed to load transactions.
+        <button onClick={refetch} className="underline ml-2">
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -98,134 +169,137 @@ export const FinanceAndPaymentTable = (): React.ReactElement => {
           ))}
         </header>
 
-        {userData.map((user) => (
-          <div
-            key={user.id}
-            className="flex h-16 items-center w-full border-t border-solid border-[#212529]"
-          >
-            {/* Name */}
-            <div className="flex-1 flex items-center gap-2 px-4.5">
-              <Avatar className="w-9 h-9 rounded-full border border-solid border-[#e3e5e6] bg-gray-700">
-                <AvatarFallback className="bg-gray-700 text-gray-300">
-                  <User className="w-5 h-5" />
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex flex-col gap-1">
-                <div className="font-['Inter'] font-medium text-white text-sm">
-                  {user.name}
-                </div>
-                <div className="font-['Inter'] font-normal text-gray-400 text-xs">
-                  {user.username}
-                </div>
-              </div>
-            </div>
-
-            {/* TransactionId */}
-            <div className="flex-1 flex items-center px-4.5">
-              <div className="font-['Inter'] font-medium text-gray-50 text-sm">
-                {user.transactionId}
-              </div>
-            </div>
-
-            {/* Date */}
-            <div className="flex-1 flex items-center px-4.5">
-              <div className="font-['Inter'] font-medium text-gray-50 text-sm">
-                {user.date}
-              </div>
-            </div>
-
-            {/* Status */}
-            <div className="flex-1 flex items-center px-4.5">
-              <Badge
-                className={`inline-flex items-center justify-center gap-2.5 px-2.5 py-1.5 rounded-lg border-0 ${
-                  user.status === "Active" ? "bg-[#162924]" : "bg-[#2f1300]"
-                }`}
+        {isLoading ? (
+          <FinanceTableSkeleton />
+        ) : formattedTransactions.length > 0 ? (
+          formattedTransactions.map((transaction) => {
+            const statusStyles = getStatusStyles(transaction.displayStatus);
+            return (
+              <div
+                key={transaction.id}
+                className="flex h-16 items-center w-full border-t border-solid border-[#212529]"
               >
-                <span
-                  className={`text-base font-['Inter'] font-medium ${
-                    user.status === "Active"
-                      ? "text-[#38e07b]"
-                      : "text-[#ff8000]"
-                  }`}
-                >
-                  {user.status}
-                </span>
-              </Badge>
-            </div>
+                {/* Name */}
+                <div className="flex-1 flex items-center gap-2 px-4.5">
+                  {transaction.displayAvatar ? (
+                    <div className="relative w-9 h-9 rounded-full border border-solid border-[#e3e5e6]">
+                      <Image
+                        src={transaction.displayAvatar}
+                        alt={transaction.displayName}
+                        fill
+                        className="object-cover rounded-full"
+                      />
+                    </div>
+                  ) : (
+                    <Avatar className="w-9 h-9 rounded-full border border-solid border-[#e3e5e6] bg-gray-700">
+                      <AvatarFallback className="bg-gray-700 text-gray-300">
+                        <User className="w-5 h-5" />
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
+                  <div className="flex flex-col gap-1">
+                    <div className="font-['Inter'] font-medium text-white text-sm">
+                      {transaction.displayName}
+                    </div>
+                    <div className="font-['Inter'] font-normal text-gray-400 text-xs">
+                      {transaction.displayUsername}
+                    </div>
+                  </div>
+                </div>
 
-            {/* Amount */}
-            <div className="flex-1 flex items-center px-4.5">
-              <div className="font-['Inter'] font-medium text-gray-50 text-sm">
-                ${user.amount}
-              </div>
-            </div>
+                {/* TransactionId */}
+                <div className="flex-1 flex items-center px-4.5">
+                  <div className="font-['Inter'] font-medium text-gray-50 text-sm">
+                    {transaction.transactionId || "N/A"}
+                  </div>
+                </div>
 
-            {/* Payment Plan */}
-            <div className="flex-1 flex items-center px-4.5">
-              <div className="font-['Inter'] font-medium text-gray-50 text-sm">
-                {user.paymentPlan}
-              </div>
-            </div>
+                {/* Date */}
+                <div className="flex-1 flex items-center px-4.5">
+                  <div className="font-['Inter'] font-medium text-gray-50 text-sm">
+                    {formatDate(transaction.date)}
+                  </div>
+                </div>
 
-            {/* Actions */}
-            <div className="flex-1 flex items-center justify-start">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="w-6 h-6 p-0">
-                    <MoreVerticalIcon className="w-6 h-6 text-gray-50" />
-                  </Button>
-                </DropdownMenuTrigger>
-
-                <DropdownMenuContent
-                  align="end"
-                  className="min-w-40 bg-neutral-900 border border-zinc-800 rounded-lg"
-                >
-                  <DropdownMenuItem
-                    onClick={() => {
-                      setSelectedUser(user);
-                      setProfileOpen(true);
-                    }}
-                    className="cursor-pointer text-white focus:bg-neutral-800 focus:text-white"
+                {/* Status */}
+                <div className="flex-1 flex items-center px-4.5">
+                  <Badge
+                    className={`inline-flex items-center justify-center gap-2.5 px-2.5 py-1.5 rounded-lg border-0 ${statusStyles.bg}`}
                   >
+                    <span
+                      className={`text-base font-['Inter'] font-medium ${statusStyles.text}`}
+                    >
+                      {transaction.displayStatus}
+                    </span>
+                  </Badge>
+                </div>
+
+                {/* Amount */}
+                <div className="flex-1 flex items-center px-4.5">
+                  <div className="font-['Inter'] font-medium text-gray-50 text-sm">
+                    {formatAmount(transaction.amount, transaction.currency)}
+                  </div>
+                </div>
+
+                {/* Payment Plan */}
+                <div className="flex-1 flex items-center px-4.5">
+                  <div className="font-['Inter'] font-medium text-gray-50 text-sm">
+                    {transaction.displayPlan}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex-1 flex items-center justify-start">
+                  <button className="bg-green-600/20 px-3 py-1 rounded cursor-pointer">
                     View
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem
-                    onClick={() => {
-                      setSelectedUser(user);
-                      setEditOpen(true);
-                    }}
-                    className="cursor-pointer text-white focus:bg-neutral-800 focus:text-white"
-                  >
-                    Edit
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem
-                    onClick={() => {
-                      setSelectedUser(user);
-                      setDeleteOpen(true);
-                    }}
-                    className="cursor-pointer text-red-400 focus:bg-neutral-800 focus:text-red-400"
-                  >
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-        ))}
+                  </button>
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <EmptyState />
+        )}
       </div>
 
-      {/* Modal */}
-      <UserProfileModal
-        open={profileOpen}
-        onOpenChange={setProfileOpen}
-        user={selectedUser ? mapToProfileUser(selectedUser) : null}
-      />
-
-      <UserEditModal open={editOpen} onOpenChange={setEditOpen} />
-      <UserDeleteModal open={deleteOpen} onOpenChange={setDeleteOpen} />
+      {meta && meta.totalPages > 1 && (
+        <div className="flex justify-center">
+          <TablePagination
+            page={page}
+            totalPages={meta.totalPages ?? 1}
+            onPageChange={setPage}
+            pageSize={limit}
+            onPageSizeChange={handlePageSizeChange}
+            showRefresh
+            onRefresh={!isLoading ? refetch : undefined}
+            isFetching={isFetching}
+          />
+        </div>
+      )}
     </>
   );
 };
 export default FinanceAndPaymentTable;
+
+const FinanceTableSkeleton = () => (
+  <>
+    {[...Array(10)].map((_, i) => (
+      <div
+        key={i}
+        className="flex h-16 items-center w-full border-t border-[#212529] animate-pulse"
+      >
+        {headerColumns.map((_, idx) => (
+          <div key={idx} className="flex-1 px-4.5">
+            <div className="h-4 bg-neutral-700 rounded w-3/4" />
+          </div>
+        ))}
+      </div>
+    ))}
+  </>
+);
+
+const EmptyState = () => (
+  <div className="py-12 text-center text-gray-400">
+    No transactions found
+  </div>
+);

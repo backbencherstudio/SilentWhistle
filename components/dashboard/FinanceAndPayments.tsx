@@ -1,13 +1,16 @@
 "use client";
 import { ChevronDown, Search } from "lucide-react";
+import { useState } from "react";
 import { Button } from "../ui/button";
 import FinanceAndPaymentStats from "./FinanceAndPaymentStats";
 import FinanceAndPaymentTable from "./FinanceAndPaymentTable";
-import { useGetTransactionAnalyticsQuery } from "@/redux/features/payments/payments.api";
+import {
+  useGetTransactionAnalyticsQuery,
+} from "@/redux/features/payments/payments.api";
 
 const FinanceAndPayments = () => {
-  const { data: analytics, isLoading } = useGetTransactionAnalyticsQuery();
-  
+  const { data: analytics } = useGetTransactionAnalyticsQuery();
+  const [search, setSearch] = useState("");
 
   return (
     <div className="text-white">
@@ -30,6 +33,8 @@ const FinanceAndPayments = () => {
             <input
               type="text"
               placeholder="Search users or shouts..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               className="flex-1 bg-transparent border-0 outline-0 text-zinc-400 text-base font-['Inter'] leading-4 placeholder:text-zinc-400"
             />
           </div>
@@ -55,7 +60,7 @@ const FinanceAndPayments = () => {
       </div>
       <div>
         <div className="w-full overflow-x-auto">
-          <FinanceAndPaymentTable />
+          <FinanceAndPaymentTable search={search} />
         </div>
       </div>
     </div>
