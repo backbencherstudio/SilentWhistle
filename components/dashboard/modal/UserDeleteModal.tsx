@@ -13,12 +13,16 @@ interface UserProfileModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   desc?: string;
+  onConfirm?: () => void;
+  isLoading?: boolean;
 }
 
 const UserDeleteModal = ({
   open,
   onOpenChange,
   desc = "Are you sure you to Delete this Account?",
+  onConfirm,
+  isLoading = false,
 }: UserProfileModalProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -48,7 +52,11 @@ const UserDeleteModal = ({
                 Cancel
               </Button>
             </DialogClose>
-            <Button className=" mt-4 w-full rounded-xl bg-[#0C2A16] text-[#EB3D4D] hover:bg-[#0E341B] h-11 font-medium cursor-pointer">
+            <Button
+              onClick={onConfirm}
+              disabled={isLoading}
+              className=" mt-4 w-full rounded-xl bg-[#0C2A16] text-[#EB3D4D] hover:bg-[#0E341B] h-11 font-medium cursor-pointer disabled:opacity-60"
+            >
               Delete
             </Button>
           </div>

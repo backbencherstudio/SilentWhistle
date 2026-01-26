@@ -19,6 +19,7 @@ import WarningModal from "./modal/WarningModal";
 import DeleteIcon from "../icons/DeleteIcon";
 import UserDeleteModal from "./modal/UserDeleteModal";
 import {
+  useDeleteReportMutation,
   useGetAllReportsQuery,
   useGetReportAnalyticsQuery,
 } from "@/redux/features/reports-moderation/reports-moderation.api";
@@ -52,6 +53,8 @@ export const ReportsModeration = (): React.ReactElement => {
     isFetching,
     refetch,
   } = useGetAllReportsQuery({ page, limit, type });
+
+  const [deleteReport, { isLoading: isDeleting }] = useDeleteReportMutation();
 
   const allReports = allData?.data;
   const meta = allData?.meta;
@@ -259,10 +262,10 @@ export const ReportsModeration = (): React.ReactElement => {
                             row?.status === "PENDING"
                               ? "bg-yellow-800 text-yellow-500 hover:bg-yellow-800"
                               : row?.status === "RESOLVED"
-                              ? "bg-[#162924] text-[#38e07b] hover:bg-[#162924]"
-                              : row?.status === "HIGH_SEVERITY"
-                              ? "bg-[#3f0005] text-[#ff0012] hover:bg-[#3f0005]"
-                              : "bg-[#162924] text-[#38e07b] hover:bg-[#162924]"
+                                ? "bg-[#162924] text-[#38e07b] hover:bg-[#162924]"
+                                : row?.status === "HIGH_SEVERITY"
+                                  ? "bg-[#3f0005] text-[#ff0012] hover:bg-[#3f0005]"
+                                  : "bg-[#162924] text-[#38e07b] hover:bg-[#162924]"
                           }`}
                         >
                           {row?.status}
@@ -306,8 +309,7 @@ export const ReportsModeration = (): React.ReactElement => {
                         <Button
                           onClick={(e) => {
                             e.stopPropagation();
-
-                            console.log("Review clicked for row", index);
+                            setSelectedReportId(row.id);
                             setDeleteOpen(true);
                           }}
                           className="bg-transparent hover:bg-transparent cursor-pointer"
@@ -364,6 +366,17 @@ export const ReportsModeration = (): React.ReactElement => {
         desc="This can't be undone. Visit your settings to delete any memories saved during this chat."
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
+        isLoading={isDeleting}
+        onConfirm={async () => {
+          if (!selectedReportId) return;
+          try {
+            await deleteReport(selectedReportId).unwrap();
+            setDeleteOpen(false);
+            setSelectedReportId(null);
+          } catch (error) {
+            console.error("Failed to delete report", error);
+          }
+        }}
       />
     </div>
   );
