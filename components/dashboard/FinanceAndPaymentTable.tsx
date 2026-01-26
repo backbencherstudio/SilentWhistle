@@ -299,7 +299,7 @@ const FinanceTableSkeleton = () => (
 );
 
 const EmptyState = () => (
-  <div className="py-12 text-center text-gray-400">
+  <div className="py-12 text-center w-full text-gray-400">
     No transactions found
   </div>
 );
