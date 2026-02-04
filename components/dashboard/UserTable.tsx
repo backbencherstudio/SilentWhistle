@@ -1,6 +1,6 @@
 "use client";
 
-import { MoreVerticalIcon, User } from "lucide-react";
+import { DeleteIcon, MoreVerticalIcon, User } from "lucide-react";
 import { ReactElement, useState } from "react";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Badge } from "../ui/badge";
@@ -15,11 +15,16 @@ import {
 import UserProfileModal from "./modal/UserViewModal";
 import UserEditModal from "./modal/UserEditModal";
 import UserDeleteModal from "./modal/UserDeleteModal";
-import { useGetAllUsersQuery } from "@/redux/features/user-management/user-management.api";
+import {
+  useDeleteSingleUserByIdMutation,
+  useGetAllUsersQuery,
+} from "@/redux/features/user-management/user-management.api";
 import TablePagination from "../common/TablePagination";
 import { IUser } from "@/redux/features/user-management/types";
 import IdentityCardIcon from "../icons/IdentityCardIcon";
 import Image from "next/image";
+import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/utils";
 
 interface UserTableProps {
   status?: string;
@@ -75,6 +80,20 @@ export const UserTable = ({ status, search }: UserTableProps): ReactElement => {
   const handlePageSizeChange = (size: number) => {
     setLimit(size);
     setPage(1);
+  };
+
+  const [deleteSingleUser, deleteCtx] = useDeleteSingleUserByIdMutation();
+  const handleDeleteUser = async (id?: string) => {
+    if (!id) return;
+
+    try {
+      await deleteSingleUser({ id: id }).unwrap();
+      toast.success("User deleted successfully");
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Failed to delete user"));
+    } finally {
+      setDeleteOpen(false);
+    }
   };
 
   if (isError) {
@@ -149,7 +168,7 @@ export const UserTable = ({ status, search }: UserTableProps): ReactElement => {
                   {/* Email */}
                   <td className="px-4.5">
                     <div className="font-['Inter'] font-medium text-gray-50 text-sm">
-                      {user?.email}
+                      {user?.email}|{user?.id}
                     </div>
                   </td>
 
@@ -304,8 +323,17 @@ export const UserTable = ({ status, search }: UserTableProps): ReactElement => {
         user={selectedUser}
       />
 
-      <UserEditModal open={editOpen} onOpenChange={setEditOpen} />
-      <UserDeleteModal open={deleteOpen} onOpenChange={setDeleteOpen} />
+      <UserEditModal
+        user={selectedUser}
+        open={editOpen}
+        onOpenChange={setEditOpen}
+      />
+      <UserDeleteModal
+        onConfirm={async () => handleDeleteUser(selectedUser?.id)}
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        isLoading={deleteCtx.isLoading}
+      />
     </>
   );
 };

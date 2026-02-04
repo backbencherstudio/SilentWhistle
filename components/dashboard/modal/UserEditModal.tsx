@@ -7,13 +7,15 @@ import {
   DialogOverlay,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { IUser } from "@/redux/features/user-management/types";
 
 interface UserProfileModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  user: IUser | null;
 }
 
-const UserEditModal = ({ open, onOpenChange }: UserProfileModalProps) => {
+const UserEditModal = ({ open, onOpenChange, user }: UserProfileModalProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogOverlay className="bg-black/40 backdrop-blur-xs" />
@@ -24,7 +26,14 @@ const UserEditModal = ({ open, onOpenChange }: UserProfileModalProps) => {
           </DialogTitle>
         </DialogHeader>
 
-        <UserEditForm />
+        <UserEditForm
+          onUpdateDone={() => onOpenChange(false)}
+          id={user?.id}
+          defaultValue={{
+            name: user?.name,
+            email: user?.email,
+          }}
+        />
       </DialogContent>
     </Dialog>
   );

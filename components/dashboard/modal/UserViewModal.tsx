@@ -8,8 +8,8 @@ import {
   DialogOverlay,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { IUser } from "@/redux/features/user-management/types";
 import { useRouter } from "next/navigation";
+import { IUser } from "@/redux/features/user-management/types";
 
 interface UserProfileModalProps {
   open: boolean;
@@ -38,8 +38,9 @@ const UserProfileModal = ({
 
   const data = [
     { label: "Username:", value: user?.username },
-    { label: "Phone:", value: user?.phone_number || "N/A" },
+    { label: "Location", value: user?.address || "N/A" },
     { label: "Email:", value: user?.email },
+    { label: "Phone:", value: user?.phone_number || "N/A" },
     { label: "Role:", value: user?.type ?? "user" },
     { label: "Join Date:", value: formatDate(user?.created_at) },
     {

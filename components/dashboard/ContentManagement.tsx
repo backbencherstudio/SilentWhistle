@@ -29,7 +29,7 @@ import UserProfileModal from "./modal/UserViewModal";
 import UserEditModal from "./modal/UserEditModal";
 import UserDeleteModal from "./modal/UserDeleteModal";
 
-interface UserData {
+export interface UserData {
   id: string;
   avatar: string;
   name: string;
@@ -383,7 +383,11 @@ export const ContentManagement = (): React.ReactElement => {
         user={selectedUser}
       />
 
-      <UserEditModal open={editOpen} onOpenChange={setEditOpen} />
+      <UserEditModal
+        user={selectedUser}
+        open={editOpen}
+        onOpenChange={setEditOpen}
+      />
       <UserDeleteModal open={deleteOpen} onOpenChange={setDeleteOpen} />
     </div>
   );

@@ -1,9 +1,11 @@
+import { WithStatus } from "@/types/shared";
 import baseApi from "../baseApi";
 import {
   IGetAllUsersParams,
   IGetAllUsersResponse,
   IGetSingleUserParams,
   IGetSingleUserResponse,
+  IUser,
 } from "./types";
 
 export const userManagementApi = baseApi.injectEndpoints({
@@ -15,7 +17,7 @@ export const userManagementApi = baseApi.injectEndpoints({
         params,
       }),
 
-      providesTags: ["USER"],
+      providesTags: ["USERS"],
     }),
 
     getSingleUserById: builder.query<
@@ -27,11 +29,42 @@ export const userManagementApi = baseApi.injectEndpoints({
         method: "GET",
         params,
       }),
+      providesTags: (_result, _error, { id }) => [{ type: "USERS", id }],
+    }),
 
-      providesTags: ["USER"],
+    deleteSingleUserById: builder.mutation<WithStatus<void>, { id: string }>({
+      query: ({ id }) => ({
+        url: `/admin/user/${id}`,
+        method: "DELETE",
+      }),
+
+      invalidatesTags: (_result, _error, { id }) => [
+        "USERS",
+        { type: "USERS", id },
+      ],
+    }),
+
+    updateSingleUserById: builder.mutation<
+      WithStatus<void>,
+      { id: string; data: Partial<IUser> }
+    >({
+      query: ({ id, data }) => ({
+        url: `/admin/user/${id}`,
+        method: "PATCH",
+        body: data,
+      }),
+
+      invalidatesTags: (_result, _error, { id }) => [
+        "USERS",
+        { type: "USERS", id },
+      ],
     }),
   }),
 });
 
-export const { useGetAllUsersQuery, useGetSingleUserByIdQuery } =
-  userManagementApi;
+export const {
+  useGetAllUsersQuery,
+  useGetSingleUserByIdQuery,
+  useDeleteSingleUserByIdMutation,
+  useUpdateSingleUserByIdMutation,
+} = userManagementApi;
