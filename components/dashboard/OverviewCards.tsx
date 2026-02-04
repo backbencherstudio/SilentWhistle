@@ -1,40 +1,42 @@
 "use client";
 import Image from "next/image";
 import { Card, CardContent } from "../ui/card";
+import { IDashboartOverviewPeriodResponse } from "@/redux/features/overview/overview.api";
 
-export default function OverviewCards({ CardData }: { CardData: any }) {
-
-  console.log(CardData)
-
- const statsData = [
-  {
-    title: "Total Users",
-    value: CardData?.totalUsers?.total ?? 0,
-    badge: {
-      text: `Active: ${CardData?.totalUsers?.active ?? 0} | Inactive: ${CardData?.totalUsers?.inactive ?? 0}`,
-      bgColor: "bg-[#0a160d]",
-      textColor: "text-[#38e07b]",
+export default function OverviewCards({
+  cardData,
+}: {
+  cardData?: IDashboartOverviewPeriodResponse;
+}) {
+  const statsData = [
+    {
+      title: "Total Users",
+      value: cardData?.totalUsers?.total ?? 0,
+      badge: {
+        text: `Active: ${cardData?.totalUsers?.active ?? 0} | Inactive: ${cardData?.totalUsers?.inactive ?? 0}`,
+        bgColor: "bg-[#0a160d]",
+        textColor: "text-[#38e07b]",
+      },
     },
-  },
-  {
-    title: "Total Shouts/Posts",
-    value: CardData?.totalShouts?.total ?? 0,
-    badge: {
-      text: `Text: ${CardData?.totalShouts?.text ?? 0} | Voice: ${CardData?.totalShouts?.voice ?? 0}`,
-      bgColor: "bg-[#14151c]",
-      textColor: "text-[#7485ff]",
+    {
+      title: "Total Shouts/Posts",
+      value: cardData?.totalShouts?.total ?? 0,
+      badge: {
+        text: `Text: ${cardData?.totalShouts?.text ?? 0} | Voice: ${cardData?.totalShouts?.voice ?? 0}`,
+        bgColor: "bg-[#14151c]",
+        textColor: "text-[#7485ff]",
+      },
     },
-  },
-  {
-    title: "Total Reports",
-    value: CardData?.totalReports?.total ?? 0,
-    badge: {
-      text: `Pending: ${CardData?.totalReports?.pending ?? 0} | Resolved: ${CardData?.totalReports?.resolved ?? 0}`,
-      bgColor: "bg-[#1a1600]",
-      textColor: "text-[#8ac45c]",
+    {
+      title: "Total Reports",
+      value: cardData?.totalReports?.total ?? 0,
+      badge: {
+        text: `Pending: ${cardData?.totalReports?.pending ?? 0} | Resolved: ${cardData?.totalReports?.resolved ?? 0}`,
+        bgColor: "bg-[#1a1600]",
+        textColor: "text-[#8ac45c]",
+      },
     },
-  },
-];
+  ];
 
   return (
     <section className="flex w-full items-stretch gap-3">
