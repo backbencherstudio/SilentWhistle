@@ -4,9 +4,7 @@ import { useState } from "react";
 import { Button } from "../ui/button";
 import FinanceAndPaymentStats from "./FinanceAndPaymentStats";
 import FinanceAndPaymentTable from "./FinanceAndPaymentTable";
-import {
-  useGetTransactionAnalyticsQuery,
-} from "@/redux/features/payments/payments.api";
+import { useGetTransactionAnalyticsQuery } from "@/redux/features/payments/payments.api";
 
 const FinanceAndPayments = () => {
   const { data: analytics } = useGetTransactionAnalyticsQuery();

@@ -11,6 +11,13 @@ export const shoutManage = baseApi.injectEndpoints({
       }),
       providesTags: ["SHOUT_MANAGE"],
     }),
+    getAllShoutContentManagement: builder.query<WithStatus<ShoutManageItem[]>, void>({
+      query: () => ({
+        url: "/admin/shout",
+        method: "GET",
+      }),
+      providesTags: ["SHOUT_MANAGE"],
+    }),
   }),
 });
 

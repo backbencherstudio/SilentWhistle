@@ -6,6 +6,28 @@ export type ShoutManageItem = {
     email: string;
     avatar?: string;
   };
+  shouts: {
+    id: string;
+    content: string;
+    location: string;
+    createdAt: string;
+    type: string;
+    userType: string;
+    status: string;
+    stats: {
+      likes: number;
+      comments: number;
+      shares: number;
+    };
+    medias: Array<{
+      id: string;
+      created_at: string;
+      type: string;
+      url: string;
+      duration: any;
+      shout_id: string;
+    }>;
+  }[];
   stats: {
     postsType: {
       text: number;

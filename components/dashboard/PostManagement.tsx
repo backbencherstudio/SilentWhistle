@@ -3,7 +3,7 @@
 import { UserAvatar } from "@/app/dashboard/user-management/_components/UserAvatar";
 import { Category } from "@/app/dashboard/user-management/_components/UserDataTab";
 import { cn } from "@/lib/utils";
-import { useGetAllShoutsQuery } from "@/redux/features/admin/shout-manage.api";
+import { useGetAllShoutsQuery } from "@/redux/features/shout-manage/shout-manage.api";
 import { AlertCircle, MapPin, Search } from "lucide-react";
 import React from "react";
 import Mic from "../icons/Mic";
