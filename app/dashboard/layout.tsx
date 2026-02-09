@@ -10,9 +10,9 @@
 
 "use client";
 
-import { useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
 import { UserService } from "@/service/user/user.service";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function DashboardLayoutWrapper({
   children,
@@ -20,19 +20,12 @@ export default function DashboardLayoutWrapper({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const pathname = usePathname();
-
-  const isAuthenticated = UserService.isAuthenticated();
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/login");
+    if (!UserService.isAuthenticated()) {
+      router.replace("/login");
     }
-  }, [isAuthenticated, router, pathname]);
-
-  if (!isAuthenticated) {
-    return null;
-  }
+  }, [router]);
 
   return <>{children}</>;
 }

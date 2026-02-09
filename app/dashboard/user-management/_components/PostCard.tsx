@@ -1,53 +1,23 @@
-import LikeIcon from "@/components/icons/LikeIcon";
-import Thumbs from "@/components/icons/Thumbs";
-import RoundChat from "@/components/icons/RoundChat";
-import ShareIcon from "@/components/icons/ShareIcon";
+import { formatCount, getRelativeTime } from "@/lib/utils/formatter";
+import { IShout } from "@/redux/features/user-management/types";
 import { Lightbulb, MapPin } from "lucide-react";
 import Image from "next/image";
+import { UserAvatar } from "./UserAvatar";
 import WaveformPlayer from "./WaveformPlayer";
+import LikeIcon from "@/components/icons/LikeIcon";
+import { Skeleton } from "@/components/ui/skeleton";
 
-type PostType = "image" | "audio";
-
-export type Post = {
-  id: string;
-  user: {
-    name: string;
-    avatar: string;
-  };
-  category: string;
-  location: string;
-  timeAgo: string;
-  description?: string;
-  type: PostType;
-  mediaUrl?: string;
-  liked: boolean;
-  stats: {
-    likes: number;
-    comments: number;
-    shares: number;
-  };
-};
-
-export default function PostCard({
-  post,
-  onToggleLike,
-}: {
-  post: Post;
-  onToggleLike: (id: string) => void;
-}) {
+export default function PostCard({ post }: { post: IShout }) {
   return (
-    <div className="bg-[#161616] p-5 rounded-xl">
+    <div className="bg-[#161616] last:mb-6 p-5 rounded-xl">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
-          <div className="relative w-10 h-10">
-            <Image
-              src={post.user.avatar}
-              alt="user image"
-              fill
-              className="object-cover rounded-full"
-            />
-          </div>
+          <UserAvatar
+            className="size-10"
+            name={post.user.name}
+            avatar={post.user.avatar}
+          />
 
           <div className="flex flex-col gap-2">
             <h1 className="text-lg leading-[132%] -tracking-[1%]">
@@ -72,78 +42,83 @@ export default function PostCard({
         </div>
 
         <p className="text-xs font-light leading-[132%] -tracking-[1%] text-[#D2D2D5]">
-          {post.timeAgo}
+          {getRelativeTime(post.created_at)}
         </p>
       </div>
 
       {/* Description */}
-      {post.description && (
+      {post.content && (
         <p className="text-base font-light leading-[160%] -tracking-[1%] text-[#E9E9EA] mt-5 mb-3">
-          {post.description}
+          {post.content}
         </p>
       )}
 
       {/* Media */}
-      {post.type === "image" && post.mediaUrl && (
-        <div className="relative w-full h-52.5">
-          <Image
-            src={post.mediaUrl}
-            alt="post image"
-            fill
-            className="object-cover rounded-xl"
-          />
-        </div>
-      )}
+      <div className="space-y-4">
+        {post.medias.map((media) => {
+          return (
+            <div key={media.id}>
+              {media.type === "IMAGE" && media.url && (
+                <div className="relative w-full h-52.5">
+                  <Image
+                    src={media.url}
+                    alt="post image"
+                    fill
+                    className="object-cover rounded-xl"
+                  />
+                </div>
+              )}
 
-      {post.type === "audio" && post.mediaUrl && (
-        <div className="mt-4">
-          <WaveformPlayer audioUrl={post.mediaUrl} />
-        </div>
-      )}
+              {media.type === "AUDIO" && (
+                <WaveformPlayer audioUrl={media.url} />
+              )}
+            </div>
+          );
+        })}
+      </div>
 
       {/* Stats */}
       <div className="flex items-center justify-between mt-5 mb-3">
         <div className="flex gap-1 items-center">
           <LikeIcon />
           <p className="font-medium text-xs leading-[132%] tracking-[0.5%]">
-            {formatCount(post.stats.likes)}
+            {formatCount(post?._count?.likes ?? 0)}
           </p>
         </div>
 
         <div className="text-xs leading-[132%] tracking-[0.5%] flex items-center gap-1">
-          <p>{post.stats.comments} comments</p>
+          <p>{formatCount(post._count.comments)} comments</p>
           <p className="text-[#484849]">•</p>
-          <p>{post.stats.shares} shares</p>
+          <p>{formatCount(post._count.shares)} shares</p>
         </div>
       </div>
 
       {/* Actions */}
-      <div className="flex items-center justify-between border-t border-t-[#474747] pt-3">
-        <button
-          onClick={() => onToggleLike(post.id)}
-          className={`flex items-center gap-1 transition hover:opacity-80 ${
-            post.liked ? "text-[#38E07B]" : "text-white"
-          }`}
-        >
-          {post.liked ? <LikeIcon size="24" /> : <Thumbs />}
-          <p>Like</p>
-        </button>
-
-        <button className="flex items-center gap-1 hover:opacity-80 transition">
-          <RoundChat stroke="white" />
-          <p>Comment</p>
-        </button>
-
-        <button className="flex items-center gap-1 hover:opacity-80 transition">
-          <ShareIcon />
-          <p>Share</p>
-        </button>
-      </div>
+      {/* <div className="flex items-center justify-between border-t border-t-[#474747] pt-3"> */}
+      {/*   <button */}
+      {/*     onClick={() => onToggleLike(post.id)} */}
+      {/*     className={`flex items-center gap-1 transition hover:opacity-80 ${ */}
+      {/*       post.liked ? "text-[#38E07B]" : "text-white" */}
+      {/*     }`} */}
+      {/*   > */}
+      {/*     {post.liked ? <LikeIcon size="24" /> : <Thumbs />} */}
+      {/*     <p>Like</p> */}
+      {/*   </button> */}
+      {/**/}
+      {/*   <button className="flex items-center gap-1 hover:opacity-80 transition"> */}
+      {/*     <RoundChat stroke="white" /> */}
+      {/*     <p>Comment</p> */}
+      {/*   </button> */}
+      {/**/}
+      {/*   <button className="flex items-center gap-1 hover:opacity-80 transition"> */}
+      {/*     <ShareIcon /> */}
+      {/*     <p>Share</p> */}
+      {/*   </button> */}
+      {/* </div> */}
     </div>
   );
 }
 
-function formatCount(num: number) {
-  if (num >= 1000) return (num / 1000).toFixed(1) + "k";
-  return String(num);
+export function PostCardSkeleton() {
+  return <Skeleton className="h-60" />;
 }

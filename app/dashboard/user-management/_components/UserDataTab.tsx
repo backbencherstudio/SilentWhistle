@@ -7,18 +7,43 @@ import RoundChat from "@/components/icons/RoundChat";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
 import AllTabContent from "./AllTabContent";
+import { IShout } from "@/redux/features/user-management/types";
 
-type Category = "all" | "idea" | "concern" | "gossip";
+export const categories = [
+  "All",
+  "Idea",
+  "Observation",
+  "Thought",
+  "Gratitude",
+  "Concern",
+  "Gossip",
+] as const;
 
-const UserDataTab = () => {
-  const [activeTab, setActiveTab] = useState<Category>("all");
+export type Category = (typeof categories)[number];
 
-  const tabHeaders = [
-    { icon: AllIcon, value: "all", text: "all" },
-    { icon: AlertTriangle, value: "concern", text: "concern" },
-    { icon: lightbulb, value: "idea", text: "idea" },
-    { icon: RoundChat, value: "gossip", text: "gossip" },
-  ] as const;
+type TabHeader<T extends Category = Category> = {
+  icon: React.ComponentType<any>;
+  value: T;
+  text: T;
+};
+
+const createTabHeaders = <T extends readonly TabHeader[]>(tabs: T) => tabs;
+
+const tabHeaders = createTabHeaders([
+  { icon: AllIcon, value: "All", text: "All" },
+  { icon: AlertTriangle, value: "Concern", text: "Concern" },
+  { icon: lightbulb, value: "Idea", text: "Idea" },
+  { icon: RoundChat, value: "Gossip", text: "Gossip" },
+  { icon: RoundChat, value: "Observation", text: "Observation" },
+  { icon: RoundChat, value: "Thought", text: "Thought" },
+  { icon: RoundChat, value: "Gratitude", text: "Gratitude" },
+] as const);
+
+const UserDataTab = (props: {
+  shouts?: IShout[];
+  contentIsLoading?: boolean;
+}) => {
+  const [activeTab, setActiveTab] = useState<Category>("All");
 
   return (
     <div>
@@ -51,7 +76,11 @@ const UserDataTab = () => {
 
         {tabHeaders.map((header) => (
           <TabsContent key={header.value} value={header.value}>
-            <AllTabContent category={header.value} />
+            <AllTabContent
+              contentIsLoading={props.contentIsLoading}
+              shouts={props.shouts}
+              category={header.value}
+            />
           </TabsContent>
         ))}
       </Tabs>

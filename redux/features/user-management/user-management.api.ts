@@ -21,7 +21,7 @@ export const userManagementApi = baseApi.injectEndpoints({
     }),
 
     getSingleUserById: builder.query<
-      IGetSingleUserResponse,
+      WithStatus<IGetSingleUserResponse>,
       IGetSingleUserParams
     >({
       query: ({ id, ...params }) => ({

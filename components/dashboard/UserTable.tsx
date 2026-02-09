@@ -25,6 +25,7 @@ import IdentityCardIcon from "../icons/IdentityCardIcon";
 import Image from "next/image";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
+import Link from "next/link";
 
 interface UserTableProps {
   status?: string;
@@ -137,22 +138,24 @@ export const UserTable = ({ status, search }: UserTableProps): ReactElement => {
                   {/* Name */}
                   <td className="px-4.5">
                     <div className="flex items-center gap-2">
-                      {user?.avatar ? (
-                        <div className="relative w-9 h-9 rounded-full border border-solid border-[#e3e5e6]">
-                          <Image
-                            src={user?.avatar}
-                            alt={user?.name}
-                            fill
-                            className="object-cover rounded-full"
-                          />
-                        </div>
-                      ) : (
-                        <Avatar className="w-9 h-9 rounded-full border border-solid border-[#e3e5e6] bg-gray-700">
-                          <AvatarFallback className="bg-gray-700 text-gray-300">
-                            <User className="w-5 h-5" />
-                          </AvatarFallback>
-                        </Avatar>
-                      )}
+                      <Link href={`/dashboard/user-management/user/${user.id}`}>
+                        {user?.avatar ? (
+                          <div className="relative w-9 h-9 rounded-full border border-solid border-[#e3e5e6]">
+                            <Image
+                              src={user?.avatar}
+                              alt={user?.name}
+                              fill
+                              className="object-cover rounded-full"
+                            />
+                          </div>
+                        ) : (
+                          <Avatar className="w-9 h-9 rounded-full border border-solid border-[#e3e5e6] bg-gray-700">
+                            <AvatarFallback className="bg-gray-700 text-gray-300">
+                              <User className="w-5 h-5" />
+                            </AvatarFallback>
+                          </Avatar>
+                        )}
+                      </Link>
 
                       <div className="flex flex-col gap-1">
                         <div className="font-['Inter'] font-medium text-white text-sm">
