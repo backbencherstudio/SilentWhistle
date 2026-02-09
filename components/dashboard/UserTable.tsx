@@ -1,6 +1,6 @@
 "use client";
 
-import { DeleteIcon, MoreVerticalIcon, User } from "lucide-react";
+import { DeleteIcon, HeadsetIcon, MoreVerticalIcon, User } from "lucide-react";
 import { ReactElement, useState } from "react";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Badge } from "../ui/badge";
@@ -126,7 +126,7 @@ export const UserTable = ({ status, search }: UserTableProps): ReactElement => {
 
           {allUserLoading ? (
             <tbody>
-              <UserTableSkeleton />
+              <UserTableSkeleton rows={headerColumns.length} />
             </tbody>
           ) : allUsers && allUsers?.length > 0 ? (
             <tbody>
@@ -342,11 +342,17 @@ export const UserTable = ({ status, search }: UserTableProps): ReactElement => {
 };
 export default UserTable;
 
-const UserTableSkeleton = () => (
+export const UserTableSkeleton = ({
+  cols = 10,
+  rows = 6,
+}: {
+  cols?: number;
+  rows?: number;
+}) => (
   <>
-    {[...Array(10)].map((_, i) => (
+    {[...Array(cols)].map((_, i) => (
       <tr key={i} className="h-16 border-t border-[#212529] animate-pulse">
-        {headerColumns.map((_, idx) => (
+        {Array.from({ length: rows }).map((_, idx) => (
           <td key={idx} className="px-4.5">
             <div className="h-4 bg-neutral-700 rounded w-3/4" />
           </td>

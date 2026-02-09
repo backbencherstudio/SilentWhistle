@@ -16,7 +16,7 @@ export function UserAvatar({
   name = "User",
   className,
   imageClassName,
-  iconClassName,
+  iconClassName = "size-5",
 }: UserAvatarProps) {
   const baseClasses =
     "size-17 rounded-full border border-solid border-[#e3e5e6]";

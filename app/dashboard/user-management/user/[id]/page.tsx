@@ -151,6 +151,7 @@ const SingleUserProfilePage = () => {
                   avatar={user?.avatar}
                   name={user?.name}
                   className="size-17"
+                  iconClassName="size-9"
                 />
                 <div>
                   <div className="flex gap-3">
