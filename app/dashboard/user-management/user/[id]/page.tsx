@@ -13,27 +13,82 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-import { useGetSingleUserByIdQuery } from "@/redux/features/user-management/user-management.api";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn, getErrorMessage } from "@/lib/utils";
+import {
+  useBanUserMutation,
+  useGetSingleUserByIdQuery,
+  useWarnUserMutation,
+} from "@/redux/features/user-management/user-management.api";
 import { Ellipsis, MapPin, Search } from "lucide-react";
 import { useParams } from "next/navigation";
+import { toast } from "sonner";
 import { UserAvatar } from "../../_components/UserAvatar";
 import UserDataTab from "../../_components/UserDataTab";
-import { Skeleton } from "@/components/ui/skeleton";
+import { showDashboardToast } from "@/components/ui/CustomToast";
+import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
 
 const SingleUserProfilePage = () => {
   const { id } = useParams<{ id: string }>();
 
-  //   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  // need to look at shouts response
-  const { data, isLoading } = useGetSingleUserByIdQuery({
-    id,
-    shout_page: 1,
-    shout_limit: 10,
-  });
+  const [page, setPage] = useState(1);
+  const limit = 10;
 
+  const { data, isLoading, isFetching } = useGetSingleUserByIdQuery({
+    id,
+    shout_page: page,
+    shout_limit: limit,
+  });
   const user = data?.data;
-  console.table(user?.shouts);
+  const canFetchMoreShouts =
+    user && user?.shouts.length < user?.shouts_meta?.total;
+
+  const [warnUser, { isLoading: warnIsLoading }] = useWarnUserMutation();
+  const [banUser, { isLoading: banIsLoading }] = useBanUserMutation();
+
+  const handleWarn = async () => {
+    if (!user?.id) return;
+
+    try {
+      await warnUser({
+        userId: user?.id,
+      }).unwrap();
+      showDashboardToast({
+        variant: "success",
+        title: "User Warned",
+        description: "User warned successfully!",
+      });
+    } catch (err) {
+      toast.error(getErrorMessage(err, ""));
+      showDashboardToast({
+        variant: "error",
+        title: "Someting went wrong",
+        description: getErrorMessage(err, "Failed to warn user"),
+      });
+    }
+  };
+
+  const handleBan = async () => {
+    if (!user?.id) return;
+
+    try {
+      await banUser({
+        userId: user?.id,
+      }).unwrap();
+      showDashboardToast({
+        variant: "success",
+        title: "User Banned",
+        description: "User banned successfully!",
+      });
+    } catch (err) {
+      showDashboardToast({
+        variant: "error",
+        title: "Someting went wrong",
+        description: getErrorMessage(err, "Failed to ban the user"),
+      });
+    }
+  };
 
   return (
     <DashboardLayout>
@@ -96,9 +151,32 @@ const SingleUserProfilePage = () => {
                   className="size-17"
                 />
                 <div>
-                  <h1 className="text-lg font-semibold leading-[132%] tracking-[-1%] mb-1">
-                    {user?.name}
-                  </h1>
+                  <div className="flex gap-3">
+                    <h1 className="text-lg font-semibold leading-[132%] tracking-[-1%] mb-1">
+                      {user?.name}
+                    </h1>
+                    <Badge
+                      className={`inline-flex items-center justify-center px-2 py-1 rounded-lg border-0 ${
+                        user?.status === "ACTIVE"
+                          ? "bg-[#162924]"
+                          : "bg-[#2f1300]"
+                      }`}
+                    >
+                      <span
+                        className={`text-sm font-medium ${
+                          user?.status === "ACTIVE"
+                            ? "text-[#38e07b]"
+                            : user?.status === "WARNING"
+                              ? "text-[#ff8000]"
+                              : "text-red-500"
+                        }`}
+                      >
+                        {warnIsLoading || banIsLoading || isFetching
+                          ? "Updating status"
+                          : user?.status}
+                      </span>
+                    </Badge>
+                  </div>
                   <p className="font-light text-xs leading-[110%] text-[#D2D2D5] mb-3">
                     {user?.username}
                   </p>
@@ -126,11 +204,17 @@ const SingleUserProfilePage = () => {
                     className="w-56 bg-[#181818] text-white shadow-md font-thin text-base leading-[130%] -tracking-[1] border-none"
                     align="end"
                   >
-                    <DropdownMenuItem className="hover:bg-[#181818]! hover:text-white!">
+                    <DropdownMenuItem
+                      onClick={handleWarn}
+                      className="hover:bg-[#181818]! hover:text-white!"
+                    >
                       <UserWarn /> <span>Warn User</span>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator className="mx-2 bg-[#282A39]" />
-                    <DropdownMenuItem className="hover:bg-[#181818]! hover:text-white!">
+                    <DropdownMenuItem
+                      onClick={handleBan}
+                      className="hover:bg-[#181818]! hover:text-white!"
+                    >
                       <UserBan /> <span>Ban User</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -154,6 +238,18 @@ const SingleUserProfilePage = () => {
 
         {/* tabs */}
         <UserDataTab contentIsLoading={isLoading} shouts={user?.shouts} />
+
+        <div className="flex justify-center items-center pb-8">
+          <Button
+            className={cn({
+              hidden: isLoading || !canFetchMoreShouts,
+            })}
+            onClick={() => setPage((prev) => prev + 1)}
+            disabled={isFetching || !canFetchMoreShouts}
+          >
+            {isFetching ? "Loading..." : "Show more"}
+          </Button>
+        </div>
       </div>
     </DashboardLayout>
   );

@@ -171,7 +171,7 @@ export const UserTable = ({ status, search }: UserTableProps): ReactElement => {
                   {/* Email */}
                   <td className="px-4.5">
                     <div className="font-['Inter'] font-medium text-gray-50 text-sm">
-                      {user?.email}|{user?.id}
+                      {user?.email}
                     </div>
                   </td>
 

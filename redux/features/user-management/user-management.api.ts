@@ -29,6 +29,15 @@ export const userManagementApi = baseApi.injectEndpoints({
         method: "GET",
         params,
       }),
+      serializeQueryArgs: ({ endpointName, queryArgs }) => {
+        return `${endpointName}-${queryArgs.id}`;
+      },
+      merge: (currentCache, newData) => {
+        currentCache.data.shouts.push(...newData.data.shouts);
+      },
+      forceRefetch({ currentArg, previousArg }) {
+        return currentArg?.shout_page !== previousArg?.shout_page;
+      },
       providesTags: (_result, _error, { id }) => [{ type: "USERS", id }],
     }),
 
@@ -59,6 +68,26 @@ export const userManagementApi = baseApi.injectEndpoints({
         { type: "USERS", id },
       ],
     }),
+    warnUser: builder.mutation<void, { userId: string }>({
+      query: ({ userId }) => ({
+        url: `/admin/user/${userId}/warn`,
+        method: "POST",
+      }),
+      invalidatesTags: (_result, _error, { userId }) => [
+        "USERS",
+        { type: "USERS", id: userId },
+      ],
+    }),
+    banUser: builder.mutation<void, { userId: string }>({
+      query: ({ userId }) => ({
+        url: `/admin/user/${userId}/ban`,
+        method: "POST",
+      }),
+      invalidatesTags: (_result, _error, { userId }) => [
+        "USERS",
+        { type: "USERS", id: userId },
+      ],
+    }),
   }),
 });
 
@@ -67,4 +96,6 @@ export const {
   useGetSingleUserByIdQuery,
   useDeleteSingleUserByIdMutation,
   useUpdateSingleUserByIdMutation,
+  useWarnUserMutation,
+  useBanUserMutation,
 } = userManagementApi;

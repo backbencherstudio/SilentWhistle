@@ -25,7 +25,9 @@ const AllTabContent = ({ category, contentIsLoading, shouts = [] }: Props) => {
         ))
       ) : filteredPosts.length === 0 ? (
         <p className="text-center text-sm text-gray-400 mt-6">
-          No posts found for {category}.
+          {category == "All"
+            ? "No post found"
+            : `No posts found for ${category}`}
         </p>
       ) : (
         filteredPosts.map((post) => <PostCard key={post.id} post={post} />)

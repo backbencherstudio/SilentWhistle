@@ -93,8 +93,8 @@ export interface IShout {
 
 export interface IGetSingleUserParams {
   id: string;
-  shout_page: number;
-  shout_limit: number;
+  shout_page?: number;
+  shout_limit?: number;
 }
 
 export interface IGetSingleUserResponse extends IUser {
