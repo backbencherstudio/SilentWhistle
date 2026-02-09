@@ -32,8 +32,35 @@ export const userManagementApi = baseApi.injectEndpoints({
       serializeQueryArgs: ({ endpointName, queryArgs }) => {
         return `${endpointName}-${queryArgs.id}`;
       },
-      merge: (currentCache, newData) => {
-        currentCache.data.shouts.push(...newData.data.shouts);
+      merge: (currentCache, newData, { arg }) => {
+        const page = arg?.shout_page ?? 1;
+
+        // Always update user fields
+        currentCache.data = {
+          ...currentCache.data,
+          ...newData.data,
+          shouts: currentCache.data.shouts,
+        };
+
+        // If first page or invalidation → replace shouts
+        if (page === 1) {
+          currentCache.data.shouts = newData.data.shouts;
+          currentCache.data.shouts_meta = newData.data.shouts_meta;
+          return;
+        }
+
+        // Pagination → merge shouts
+        const existingIds = new Set(currentCache.data.shouts.map((s) => s.id));
+
+        const newShouts = newData.data.shouts.filter(
+          (s) => !existingIds.has(s.id),
+        );
+
+        if (newShouts.length) {
+          currentCache.data.shouts.push(...newShouts);
+        }
+
+        currentCache.data.shouts_meta = newData.data.shouts_meta;
       },
       forceRefetch({ currentArg, previousArg }) {
         return currentArg?.shout_page !== previousArg?.shout_page;

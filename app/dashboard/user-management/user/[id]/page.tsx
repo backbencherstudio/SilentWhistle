@@ -35,7 +35,7 @@ const SingleUserProfilePage = () => {
   const [page, setPage] = useState(1);
   const limit = 10;
 
-  const { data, isLoading, isFetching } = useGetSingleUserByIdQuery({
+  const { data, isLoading, isFetching, refetch } = useGetSingleUserByIdQuery({
     id,
     shout_page: page,
     shout_limit: limit,
@@ -54,6 +54,7 @@ const SingleUserProfilePage = () => {
       await warnUser({
         userId: user?.id,
       }).unwrap();
+      refetch();
       showDashboardToast({
         variant: "success",
         title: "User Warned",
@@ -76,6 +77,7 @@ const SingleUserProfilePage = () => {
       await banUser({
         userId: user?.id,
       }).unwrap();
+      refetch();
       showDashboardToast({
         variant: "success",
         title: "User Banned",
