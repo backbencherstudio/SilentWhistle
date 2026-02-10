@@ -19,7 +19,7 @@ export function UserAvatar({
   iconClassName = "size-5",
 }: UserAvatarProps) {
   const baseClasses =
-    "size-17 rounded-full border border-solid border-[#e3e5e6]";
+    "size-17 rounded-full border border-solid border-[#212529]";
 
   if (avatar) {
     return (

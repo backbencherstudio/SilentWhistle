@@ -2,22 +2,13 @@
 
 import { UserAvatar } from "@/app/dashboard/user-management/_components/UserAvatar";
 import { Category } from "@/app/dashboard/user-management/_components/UserDataTab";
-import { cn } from "@/lib/utils";
 import { useGetAllShoutsQuery } from "@/redux/features/shout-manage/shout-manage.api";
-import { AlertCircle, MapPin, Search } from "lucide-react";
+import { AlertCircle, MapPin } from "lucide-react";
 import React from "react";
-import Mic from "../icons/Mic";
+import { PostTypesCell } from "../common/PostTypesCell";
 import light from "../icons/shout-categories/light";
-import TextIcon from "../icons/TextIcon";
 import thumbsup from "../icons/thumbsup";
 import { Badge } from "../ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 import { UserTableSkeleton } from "./UserTable";
 
 const tableHeaders = [
@@ -28,18 +19,7 @@ const tableHeaders = [
   { label: "Reports" },
 ];
 
-const postTypes = [
-  {
-    type: "text",
-    icon: TextIcon,
-  },
-  {
-    type: "audio",
-    icon: Mic,
-  },
-] as const;
-
-const userTypes = [
+export const userTypes = [
   {
     type: "profile",
     label: "Profile",
@@ -115,28 +95,7 @@ export const PostManagement = (): React.ReactElement => {
               {/* Posts Type Column */}
               <td className="px-4.5">
                 <div className="inline-flex items-center gap-1">
-                  {postTypes.map((postType, index) => {
-                    const IconComponent = postType.icon;
-                    return (
-                      <div
-                        key={index}
-                        className={cn(
-                          "items-center gap-2 p-2 rounded-lg inline-flex",
-                          { "text-green-600": postType.type === "audio" },
-                          { "text-blue-400": postType.type === "text" },
-                        )}
-                      >
-                        <div className="inline-flex items-center gap-1.5">
-                          <div className="w-6.5 h-6.5 border border-current rounded-full flex items-center justify-center">
-                            <IconComponent />
-                          </div>
-                          <span className="text-gray-50 font-['Inter'] font-medium text-xs">
-                            {row.stats.postsType[postType.type]}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
+                  <PostTypesCell stats={row.stats} />
                 </div>
               </td>
 

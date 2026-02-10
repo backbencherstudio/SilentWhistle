@@ -26,6 +26,7 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
 import Link from "next/link";
+import { TableCell, TableRow } from "../ui/table";
 
 interface UserTableProps {
   status?: string;
@@ -295,11 +296,7 @@ export const UserTable = ({ status, search }: UserTableProps): ReactElement => {
             </tbody>
           ) : (
             <tbody>
-              <tr>
-                <td colSpan={headerColumns.length}>
-                  <EmptyState />
-                </td>
-              </tr>
+              <EmptyTableState />
             </tbody>
           )}
         </table>
@@ -362,6 +359,14 @@ export const UserTableSkeleton = ({
   </>
 );
 
-const EmptyState = () => (
-  <div className="py-12 text-center text-gray-400">No users found</div>
+export const EmptyTableState = ({
+  msg = "No content available",
+}: {
+  msg?: string;
+}) => (
+  <TableRow className="hover:bg-transparent text-muted-foreground">
+    <TableCell colSpan={100} className="text-center text-base h-12">
+      {msg}
+    </TableCell>
+  </TableRow>
 );
