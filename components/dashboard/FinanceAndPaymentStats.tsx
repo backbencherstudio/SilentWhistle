@@ -1,6 +1,6 @@
-import { amountFormated } from "@/lib/transactions/AmountFormated";
 import { Card, CardContent } from "../ui/card";
 import type { PaymentOverviewResponse } from "@/types/transactions";
+import { formatCurrencyCompact } from "@/lib/utils/formatter";
 
 type FinanceAndPaymentStatsProps = {
   analytics?: PaymentOverviewResponse;
@@ -10,8 +10,7 @@ const FinanceAndPaymentStats = ({ analytics }: FinanceAndPaymentStatsProps) => {
   const statsData = [
     {
       title: "Total Payment",
-      value:
-        amountFormated(Number(analytics?.totalPayment || 0).toString()) || 0,
+      value: formatCurrencyCompact(Number(analytics?.totalPayment || 0)),
       badge: {
         text: "Paid User: " + analytics?.paidUsers,
         bgColor: "bg-[#0a160d]",
@@ -20,10 +19,9 @@ const FinanceAndPaymentStats = ({ analytics }: FinanceAndPaymentStatsProps) => {
     },
     {
       title: "Provider" + " - " + (analytics?.breakdown[0]?.provider || ""),
-      value:
-        amountFormated(
-          Number(analytics?.breakdown[0]?.amount || 0).toString(),
-        ) || 0,
+      value: formatCurrencyCompact(
+        Number(analytics?.breakdown[0]?.amount || 0),
+      ),
       badge: {
         text: analytics?.breakdown[0]?.users + " " + "Users ",
         bgColor: "bg-[#14151c]",
@@ -32,10 +30,9 @@ const FinanceAndPaymentStats = ({ analytics }: FinanceAndPaymentStatsProps) => {
     },
     {
       title: "Total Refunded",
-      value:
-        amountFormated(
-          Number(analytics?.totalCancelledRefunded || 0).toString(),
-        ) || 0,
+      value: formatCurrencyCompact(
+        Number(analytics?.totalCancelledRefunded || 0),
+      ),
       badge: {
         text: analytics?.cancelledRefundedUsers + " User",
         bgColor: "bg-[#1a1600]",
@@ -51,11 +48,11 @@ const FinanceAndPaymentStats = ({ analytics }: FinanceAndPaymentStatsProps) => {
           className="flex-1 flex flex-col bg-[#101012] rounded-2xl border-0"
         >
           <CardContent className="flex flex-col items-start gap-4 px-3.5 py-4 flex-1">
-            <div className="relative self-stretch -mt-px font-['Inter',Helvetica] font-normal text-gray-400 text-base tracking-[0] leading-[17.6px]">
+            <div className="relative capitalize self-stretch -mt-px font-['Inter',Helvetica] font-normal text-gray-400 text-base tracking-[0] leading-[17.6px]">
               {stat.title}
             </div>
             <div className="relative self-stretch font-['Inter',Helvetica] font-semibold text-white text-2xl tracking-[0] leading-[38.4px]">
-              ${stat.value}
+              {stat.value}
             </div>
             <div
               className={`inline-flex items-center justify-center gap-2.5 px-3 py-2 relative flex-[0_0_auto] ${stat.badge.bgColor} rounded-md`}

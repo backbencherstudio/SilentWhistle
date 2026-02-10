@@ -1,10 +1,11 @@
 import { PaymentOverviewResponse } from "@/types/transactions";
 import baseApi from "../baseApi";
+import { TransactionsResponse } from "@/components/dashboard/FinanceAndPaymentTable";
 
 export const paymentsApis = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getTransactions: builder.query<
-      any,
+      TransactionsResponse,
       { page: number; limit: number; search?: string }
     >({
       query: ({ page, limit, search }) => ({

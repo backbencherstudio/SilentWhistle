@@ -47,7 +47,7 @@ interface TransactionMeta {
   totalPages: number;
 }
 
-interface TransactionsResponse {
+export interface TransactionsResponse {
   data: PaymentTransaction[];
   meta: TransactionMeta;
 }
@@ -114,23 +114,17 @@ export const FinanceAndPaymentTable = ({
     setPage(1);
   }, [search]);
 
-  const {
-    data,
-    isLoading,
-    isFetching,
-    isError,
-    refetch,
-  } = useGetTransactionsQuery({
-    page,
-    limit,
-    search: search || undefined,
-  });
-
-  const transactions = (data as TransactionsResponse | undefined)?.data ?? [];
-  const meta = (data as TransactionsResponse | undefined)?.meta;
+  const { data, isLoading, isFetching, isError, refetch } =
+    useGetTransactionsQuery({
+      page,
+      limit,
+      search: search || undefined,
+    });
 
   const formattedTransactions = useMemo(() => {
-    return transactions.map((transaction) => ({
+    if (!data?.data) return [];
+
+    return data?.data.map((transaction) => ({
       ...transaction,
       displayName: transaction.user?.name || "Unknown User",
       displayUsername: transaction.user?.username || "N/A",
@@ -138,7 +132,7 @@ export const FinanceAndPaymentTable = ({
       displayPlan: transaction.plan?.name || "N/A",
       displayStatus: transaction.status || "Unknown",
     }));
-  }, [transactions]);
+  }, [data?.data]);
 
   const handlePageSizeChange = (size: number) => {
     setLimit(size);
@@ -262,11 +256,11 @@ export const FinanceAndPaymentTable = ({
         )}
       </div>
 
-      {meta && meta.totalPages > 1 && (
+      {data?.meta && data?.meta?.totalPages > 1 && (
         <div className="flex justify-center">
           <TablePagination
             page={page}
-            totalPages={meta.totalPages ?? 1}
+            totalPages={data?.meta?.totalPages ?? 1}
             onPageChange={setPage}
             pageSize={limit}
             onPageSizeChange={handlePageSizeChange}
