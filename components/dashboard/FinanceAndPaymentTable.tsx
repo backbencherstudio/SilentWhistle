@@ -1,15 +1,17 @@
 "use client";
 
-import { User } from "lucide-react";
-import React, { useEffect, useMemo, useState } from "react";
-import Image from "next/image";
-import { Avatar, AvatarFallback } from "../ui/avatar";
-import { Badge } from "../ui/badge";
-import TablePagination from "../common/TablePagination";
+import { UserAvatar } from "@/app/dashboard/user-management/_components/UserAvatar";
 import { useGetTransactionsQuery } from "@/redux/features/payments/payments.api";
+import React, { Dispatch, SetStateAction, useState } from "react";
+import TablePagination from "../common/TablePagination";
+import { Badge } from "../ui/badge";
+import FinanceAndPaymentDialog from "./FinanceAndPaymentDialog";
+import { EmptyTableState, UserTableSkeleton } from "./UserTable";
 
 interface FinanceAndPaymentTableProps {
   search?: string;
+  page: number;
+  setPage: Dispatch<SetStateAction<number>>;
 }
 
 interface TransactionUser {
@@ -26,7 +28,7 @@ interface TransactionPlan {
   price?: number | string;
 }
 
-interface PaymentTransaction {
+export interface PaymentTransaction {
   id: string;
   transactionId?: string;
   date?: string;
@@ -50,6 +52,19 @@ interface TransactionMeta {
 export interface TransactionsResponse {
   data: PaymentTransaction[];
   meta: TransactionMeta;
+}
+
+export interface SinglePaymentTransactionResponse {
+  id: string;
+  transactionId?: string;
+  date?: string;
+  status?: string;
+  amount?: number | string;
+  currency?: string;
+  provider?: string;
+  type?: string;
+  user?: TransactionUser | null;
+  subscription?: any | null; // adjust if you have subscription type
 }
 
 const headerColumns = [
@@ -106,13 +121,12 @@ const formatAmount = (amount?: number | string, currency?: string) => {
 
 export const FinanceAndPaymentTable = ({
   search,
+  page,
+  setPage,
 }: FinanceAndPaymentTableProps): React.ReactElement => {
-  const [page, setPage] = useState(1);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [selectedRowIndex, setSelectedRowIndex] = useState(-1);
   const [limit, setLimit] = useState(10);
-
-  useEffect(() => {
-    setPage(1);
-  }, [search]);
 
   const { data, isLoading, isFetching, isError, refetch } =
     useGetTransactionsQuery({
@@ -121,18 +135,7 @@ export const FinanceAndPaymentTable = ({
       search: search || undefined,
     });
 
-  const formattedTransactions = useMemo(() => {
-    if (!data?.data) return [];
-
-    return data?.data.map((transaction) => ({
-      ...transaction,
-      displayName: transaction.user?.name || "Unknown User",
-      displayUsername: transaction.user?.username || "N/A",
-      displayAvatar: transaction.user?.avatar || "",
-      displayPlan: transaction.plan?.name || "N/A",
-      displayStatus: transaction.status || "Unknown",
-    }));
-  }, [data?.data]);
+  const transactions = data?.data || [];
 
   const handlePageSizeChange = (size: number) => {
     setLimit(size);
@@ -152,108 +155,109 @@ export const FinanceAndPaymentTable = ({
 
   return (
     <>
-      <div className="flex flex-col w-full items-start bg-[#101012] rounded-xl overflow-hidden">
-        <header className="flex h-14 items-center w-full bg-[#1a1a1a]">
-          {headerColumns.map((column, index) => (
-            <div key={index} className="flex items-center flex-1 h-full px-4.5">
-              <span className="font-['Inter'] font-medium text-gray-50 text-lg">
-                {column.label}
-              </span>
-            </div>
-          ))}
-        </header>
+      <div className="w-full bg-[#101012] rounded-xl overflow-hidden">
+        <table className="w-full border-collapse">
+          <thead className="bg-[#1a1a1a] h-14">
+            <tr>
+              {headerColumns.map((column, index) => (
+                <th
+                  key={index}
+                  className="text-left px-4.5 font-['Inter'] font-medium text-gray-50 text-lg"
+                >
+                  {column.label}
+                </th>
+              ))}
+            </tr>
+          </thead>
 
-        {isLoading ? (
-          <FinanceTableSkeleton />
-        ) : formattedTransactions.length > 0 ? (
-          formattedTransactions.map((transaction) => {
-            const statusStyles = getStatusStyles(transaction.displayStatus);
-            return (
-              <div
-                key={transaction.id}
-                className="flex h-16 items-center w-full border-t border-solid border-[#212529]"
-              >
-                {/* Name */}
-                <div className="flex-1 flex items-center gap-2 px-4.5">
-                  {transaction.displayAvatar ? (
-                    <div className="relative w-9 h-9 rounded-full border border-solid border-[#e3e5e6]">
-                      <Image
-                        src={transaction.displayAvatar}
-                        alt={transaction.displayName}
-                        fill
-                        className="object-cover rounded-full"
-                      />
-                    </div>
-                  ) : (
-                    <Avatar className="w-9 h-9 rounded-full border border-solid border-[#e3e5e6] bg-gray-700">
-                      <AvatarFallback className="bg-gray-700 text-gray-300">
-                        <User className="w-5 h-5" />
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
-                  <div className="flex flex-col gap-1">
-                    <div className="font-['Inter'] font-medium text-white text-sm">
-                      {transaction.displayName}
-                    </div>
-                    <div className="font-['Inter'] font-normal text-gray-400 text-xs">
-                      {transaction.displayUsername}
-                    </div>
-                  </div>
-                </div>
+          <tbody>
+            {isLoading ? (
+              <UserTableSkeleton cols={headerColumns.length} />
+            ) : transactions.length > 0 ? (
+              transactions.map((transaction, index) => {
+                const statusStyles = getStatusStyles(transaction.status);
 
-                {/* TransactionId */}
-                <div className="flex-1 flex items-center px-4.5">
-                  <div className="font-['Inter'] font-medium text-gray-50 text-sm">
-                    {transaction.transactionId || "N/A"}
-                  </div>
-                </div>
-
-                {/* Date */}
-                <div className="flex-1 flex items-center px-4.5">
-                  <div className="font-['Inter'] font-medium text-gray-50 text-sm">
-                    {formatDate(transaction.date)}
-                  </div>
-                </div>
-
-                {/* Status */}
-                <div className="flex-1 flex items-center px-4.5">
-                  <Badge
-                    className={`inline-flex items-center justify-center gap-2.5 px-2.5 py-1.5 rounded-lg border-0 ${statusStyles.bg}`}
+                return (
+                  <tr
+                    key={transaction.id}
+                    className="h-16 border-t border-solid border-[#212529]"
                   >
-                    <span
-                      className={`text-base font-['Inter'] font-medium ${statusStyles.text}`}
-                    >
-                      {transaction.displayStatus}
-                    </span>
-                  </Badge>
-                </div>
+                    {/* Name */}
+                    <td className="px-4.5">
+                      <div className="flex items-center gap-2">
+                        <UserAvatar
+                          className="size-9"
+                          avatar={transaction.user?.avatar}
+                          name={transaction.user?.name}
+                        />
+                        <div className="flex flex-col gap-1">
+                          <div className="font-['Inter'] font-medium text-white text-sm">
+                            {transaction.user?.name}
+                          </div>
+                          <div className="font-['Inter'] font-normal text-gray-400 text-xs">
+                            {transaction.user?.username}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
 
-                {/* Amount */}
-                <div className="flex-1 flex items-center px-4.5">
-                  <div className="font-['Inter'] font-medium text-gray-50 text-sm">
-                    {formatAmount(transaction.amount, transaction.currency)}
-                  </div>
-                </div>
+                    {/* Transaction ID */}
+                    <td className="px-4.5 font-['Inter'] font-medium text-gray-50 text-sm">
+                      {transaction.transactionId || "N/A"}
+                    </td>
 
-                {/* Payment Plan */}
-                <div className="flex-1 flex items-center px-4.5">
-                  <div className="font-['Inter'] font-medium text-gray-50 text-sm">
-                    {transaction.displayPlan}
-                  </div>
-                </div>
+                    {/* Date */}
+                    <td className="px-4.5 font-['Inter'] font-medium text-gray-50 text-sm">
+                      {formatDate(transaction.date)}
+                    </td>
 
-                {/* Actions */}
-                <div className="flex-1 flex items-center justify-start">
-                  <button className="bg-green-600/20 px-3 py-1 rounded cursor-pointer">
-                    View
-                  </button>
-                </div>
-              </div>
-            );
-          })
-        ) : (
-          <EmptyState />
-        )}
+                    {/* Status */}
+                    <td className="px-4.5">
+                      <Badge
+                        className={`inline-flex items-center justify-center gap-2.5 px-2.5 py-1.5 rounded-lg border-0 ${statusStyles.bg}`}
+                      >
+                        <span
+                          className={`text-base font-['Inter'] font-medium ${statusStyles.text}`}
+                        >
+                          {transaction.status}
+                        </span>
+                      </Badge>
+                    </td>
+
+                    {/* Amount */}
+                    <td className="px-4.5 font-['Inter'] font-medium text-gray-50 text-sm">
+                      {formatAmount(transaction.amount, transaction.currency)}
+                    </td>
+
+                    {/* Payment Plan */}
+                    <td className="px-4.5 font-['Inter'] font-medium text-gray-50 text-sm">
+                      {transaction?.plan?.name}
+                    </td>
+
+                    {/* Actions */}
+                    <td className="px-4.5">
+                      <button
+                        onClick={() => {
+                          setDetailsModalOpen(true);
+                          setSelectedRowIndex(index);
+                        }}
+                        className="bg-green-600/20 px-3 py-1 rounded cursor-pointer"
+                      >
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td colSpan={headerColumns.length}>
+                  <EmptyTableState msg="No transactions found" />
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
 
       {data?.meta && data?.meta?.totalPages > 1 && (
@@ -270,30 +274,13 @@ export const FinanceAndPaymentTable = ({
           />
         </div>
       )}
+
+      <FinanceAndPaymentDialog
+        transaction={transactions[selectedRowIndex]}
+        open={detailsModalOpen}
+        onOpenChange={(v) => setDetailsModalOpen(v)}
+      />
     </>
   );
 };
 export default FinanceAndPaymentTable;
-
-const FinanceTableSkeleton = () => (
-  <>
-    {[...Array(10)].map((_, i) => (
-      <div
-        key={i}
-        className="flex h-16 items-center w-full border-t border-[#212529] animate-pulse"
-      >
-        {headerColumns.map((_, idx) => (
-          <div key={idx} className="flex-1 px-4.5">
-            <div className="h-4 bg-neutral-700 rounded w-3/4" />
-          </div>
-        ))}
-      </div>
-    ))}
-  </>
-);
-
-const EmptyState = () => (
-  <div className="py-12 text-center w-full text-gray-400">
-    No transactions found
-  </div>
-);

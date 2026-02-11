@@ -127,7 +127,7 @@ export const UserTable = ({ status, search }: UserTableProps): ReactElement => {
 
           {allUserLoading ? (
             <tbody>
-              <UserTableSkeleton rows={headerColumns.length} />
+              <UserTableSkeleton cols={headerColumns.length} />
             </tbody>
           ) : allUsers && allUsers?.length > 0 ? (
             <tbody>
@@ -347,9 +347,9 @@ export const UserTableSkeleton = ({
   rows?: number;
 }) => (
   <>
-    {[...Array(cols)].map((_, i) => (
+    {[...Array(rows)].map((_, i) => (
       <tr key={i} className="h-16 border-t border-[#212529] animate-pulse">
-        {Array.from({ length: rows }).map((_, idx) => (
+        {Array.from({ length: cols }).map((_, idx) => (
           <td key={idx} className="px-4.5">
             <div className="h-4 bg-neutral-700 rounded w-3/4" />
           </td>

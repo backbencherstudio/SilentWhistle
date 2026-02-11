@@ -10,20 +10,20 @@ const FinanceAndPaymentStats = ({ analytics }: FinanceAndPaymentStatsProps) => {
   const statsData = [
     {
       title: "Total Payment",
-      value: formatCurrencyCompact(Number(analytics?.totalPayment || 0)),
+      value: formatCurrencyCompact(Number(analytics?.totalPayment ?? 0)),
       badge: {
-        text: "Paid User: " + analytics?.paidUsers,
+        text: "Paid User: " + (analytics?.paidUsers ?? 0),
         bgColor: "bg-[#0a160d]",
         textColor: "text-[#38e07b]",
       },
     },
     {
-      title: "Provider" + " - " + (analytics?.breakdown[0]?.provider || ""),
+      title: "Provider" + " - " + (analytics?.breakdown[0]?.provider ?? ""),
       value: formatCurrencyCompact(
-        Number(analytics?.breakdown[0]?.amount || 0),
+        Number(analytics?.breakdown[0]?.amount ?? 0),
       ),
       badge: {
-        text: analytics?.breakdown[0]?.users + " " + "Users ",
+        text: (analytics?.breakdown[0]?.users ?? 0) + " " + "Users ",
         bgColor: "bg-[#14151c]",
         textColor: "text-[#7485ff]",
       },
@@ -34,7 +34,7 @@ const FinanceAndPaymentStats = ({ analytics }: FinanceAndPaymentStatsProps) => {
         Number(analytics?.totalCancelledRefunded || 0),
       ),
       badge: {
-        text: analytics?.cancelledRefundedUsers + " User",
+        text: (analytics?.cancelledRefundedUsers ?? 0) + " User",
         bgColor: "bg-[#1a1600]",
         textColor: "text-[#8ac45c]",
       },

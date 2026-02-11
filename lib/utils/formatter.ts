@@ -6,6 +6,15 @@ export function getRelativeTime(date?: dayjs.ConfigType) {
   return dayjs(date).fromNow();
 }
 
+export function formatDate(date?: string) {
+  if (!date) return "N/A";
+
+  const parsed = dayjs(date);
+  if (!parsed.isValid()) return "N/A";
+
+  return parsed.format("DD/MM/YYYY");
+}
+
 export function formatCount(count: number, locale: string = "en") {
   if (!Number.isFinite(count)) return "0";
 

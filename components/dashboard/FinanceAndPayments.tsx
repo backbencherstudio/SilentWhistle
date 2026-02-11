@@ -8,6 +8,7 @@ import { useGetTransactionAnalyticsQuery } from "@/redux/features/payments/payme
 
 const FinanceAndPayments = () => {
   const { data: analytics } = useGetTransactionAnalyticsQuery();
+  const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
 
   return (
@@ -32,7 +33,10 @@ const FinanceAndPayments = () => {
               type="text"
               placeholder="Search users or shouts..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                if (page !== 1) setPage(1);
+              }}
               className="flex-1 bg-transparent border-0 outline-0 text-zinc-400 text-base font-['Inter'] leading-4 placeholder:text-zinc-400"
             />
           </div>
@@ -58,7 +62,7 @@ const FinanceAndPayments = () => {
       </div>
       <div>
         <div className="w-full overflow-x-auto">
-          <FinanceAndPaymentTable search={search} />
+          <FinanceAndPaymentTable setPage={setPage} page={page} search={search} />
         </div>
       </div>
     </div>
