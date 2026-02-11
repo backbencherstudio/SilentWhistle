@@ -1,3 +1,4 @@
+import { WithStatus } from "@/types/shared";
 import baseApi from "../baseApi";
 import {
   IGetAllReportResponse,
@@ -11,6 +12,20 @@ interface IGetAllReportParams {
   limit?: number;
   type?: string;
 }
+
+export type BanUserParams = {
+  reason: string;
+  reportId: string;
+  type: "USER" | "SHOUT" | null;
+  status: string;
+};
+
+export type WarnUserParams = {
+  reasons: Array<string>;
+  reportId: string;
+  type: "USER" | "SHOUT" | null;
+  status: string;
+};
 
 export const reportsModerationApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -52,7 +67,7 @@ export const reportsModerationApi = baseApi.injectEndpoints({
       invalidatesTags: ["REPORT"],
     }),
 
-    warnUserFromReport: builder.mutation({
+    warnUserFromReport: builder.mutation<WithStatus<void>, WarnUserParams>({
       query: (body) => ({
         url: "/admin/reports/warn",
         method: "POST",
@@ -72,7 +87,7 @@ export const reportsModerationApi = baseApi.injectEndpoints({
       invalidatesTags: ["USER", "REPORT"],
     }),
 
-    banUser: builder.mutation({
+    banUserFromReport: builder.mutation<WithStatus<void>, BanUserParams>({
       query: (body) => ({
         url: "/admin/reports/ban",
         method: "POST",
@@ -103,12 +118,11 @@ export const reportsModerationApi = baseApi.injectEndpoints({
 
     deleteReport: builder.mutation({
       query: (id) => ({
-        url: `/admin/reports/${id}`,  
+        url: `/admin/reports/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["REPORT"],
     }),
-
   }),
   overrideExisting: true,
 });
@@ -119,7 +133,7 @@ export const {
   useUpdateRepostStatusMutation,
   useWarnUserFromReportMutation,
   useRemoveWarnFromReportMutation,
-  useBanUserMutation,
+  useBanUserFromReportMutation,
   useUnBanUserMutation,
   useRepostSendToUserMutation,
   useDeleteReportMutation,

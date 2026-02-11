@@ -61,7 +61,6 @@ const SingleUserProfilePage = () => {
         description: "User warned successfully!",
       });
     } catch (err) {
-      toast.error(getErrorMessage(err, ""));
       showDashboardToast({
         variant: "error",
         title: "Someting went wrong",

@@ -1,11 +1,26 @@
 "use client";
 
-import { User } from "lucide-react";
+import { UserAvatar } from "@/app/dashboard/user-management/_components/UserAvatar";
+import {
+  useDeleteReportMutation,
+  useGetAllReportsQuery,
+  useGetReportAnalyticsQuery,
+} from "@/redux/features/reports-moderation/reports-moderation.api";
+import Link from "next/link";
 import React, { useState } from "react";
-import { Avatar, AvatarFallback } from "../ui/avatar";
+import TablePagination from "../common/TablePagination";
+import DeleteIcon from "../icons/DeleteIcon";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { Skeleton } from "../ui/skeleton";
 import {
   Table,
   TableBody,
@@ -14,28 +29,12 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
+import { UserTableSkeleton } from "./UserTable";
 import ReviewReportModal from "./modal/ReviewReportModal";
-import WarningModal from "./modal/WarningModal";
-import DeleteIcon from "../icons/DeleteIcon";
 import UserDeleteModal from "./modal/UserDeleteModal";
-import {
-  useDeleteReportMutation,
-  useGetAllReportsQuery,
-  useGetReportAnalyticsQuery,
-} from "@/redux/features/reports-moderation/reports-moderation.api";
-import { Skeleton } from "../ui/skeleton";
-import TablePagination from "../common/TablePagination";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 
 export const ReportsModeration = (): React.ReactElement => {
   const [contentViewModal, setContentViewModalOpen] = useState(false);
-  const [warningModalOpen, setWarningModalOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [selectedReportType, setSelectedReportType] = useState<
@@ -194,29 +193,28 @@ export const ReportsModeration = (): React.ReactElement => {
             </TableHeader>
             <TableBody>
               {allReportsLoading ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center">
-                    <Skeleton className="h-6 w-40 mx-auto bg-neutral-700" />
-                  </TableCell>
-                </TableRow>
+                <UserTableSkeleton cols={6} />
               ) : allReports && allReports.length > 0 ? (
                 allReports?.map((row, index) => (
                   <TableRow
                     key={index}
-                    className="h-16 border-t border-[#212529] hover:bg-transparent cursor-pointer"
-                    onClick={() => {
-                      setWarningModalOpen(true);
-                      console.log("Row clicked", index);
-                    }}
+                    className="h-16 border-t border-[#212529] hover:bg-transparent"
+                    // onClick={() => {
+                    // setWarningModalOpen(true);
+                    // console.log("Row clicked", index);
+                    // }}
                   >
                     {/* Report ID Column */}
                     <TableCell className="p-0">
-                      <div className="flex items-center gap-2 px-4.5">
-                        <Avatar className="w-9 h-9 rounded-full border border-solid border-[#e3e5e6] bg-gray-700">
-                          <AvatarFallback className="bg-gray-700 text-gray-300">
-                            <User className="w-5 h-5" />
-                          </AvatarFallback>
-                        </Avatar>
+                      <Link
+                        href={`/dashboard/user-management/user/${row?.reporter?.id}`}
+                        className="flex items-center gap-2 px-4.5"
+                      >
+                        <UserAvatar
+                          className="size-9"
+                          avatar={row?.reporter?.avatar}
+                          name={row?.reporter?.name}
+                        />
                         <div className="flex flex-col gap-1">
                           <div className="font-medium text-white text-sm font-['Inter']">
                             {row?.reporter?.name}
@@ -225,7 +223,7 @@ export const ReportsModeration = (): React.ReactElement => {
                             {row?.reporter?.username}
                           </div>
                         </div>
-                      </div>
+                      </Link>
                     </TableCell>
 
                     {/* Time & Date Column */}
@@ -275,12 +273,15 @@ export const ReportsModeration = (): React.ReactElement => {
 
                     {/* Reported User Column */}
                     <TableCell className="p-0">
-                      <div className="flex items-center gap-2 px-4.5">
-                        <Avatar className="w-9 h-9 rounded-full border border-solid border-[#e3e5e6] bg-gray-700">
-                          <AvatarFallback className="bg-gray-700 text-gray-300">
-                            <User className="w-5 h-5" />
-                          </AvatarFallback>
-                        </Avatar>
+                      <Link
+                        href={`/dashboard/user-management/user/${row?.reportedEntity?.id}`}
+                        className="flex items-center gap-2 px-4.5"
+                      >
+                        <UserAvatar
+                          className="size-9"
+                          avatar={row?.reportedEntity?.avatar}
+                          name={row?.reportedEntity?.name}
+                        />
                         <div className="flex flex-col gap-1">
                           <div className="font-medium text-white text-sm font-['Inter']">
                             {row?.reportedEntity?.name}
@@ -289,7 +290,7 @@ export const ReportsModeration = (): React.ReactElement => {
                             {row?.reportedEntity.username}
                           </div>
                         </div>
-                      </div>
+                      </Link>
                     </TableCell>
 
                     {/* Actions Column */}
@@ -349,11 +350,6 @@ export const ReportsModeration = (): React.ReactElement => {
           />
         </div>
       )}
-
-      <WarningModal
-        open={warningModalOpen}
-        onOpenChange={setWarningModalOpen}
-      />
 
       <ReviewReportModal
         open={contentViewModal}

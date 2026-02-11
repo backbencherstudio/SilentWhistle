@@ -15,6 +15,23 @@ export function formatDate(date?: string) {
   return parsed.format("DD/MM/YYYY");
 }
 
+export const formatDateTime = (isoString?: string) => {
+    if (!isoString) return "-";
+
+    const date = new Date(isoString);
+
+    const formattedDate = date.toLocaleString("en-US", {
+      month: "numeric",
+      day: "numeric",
+      year: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+
+    return formattedDate;
+  };
+
 export function formatCount(count: number, locale: string = "en") {
   if (!Number.isFinite(count)) return "0";
 
