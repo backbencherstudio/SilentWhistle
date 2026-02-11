@@ -1,10 +1,41 @@
-'use client';
+"use client";
 
-import { ChevronDown } from "lucide-react";
-import React from "react";
+import { getErrorMessage } from "@/lib/utils";
+import { formatDate } from "@/lib/utils/formatter";
+import {
+  useGetMeQuery,
+  useUpdateAdminProfileByIdMutation,
+} from "@/redux/features/profile/profile.api";
+import React, { useState } from "react";
 import { Card, CardContent } from "../ui/card";
+import { showDashboardToast } from "../ui/CustomToast";
+import SystemSettingsForm from "./SystemSettingsForm";
+import { Button } from "../ui/button";
 
 export const SystemSettings = (): React.ReactElement => {
+  const { data } = useGetMeQuery();
+  const [openEditForm, setOpenEditForm] = useState(false);
+
+  const profileData = data?.data;
+
+  const profileFields = [
+    { label: "Name", value: profileData?.name ?? "N/A" },
+    { label: "Username", value: profileData?.username ?? "N/A" },
+    { label: "Email", value: profileData?.email ?? "N/A" },
+    { label: "Phone", value: profileData?.phone_number ?? "N/A" },
+    { label: "Address", value: profileData?.address ?? "N/A" },
+    { label: "Status", value: profileData?.status ?? "N/A" },
+    { label: "Account Type", value: profileData?.type ?? "N/A" },
+    {
+      label: "Email Verified At",
+      value: formatDate(profileData?.email_verified_at),
+    },
+    {
+      label: "Created At",
+      value: formatDate(profileData?.created_at),
+    },
+  ];
+
   return (
     <div className="w-full">
       {/* Header Section */}
@@ -18,99 +49,52 @@ export const SystemSettings = (): React.ReactElement => {
             Configure app and admin settings
           </div>
         </div>
+
+        <Button
+          onClick={() => setOpenEditForm(true)}
+          className="rounded-lg bg-[#0C2A16] text-[#58FF9E] hover:bg-[#0E341B] h-11 font-medium"
+        >
+          Edit Profile
+        </Button>
       </div>
 
       {/* Profile Information Card */}
       <Card className="bg-neutral-900 rounded-2xl border-0">
         <CardContent className="p-6">
           <div className="flex flex-col gap-8">
-            {/* Profile Information Header */}
-            <div className="flex flex-col gap-5">
-              <div className="pb-4 border-b border-neutral-800 inline-flex justify-start items-center gap-5">
-                <div className="text-white text-xl font-semibold font-['Roboto'] leading-6 tracking-tight">
-                  Profile Information
-                </div>
+            <div className="flex pb-4 border-b border-neutral-800 justify-between items-center gap-5">
+              <div className="text-white text-xl font-semibold font-['Roboto'] leading-6 tracking-tight">
+                Profile Information
               </div>
             </div>
 
-            {/* Form Fields */}
-            <div className="flex flex-col gap-4">
-              {/* Row 1: App Name and Email */}
-              <div className="flex flex-col lg:flex-row justify-start items-start gap-5">
-                <div className="flex-1 inline-flex flex-col justify-start items-start gap-1.5 w-full">
-                  <div className="self-stretch text-zinc-400 text-base font-normal font-['Inter'] leading-6 tracking-tight">
-                    App Name
-                  </div>
-                  <div className="self-stretch h-14 p-4 rounded-xl outline outline-1 outline-offset-[-1px] outline-neutral-800 inline-flex justify-end items-center gap-4 bg-[#101012]">
-                    <div className="flex-1 text-zinc-200 text-base font-normal font-['Inter'] leading-6 tracking-tight">
-                      Silent Whistle
-                    </div>
-                  </div>
-                </div>
-                <div className="flex-1 inline-flex flex-col justify-start items-start gap-1.5 w-full">
-                  <div className="self-stretch text-zinc-400 text-base font-normal font-['Inter'] leading-6 tracking-tight">
-                    Email
-                  </div>
-                  <div className="self-stretch h-14 p-4 rounded-xl outline outline-1 outline-offset-[-1px] outline-neutral-800 inline-flex justify-end items-center gap-4 bg-[#101012]">
-                    <div className="flex-1 text-zinc-200 text-base font-normal font-['Inter'] leading-6 tracking-tight">
-                      yoursilentwhistle@email.com
-                    </div>
-                  </div>
-                </div>
-              </div>
+            {profileData ? (
+              <SystemSettingsForm
+                open={openEditForm}
+                onOpenChange={setOpenEditForm}
+                id={profileData?.id}
+                defaultValue={profileData}
+              />
+            ) : null}
 
-              {/* Row 2: Support Email and Phone */}
-              <div className="flex flex-col lg:flex-row justify-start items-start gap-5">
-                <div className="flex-1 flex justify-start items-start gap-5 w-full">
-                  <div className="flex-1 inline-flex flex-col justify-start items-start gap-1.5">
+            <div className="grid grid-cols-2 gap-4">
+              {profileFields.map((field, index) => (
+                <div
+                  key={index}
+                  className="flex flex-col lg:flex-row justify-start items-start gap-5"
+                >
+                  <div className="flex-1 inline-flex flex-col justify-start items-start gap-1.5 w-full">
                     <div className="self-stretch text-zinc-400 text-base font-normal font-['Inter'] leading-6 tracking-tight">
-                      Support Email
+                      {field.label}
                     </div>
-                    <div className="self-stretch h-14 p-4 rounded-xl outline outline-1 outline-offset-[-1px] outline-neutral-800 inline-flex justify-end items-center gap-4 bg-[#101012]">
+                    <div className="self-stretch h-14 p-4 rounded-xl  outline-neutral-800 inline-flex justify-end items-center gap-4 bg-[#101012]">
                       <div className="flex-1 text-zinc-200 text-base font-normal font-['Inter'] leading-6 tracking-tight">
-                        support@app.com
+                        {field.value}
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className="flex-1 inline-flex flex-col justify-start items-start gap-1.5 w-full">
-                  <div className="self-stretch text-zinc-400 text-base font-normal font-['Inter'] leading-6 tracking-tight">
-                    Phone
-                  </div>
-                  <div className="self-stretch h-14 p-4 rounded-xl outline outline-1 outline-offset-[-1px] outline-neutral-800 inline-flex justify-end items-center gap-4 bg-[#101012]">
-                    <div className="flex-1 text-zinc-200 text-base font-normal font-['Inter'] leading-6 tracking-tight">
-                      (225) 555-0118
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Row 3: Language and Address */}
-              <div className="flex flex-col lg:flex-row justify-start items-start gap-5">
-                <div className="flex-1 inline-flex flex-col justify-start items-start gap-1.5 w-full">
-                  <div className="self-stretch text-zinc-400 text-base font-normal font-['Inter'] leading-6 tracking-tight">
-                    Language
-                  </div>
-                  <div className="self-stretch h-14 p-4 rounded-xl outline outline-1 outline-offset-[-1px] outline-neutral-800 inline-flex justify-end items-center gap-4 bg-[#101012] cursor-pointer">
-                    <div className="flex-1 text-zinc-200 text-base font-normal font-['Inter'] leading-6 tracking-tight">
-                      English
-                    </div>
-                    <ChevronDown className="w-6 h-6 text-gray-50 rotate-[-90deg] shrink-0" />
-                  </div>
-                </div>
-                <div className="flex-1 flex justify-start items-start gap-5 w-full">
-                  <div className="flex-1 inline-flex flex-col justify-start items-start gap-1.5">
-                    <div className="self-stretch text-zinc-400 text-base font-normal font-['Inter'] leading-6 tracking-tight">
-                      Address
-                    </div>
-                    <div className="self-stretch h-14 p-4 rounded-xl outline outline-1 outline-offset-[-1px] outline-neutral-800 inline-flex justify-end items-center gap-4 bg-[#101012]">
-                      <div className="flex-1 text-zinc-200 text-base font-normal font-['Inter'] leading-6 tracking-tight">
-                        1901 Thornridge Cir. Shiloh, Hawaii 81063
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </CardContent>
@@ -119,3 +103,76 @@ export const SystemSettings = (): React.ReactElement => {
   );
 };
 
+const UpdateUserProfile = ({ userId }: { userId: string }) => {
+  const [updateUserProfile] = useUpdateUserProfileMutation();
+
+  const [profileData, setProfileData] = useState({
+    name: "",
+    email: "",
+    phone_number: "",
+    address: "",
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setProfileData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleUpdateProfile = async (e) => {
+    try {
+      await updateUserProfile({
+        id: userId,
+        ...profileData,
+      }).unwrap();
+      showDashboardToast({
+        variant: "success",
+        title: "Profile updated successfully",
+      });
+    } catch (error) {
+      showDashboardToast({
+        variant: "error",
+        title: "Failed to update profile.",
+        description: getErrorMessage(error),
+      });
+    }
+  };
+
+  return (
+    <div className="bg-white text-white">
+      <h2>Update Profile</h2>
+      <form onSubmit={handleUpdateProfile}>
+        <input
+          type="text"
+          name="name"
+          value={profileData.name}
+          onChange={handleInputChange}
+          placeholder="Name"
+        />
+        <input
+          type="email"
+          name="email"
+          value={profileData.email}
+          onChange={handleInputChange}
+          placeholder="Email"
+        />
+        <input
+          type="text"
+          name="phone_number"
+          value={profileData.phone_number}
+          onChange={handleInputChange}
+          placeholder="Phone Number"
+        />
+        <input
+          type="text"
+          name="address"
+          value={profileData.address}
+          onChange={handleInputChange}
+          placeholder="Address"
+        />
+        <button type="submit">Update Profile</button>
+      </form>
+    </div>
+  );
+};
+
+export default UpdateUserProfile;

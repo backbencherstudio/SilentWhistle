@@ -24,7 +24,8 @@ const baseApi = createApi({
     "NOTIFICATIONS",
     "TRANSACTIONS",
     "SHOUT_MANAGE",
-    "SHOUT_CONTENT_MANAGEMENT"
+    "SHOUT_CONTENT_MANAGEMENT",
+    "USER_PROFILE",
   ],
   endpoints: () => ({}),
 });
