@@ -1,6 +1,6 @@
 "use client";
 
-import { getErrorMessage } from "@/lib/utils";
+import { cn, getErrorMessage } from "@/lib/utils";
 import { formatDate } from "@/lib/utils/formatter";
 import {
   useGetMeQuery,
@@ -11,9 +11,10 @@ import { Card, CardContent } from "../ui/card";
 import { showDashboardToast } from "../ui/CustomToast";
 import SystemSettingsForm from "./SystemSettingsForm";
 import { Button } from "../ui/button";
+import { Skeleton } from "../ui/skeleton";
 
 export const SystemSettings = (): React.ReactElement => {
-  const { data } = useGetMeQuery();
+  const { data, isLoading } = useGetMeQuery();
   const [openEditForm, setOpenEditForm] = useState(false);
 
   const profileData = data?.data;
@@ -22,18 +23,18 @@ export const SystemSettings = (): React.ReactElement => {
     { label: "Name", value: profileData?.name ?? "N/A" },
     { label: "Username", value: profileData?.username ?? "N/A" },
     { label: "Email", value: profileData?.email ?? "N/A" },
-    { label: "Phone", value: profileData?.phone_number ?? "N/A" },
-    { label: "Address", value: profileData?.address ?? "N/A" },
+    // { label: "Phone", value: profileData?.phone_number ?? "N/A" },
     { label: "Status", value: profileData?.status ?? "N/A" },
     { label: "Account Type", value: profileData?.type ?? "N/A" },
-    {
-      label: "Email Verified At",
-      value: formatDate(profileData?.email_verified_at),
-    },
-    {
-      label: "Created At",
-      value: formatDate(profileData?.created_at),
-    },
+    { label: "Address", value: profileData?.address ?? "N/A" },
+    // {
+    //   label: "Email Verified At",
+    //   value: formatDate(profileData?.email_verified_at),
+    // },
+    // {
+    //   label: "Created At",
+    //   value: formatDate(profileData?.created_at),
+    // },
   ];
 
   return (
@@ -81,7 +82,10 @@ export const SystemSettings = (): React.ReactElement => {
               {profileFields.map((field, index) => (
                 <div
                   key={index}
-                  className="flex flex-col lg:flex-row justify-start items-start gap-5"
+                  className={cn(
+                    "flex flex-col lg:flex-row justify-start items-start gap-5",
+                    // { "col-span-2": field.label === "Address" },
+                  )}
                 >
                   <div className="flex-1 inline-flex flex-col justify-start items-start gap-1.5 w-full">
                     <div className="self-stretch text-zinc-400 text-base font-normal font-['Inter'] leading-6 tracking-tight">
@@ -89,7 +93,11 @@ export const SystemSettings = (): React.ReactElement => {
                     </div>
                     <div className="self-stretch h-14 p-4 rounded-xl  outline-neutral-800 inline-flex justify-end items-center gap-4 bg-[#101012]">
                       <div className="flex-1 text-zinc-200 text-base font-normal font-['Inter'] leading-6 tracking-tight">
-                        {field.value}
+                        {isLoading ? (
+                          <Skeleton className="h-6 w-50" />
+                        ) : (
+                          field.value
+                        )}
                       </div>
                     </div>
                   </div>

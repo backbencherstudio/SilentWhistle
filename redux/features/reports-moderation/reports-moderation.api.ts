@@ -97,7 +97,7 @@ export const reportsModerationApi = baseApi.injectEndpoints({
       invalidatesTags: ["USER", "REPORT"],
     }),
 
-    UnBanUser: builder.mutation({
+    unBanReportedUserUser: builder.mutation<WithStatus<void>, { userId: string }>({
       query: (body) => ({
         url: "/admin/reports/unban",
         method: "POST",
@@ -134,7 +134,7 @@ export const {
   useWarnUserFromReportMutation,
   useRemoveWarnFromReportMutation,
   useBanUserFromReportMutation,
-  useUnBanUserMutation,
+  useUnBanReportedUserUserMutation,
   useRepostSendToUserMutation,
   useDeleteReportMutation,
   useGetSingleReportQuery,

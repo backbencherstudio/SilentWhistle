@@ -40,6 +40,7 @@ export const ReportsModeration = (): React.ReactElement => {
   const [selectedReportType, setSelectedReportType] = useState<
     "USER" | "SHOUT" | null
   >(null);
+  const [selectedReportIndex, setSelectedReportIndex] = useState(-1);
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -301,6 +302,7 @@ export const ReportsModeration = (): React.ReactElement => {
                             e.stopPropagation();
                             setSelectedReportId(row.id);
                             setSelectedReportType(row.type);
+                            setSelectedReportIndex(index);
                             setContentViewModalOpen(true);
                           }}
                           className="px-4 py-2 bg-[#38e07b] text-black hover:bg-[#38e07b] hover:opacity-90 rounded-lg font-['Inter'] font-medium text-sm cursor-pointer"
@@ -356,6 +358,7 @@ export const ReportsModeration = (): React.ReactElement => {
         onOpenChange={setContentViewModalOpen}
         reportId={selectedReportId}
         reportType={selectedReportType}
+        initialReportStatus={allReports?.at(selectedReportIndex)?.status}
       />
 
       <UserDeleteModal
