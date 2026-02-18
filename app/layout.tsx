@@ -1,12 +1,12 @@
 /**
  * Root Layout Component
- * 
+ *
  * The root layout component for the Next.js application.
  * This component wraps all pages and provides:
  * - Global font configuration (Inter with all weights)
  * - HTML structure and metadata
  * - Global CSS imports
- * 
+ *
  * @layout
  */
 
@@ -15,6 +15,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import ReduxProvider from "@/providers/ReduxProvider";
 import { Toaster } from "sonner";
+import AuthProvider from "@/redux/features/auth/AuthProvider";
 
 // Configure Inter font with all available weights
 const inter = Inter({
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
 
 /**
  * Root Layout Component
- * 
+ *
  * Provides the base HTML structure and font configuration for all pages
  */
 export default function RootLayout({
@@ -42,12 +43,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${inter.variable} font-inter antialiased`}
-      >
+      <body className={`${inter.variable} font-inter antialiased bg-black`}>
         <ReduxProvider>
-          {children}
-          <Toaster />
+          <AuthProvider>
+            {children}
+            <Toaster />
+          </AuthProvider>
         </ReduxProvider>
       </body>
     </html>

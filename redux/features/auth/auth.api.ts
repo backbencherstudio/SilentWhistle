@@ -1,4 +1,5 @@
 import baseApi from "../baseApi";
+import { setCredentials } from "./auth.slice";
 import {
   IForgotPasswordPayload,
   IForgotPasswordResponse,
@@ -21,6 +22,16 @@ export const authApi = baseApi.injectEndpoints({
         method: "POST",
         body: userInfo,
       }),
+      onQueryStarted: async (arg, { dispatch, queryFulfilled }) => {
+        try {
+          const { data } = await queryFulfilled;
+          const token = data?.authorization?.access_token;
+          const refreshToken = data?.authorization?.refresh_token;
+          const role = data?.type;
+
+          dispatch(setCredentials({ token, role, refreshToken }));
+        } catch {}
+      },
 
       invalidatesTags: ["USER"],
     }),
@@ -57,25 +68,31 @@ export const authApi = baseApi.injectEndpoints({
       invalidatesTags: ["USER"],
     }),
 
-    resendVerfication: builder.mutation<IResendVerificationResponse, IResendVerificationPayload>({
+    resendVerfication: builder.mutation<
+      IResendVerificationResponse,
+      IResendVerificationPayload
+    >({
       query: (userInfo) => ({
         url: "/auth/resend-verification-email",
         method: "POST",
-        body: userInfo
+        body: userInfo,
       }),
 
-      invalidatesTags: ["USER"]
+      invalidatesTags: ["USER"],
     }),
 
-    resetPassword: builder.mutation<IResetPasswordResponse,IResetPasswordPayload>({
+    resetPassword: builder.mutation<
+      IResetPasswordResponse,
+      IResetPasswordPayload
+    >({
       query: (userInfo) => ({
         url: "/auth/reset-password",
         method: "POST",
-        body: userInfo
+        body: userInfo,
       }),
 
-      invalidatesTags: ["USER"]
-    })
+      invalidatesTags: ["USER"],
+    }),
   }),
 });
 
@@ -85,5 +102,5 @@ export const {
   useForgotPasswordMutation,
   useVerifyOtpMutation,
   useResendVerficationMutation,
-  useResetPasswordMutation
+  useResetPasswordMutation,
 } = authApi;

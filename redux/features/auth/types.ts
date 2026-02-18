@@ -1,3 +1,5 @@
+import { IAuthUserRole } from "./auth.slice";
+
 export interface ILoginPayload {
   email: string;
   password: string;
@@ -12,7 +14,7 @@ export interface ILoginResponse {
     access_token: string;
     refresh_token: string;
   };
-  type: string;
+  type: IAuthUserRole;
 }
 
 export interface ILogoutResponse {

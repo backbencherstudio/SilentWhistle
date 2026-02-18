@@ -15,6 +15,8 @@ import { UserService } from "@/service/user/user.service";
 import Image from "next/image";
 import { useAdminLoginMutation } from "@/redux/features/auth/auth.api";
 import { showDashboardToast } from "@/components/ui/CustomToast";
+import { getErrorMessage } from "@/lib/utils";
+import { useAuth } from "@/redux/features/auth/hooks";
 
 /**
  * Login Page Component
@@ -26,7 +28,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [loginAsAdmin, { isLoading }] = useAdminLoginMutation();
+  const { loginAsAdmin, isLoading } = useAuth();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -39,11 +41,7 @@ export default function LoginPage() {
       return;
     }
     try {
-      const res = await loginAsAdmin({ email, password }).unwrap();
-      UserService.setTokens(
-        res.authorization.access_token,
-        res.authorization.refresh_token,
-      );
+      await loginAsAdmin({ email, password }).unwrap();
 
       showDashboardToast({
         variant: "success",
@@ -56,7 +54,7 @@ export default function LoginPage() {
       showDashboardToast({
         variant: "error",
         title: "Login Failed",
-        description: error?.data?.message || "Invalid credentials. Try again.",
+        description: getErrorMessage(error, "Invalid credentials. Try again."),
       });
     }
   };

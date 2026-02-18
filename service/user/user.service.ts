@@ -3,15 +3,13 @@ import Cookies from "js-cookie";
 export const UserService = {
   setTokens: (access: string, refresh: string) => {
     Cookies.set("access_token", access, {
-      expires: 1,
-      secure: true,
-      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Lax",
     });
 
     Cookies.set("refresh_token", refresh, {
-      expires: 7,
-      secure: true,
-      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Lax",
     });
   },
 

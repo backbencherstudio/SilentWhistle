@@ -1,6 +1,6 @@
 "use client";
 
-import { UserService } from "@/service/user/user.service";
+import { useAuth } from "@/redux/features/auth/hooks";
 import { usePathname, useRouter } from "next/navigation";
 import { PropsWithChildren, useEffect } from "react";
 
@@ -8,7 +8,7 @@ export default function AdminRoute({ children }: PropsWithChildren) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const isAuthenticated = UserService.isAuthenticated();
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     if (!isAuthenticated) {

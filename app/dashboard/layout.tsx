@@ -10,22 +10,12 @@
 
 "use client";
 
-import { UserService } from "@/service/user/user.service";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import AdminRoute from "@/components/auth/AdminRoute";
 
 export default function DashboardLayoutWrapper({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!UserService.isAuthenticated()) {
-      router.replace("/login");
-    }
-  }, [router]);
-
-  return <>{children}</>;
+  return <AdminRoute>{children}</AdminRoute>;
 }
