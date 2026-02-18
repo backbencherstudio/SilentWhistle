@@ -6,16 +6,16 @@ export interface IUser {
   email: string;
   phone_number: string | null;
   address: string | null;
-  type: string;
-  status: string;
+  type: "USER" | "ADMIN" | string;
+  status: "ACTIVE" | "INACTIVE" | "BANNED" | string;
   approved_at: string | null;
   created_at: string;
   updated_at: string;
-  subscription_status: string;
-  avatar_url: string;
+  subscription_status: "free" | "PREMIUM" | "TRIAL" | string;
+  avatar_url: string | null;
 }
 
-export interface IMeta {
+export interface IPaginationMeta {
   page: number;
   limit: number;
   total: number;
@@ -36,7 +36,7 @@ export interface IGetAllUsersParams {
 export interface IGetAllUsersResponse {
   success: boolean;
   data: IUser[];
-  meta: IMeta;
+  meta: IPaginationMeta;
   statusCode: number;
 }
 
@@ -91,33 +91,13 @@ export interface IShout {
   likes: IShoutLike[];
 }
 
-export interface ISingleUser extends IUser {
-  id: string;
-  name: string;
-  avatar: string | null;
-  username: string;
-  email: string;
-  phone_number: string | null;
-  address: string | null;
-  type: string;
-  status: string;
-  approved_at: string | null;
-  created_at: string;
-  updated_at: string;
-  subscription_status: string;
-  avatar_url: string;
-  shouts: IShout[];
-  shouts_meta: IMeta;
-}
-
 export interface IGetSingleUserParams {
   id: string;
-  shout_page: number;
-  shout_limit: number;
+  shout_page?: number;
+  shout_limit?: number;
 }
 
-export interface IGetSingleUserResponse {
-  success: boolean;
-  data: "need to create";
-  statusCode: number;
+export interface IGetSingleUserResponse extends IUser {
+  shouts: IShout[];
+  shouts_meta: IPaginationMeta;
 }

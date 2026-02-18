@@ -1,14 +1,19 @@
 import baseApi from "../baseApi";
-
-type OverviewPeriod = "week" | "month" | "year" | "all" | undefined;
+import {
+  IDashboartOverviewPeriodParams,
+  IDashboartOverviewPeriodResponse,
+} from "./overview.types";
 
 export const overviewApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getOverviewStats: builder.query<any, OverviewPeriod>({
-      query: (period) => ({
+    getOverviewStats: builder.query<
+      IDashboartOverviewPeriodResponse,
+      IDashboartOverviewPeriodParams | void
+    >({
+      query: (params) => ({
         url: "/admin/dashboard/overview",
         method: "GET",
-        params: period ? { period } : undefined,
+        params: params ? params : undefined,
       }),
       providesTags: ["OVERVIEW"],
     }),

@@ -2,7 +2,8 @@ import { UserService } from "@/service/user/user.service";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: process.env.NEXT_PUBLIC_BASE_API_URL,
+  baseUrl:
+    process.env.NEXT_PUBLIC_BASE_API_URL || "http://156.67.221.155:4011/api",
   prepareHeaders: (headers) => {
     const token = UserService.getAccessToken();
     if (token) headers.set("authorization", `Bearer ${token}`);
@@ -15,7 +16,17 @@ const baseQuery = fetchBaseQuery({
 const baseApi = createApi({
   reducerPath: "api",
   baseQuery,
-  tagTypes: ["USER", "REPORT", "OVERVIEW","NOTIFICATIONS", "TRANSACTIONS"],
+  tagTypes: [
+    "USER",
+    "USERS",
+    "REPORT",
+    "OVERVIEW",
+    "NOTIFICATIONS",
+    "TRANSACTIONS",
+    "SHOUT_MANAGE",
+    "SHOUT_CONTENT_MANAGEMENT",
+    "USER_PROFILE",
+  ],
   endpoints: () => ({}),
 });
 

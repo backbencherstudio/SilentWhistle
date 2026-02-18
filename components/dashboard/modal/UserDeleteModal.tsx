@@ -13,6 +13,7 @@ interface UserProfileModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   desc?: string;
+  title?: string;
   onConfirm?: () => void;
   isLoading?: boolean;
 }
@@ -21,6 +22,7 @@ const UserDeleteModal = ({
   open,
   onOpenChange,
   desc = "Are you sure you to Delete this Account?",
+  title = "Delete Account",
   onConfirm,
   isLoading = false,
 }: UserProfileModalProps) => {
@@ -36,9 +38,7 @@ const UserDeleteModal = ({
             <div className="bg-[#003515] px-4 py-3.5 rounded-full w-fit">
               <DeleteIcon />
             </div>
-            <span className="text-lg font-medium leading-[110%]">
-              Delete Account
-            </span>
+            <span className="text-lg font-medium leading-[110%]">{title}</span>
           </DialogTitle>
         </DialogHeader>
         <div className="w-full flex flex-col items-center">
@@ -46,16 +46,15 @@ const UserDeleteModal = ({
             {desc}
           </p>
 
-          <div className="w-full flex items-center gap-4">
+          <div className="w-full flex items-center mt-4 gap-4">
             <DialogClose asChild>
-              <Button className="mt-4 w-full rounded-xl bg-[#0C2A16] text-[#E9E9EA] hover:bg-[#0E341B] h-11 font-medium focus-visible:ring-0 focus-visible:ring-offset-0 cursor-pointer">
-                Cancel
-              </Button>
+              <Button variant="green">Cancel</Button>
             </DialogClose>
             <Button
               onClick={onConfirm}
               disabled={isLoading}
-              className=" mt-4 w-full rounded-xl bg-[#0C2A16] text-[#EB3D4D] hover:bg-[#0E341B] h-11 font-medium cursor-pointer disabled:opacity-60"
+              variant="green"
+              className="text-[#EB3D4D]"
             >
               Delete
             </Button>

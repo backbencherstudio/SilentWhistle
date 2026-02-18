@@ -22,6 +22,7 @@ import dynamic from 'next/dynamic';
 import { TrendingUpIcon } from 'lucide-react';
 import { Badge } from '../ui/badge';
 import { Card, CardContent } from '../ui/card';
+import { Period } from '@/redux/features/overview/overview.types';
 
 // Dynamically import ApexCharts to avoid SSR issues
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
@@ -39,7 +40,7 @@ const formatDate = (monthIndex: number) => {
  * User Growth Chart Component Props
  */
 interface UserGrowthChartProps {
-  selectedPeriod: 'year' | 'month' | 'week';
+  selectedPeriod: Period;
   data?: { label: string; active: number; anonymous: number }[];
 }
 

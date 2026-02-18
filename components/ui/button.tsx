@@ -1,9 +1,8 @@
 import * as React from "react";
 import { cn } from "../../lib/utils";
 
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "default" | "ghost" | "outline";
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "default" | "ghost" | "outline" | "green";
   size?: "default" | "icon" | "sm" | "lg";
 }
 
@@ -12,10 +11,12 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         className={cn(
-          "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none",
+          "inline-flex gap-1.5 items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none",
           {
             "bg-primary text-primary-foreground hover:bg-primary/90":
               variant === "default",
+            "w-full rounded-lg bg-[#0C2A16] text-[#38E07B] hover:bg-[#0E341B] h-12 font-medium focus-visible:ring-0 focus-visible:ring-offset-0 cursor-pointer":
+              variant === "green",
             "hover:bg-accent hover:text-accent-foreground": variant === "ghost",
             "border border-input hover:bg-accent hover:text-accent-foreground":
               variant === "outline",
@@ -24,15 +25,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             "h-9 px-3": size === "sm",
             "h-11 px-8": size === "lg",
           },
-          className
+          className,
         )}
         ref={ref}
         {...props}
       />
     );
-  }
+  },
 );
 Button.displayName = "Button";
 
 export { Button };
-

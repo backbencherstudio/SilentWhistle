@@ -1,6 +1,6 @@
 "use client";
 
-import { MoreVerticalIcon, User } from "lucide-react";
+import { DeleteIcon, HeadsetIcon, MoreVerticalIcon, User } from "lucide-react";
 import { ReactElement, useState } from "react";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Badge } from "../ui/badge";
@@ -15,11 +15,18 @@ import {
 import UserProfileModal from "./modal/UserViewModal";
 import UserEditModal from "./modal/UserEditModal";
 import UserDeleteModal from "./modal/UserDeleteModal";
-import { useGetAllUsersQuery } from "@/redux/features/user-management/user-management.api";
+import {
+  useDeleteSingleUserByIdMutation,
+  useGetAllUsersQuery,
+} from "@/redux/features/user-management/user-management.api";
 import TablePagination from "../common/TablePagination";
 import { IUser } from "@/redux/features/user-management/types";
 import IdentityCardIcon from "../icons/IdentityCardIcon";
 import Image from "next/image";
+import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/utils";
+import Link from "next/link";
+import { TableCell, TableRow } from "../ui/table";
 
 interface UserTableProps {
   status?: string;
@@ -77,6 +84,20 @@ export const UserTable = ({ status, search }: UserTableProps): ReactElement => {
     setPage(1);
   };
 
+  const [deleteSingleUser, deleteCtx] = useDeleteSingleUserByIdMutation();
+  const handleDeleteUser = async (id?: string) => {
+    if (!id) return;
+
+    try {
+      await deleteSingleUser({ id: id }).unwrap();
+      toast.success("User deleted successfully");
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Failed to delete user"));
+    } finally {
+      setDeleteOpen(false);
+    }
+  };
+
   if (isError) {
     return (
       <div className="p-6 text-red-400">
@@ -90,176 +111,195 @@ export const UserTable = ({ status, search }: UserTableProps): ReactElement => {
 
   return (
     <>
-      <div className="flex flex-col w-full items-start bg-[#101012] rounded-xl overflow-hidden">
-        <header className="flex h-14 items-center w-full bg-[#1a1a1a]">
-          {headerColumns.map((column, index) => (
-            <div key={index} className="flex items-center flex-1 h-full px-4.5">
-              <span className="font-['Inter'] font-medium text-gray-50 text-lg">
-                {column.label}
-              </span>
-            </div>
-          ))}
-        </header>
-
-        {allUserLoading ? (
-          <UserTableSkeleton />
-        ) : allUsers && allUsers?.length > 0 ? (
-          allUsers?.map((user) => (
-            <div
-              key={user?.id}
-              className="flex h-16 items-center w-full border-t border-solid border-[#212529]"
-            >
-              {/* Name */}
-              <div className="flex-1 flex items-center gap-2 px-4.5">
-                {user?.avatar ? (
-                  <div className="relative w-9 h-9 rounded-full border border-solid border-[#e3e5e6]">
-                    <Image
-                      src={user?.avatar}
-                      alt={user?.name}
-                      fill
-                      className="object-cover rounded-full"
-                    />
-                  </div>
-                ) : (
-                  <Avatar className="w-9 h-9 rounded-full border border-solid border-[#e3e5e6] bg-gray-700">
-                    <AvatarFallback className="bg-gray-700 text-gray-300">
-                      <User className="w-5 h-5" />
-                    </AvatarFallback>
-                  </Avatar>
-                )}
-
-                <div className="flex flex-col gap-1">
-                  <div className="font-['Inter'] font-medium text-white text-sm">
-                    {user?.name}
-                  </div>
-                  <div className="font-['Inter'] font-normal text-gray-400 text-xs">
-                    {user?.username}
-                  </div>
-                </div>
-              </div>
-
-              {/* Email */}
-              <div className="flex-1 flex items-center px-4.5">
-                <div className="font-['Inter'] font-medium text-gray-50 text-sm">
-                  {user?.email}
-                </div>
-              </div>
-
-              {/* Status */}
-              <div className="flex-1 flex items-center px-4.5">
-                <Badge
-                  className={`inline-flex items-center justify-center gap-2.5 px-2.5 py-1.5 rounded-lg border-0 ${
-                    user.status === "ACTIVE" ? "bg-[#162924]" : "bg-[#2f1300]"
-                  }`}
-                >
-                  <span
-                    className={`text-base font-['Inter'] font-medium ${
-                      user.status === "ACTIVE"
-                        ? "text-[#38e07b]"
-                        : user?.status === "WARNING"
-                        ? "text-[#ff8000]"
-                        : "text-red-500"
-                    }`}
-                  >
-                    {user.status}
+      <div className="w-full items-start bg-[#101012] rounded-xl overflow-hidden">
+        <table className="w-full">
+          <thead>
+            <tr className="h-14 bg-[#1a1a1a]">
+              {headerColumns.map((column, index) => (
+                <th key={index} className="h-full px-4.5 text-left font-normal">
+                  <span className="font-['Inter'] font-medium text-gray-50 text-lg">
+                    {column.label}
                   </span>
-                </Badge>
-              </div>
+                </th>
+              ))}
+            </tr>
+          </thead>
 
-              {/* Account */}
-              <div className="flex-1 flex items-center px-4.5 text-white">
-                <Badge
-                  className={`inline-flex items-center justify-center gap-2.5 px-2.5 py-1.5 rounded-lg border-0 ${
-                    user?.subscription_status === "free"
-                      ? "bg-[#162924]"
-                      : "bg-[#2f1300]"
-                  }`}
+          {allUserLoading ? (
+            <tbody>
+              <UserTableSkeleton cols={headerColumns.length} />
+            </tbody>
+          ) : allUsers && allUsers?.length > 0 ? (
+            <tbody>
+              {allUsers?.map((user) => (
+                <tr
+                  key={user?.id}
+                  className="h-16 border-t border-solid border-[#212529]"
                 >
-                  <IdentityCardIcon
-                    stroke={
-                      user.subscription_status === "free"
-                        ? "white"
-                        : user.subscription_status === "PREMIUM"
-                        ? "#ff8000"
-                        : "#fb2c36"
-                    }
-                  />
-                  <span
-                    className={`text-base font-['Inter'] font-medium ${
-                      user.subscription_status === "free"
-                        ? "text-white"
-                        : user?.subscription_status === "PREMIUM"
-                        ? "text-[#ff8000]"
-                        : "text-red-500"
-                    }`}
-                  >
-                    {user?.subscription_status === "free"
-                      ? "Free"
-                      : user?.subscription_status === "PREMIUM"
-                      ? "Premium"
-                      : "Trailing"}
-                  </span>
-                </Badge>
-                {/* {user?.subscription_status} */}
-              </div>
+                  {/* Name */}
+                  <td className="px-4.5">
+                    <div className="flex items-center gap-2">
+                      <Link href={`/dashboard/user-management/user/${user.id}`}>
+                        {user?.avatar ? (
+                          <div className="relative w-9 h-9 rounded-full border border-solid border-[#e3e5e6]">
+                            <Image
+                              src={user?.avatar}
+                              alt={user?.name}
+                              fill
+                              className="object-cover rounded-full"
+                            />
+                          </div>
+                        ) : (
+                          <Avatar className="w-9 h-9 rounded-full border border-solid border-[#e3e5e6] bg-gray-700">
+                            <AvatarFallback className="bg-gray-700 text-gray-300">
+                              <User className="w-5 h-5" />
+                            </AvatarFallback>
+                          </Avatar>
+                        )}
+                      </Link>
 
-              {/* Joined Date */}
-              <div className="flex-1 flex items-center px-4.5">
-                <div className="font-['Inter'] font-medium text-gray-50 text-sm">
-                  {formatDate(user?.created_at)}
-                </div>
-              </div>
+                      <div className="flex flex-col gap-1">
+                        <div className="font-['Inter'] font-medium text-white text-sm">
+                          {user?.name}
+                        </div>
+                        <div className="font-['Inter'] font-normal text-gray-400 text-xs">
+                          {user?.username}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
 
-              {/* Actions */}
-              <div className="flex-1 flex items-center justify-center">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild className="cursor-pointer">
-                    <Button variant="ghost" size="icon" className="w-6 h-6 p-0">
-                      <MoreVerticalIcon className="w-6 h-6 text-gray-50" />
-                    </Button>
-                  </DropdownMenuTrigger>
+                  {/* Email */}
+                  <td className="px-4.5">
+                    <div className="font-['Inter'] font-medium text-gray-50 text-sm">
+                      {user?.email}
+                    </div>
+                  </td>
 
-                  <DropdownMenuContent
-                    align="end"
-                    className="min-w-40 bg-neutral-900 border border-zinc-800 rounded-lg"
-                  >
-                    <DropdownMenuItem
-                      onClick={() => {
-                        setSelectedUser(user);
-                        setProfileOpen(true);
-                      }}
-                      className="cursor-pointer text-white focus:bg-neutral-800 focus:text-white"
+                  {/* Status */}
+                  <td className="px-4.5">
+                    <Badge
+                      className={`inline-flex items-center justify-center gap-2.5 px-2.5 py-1.5 rounded-lg border-0 ${
+                        user.status === "ACTIVE"
+                          ? "bg-[#162924]"
+                          : "bg-[#2f1300]"
+                      }`}
                     >
-                      View
-                    </DropdownMenuItem>
+                      <span
+                        className={`text-base font-['Inter'] font-medium ${
+                          user.status === "ACTIVE"
+                            ? "text-[#38e07b]"
+                            : user?.status === "WARNING"
+                              ? "text-[#ff8000]"
+                              : "text-red-500"
+                        }`}
+                      >
+                        {user.status}
+                      </span>
+                    </Badge>
+                  </td>
 
-                    <DropdownMenuItem
-                      onClick={() => {
-                        setSelectedUser(user);
-                        setEditOpen(true);
-                      }}
-                      className="cursor-pointer text-white focus:bg-neutral-800 focus:text-white"
+                  {/* Account */}
+                  <td className="px-4.5 text-white">
+                    <Badge
+                      className={`inline-flex items-center justify-center gap-2.5 px-2.5 py-1.5 rounded-lg border-0 ${
+                        user?.subscription_status === "free"
+                          ? "bg-[#162924]"
+                          : "bg-[#2f1300]"
+                      }`}
                     >
-                      Edit
-                    </DropdownMenuItem>
+                      <IdentityCardIcon
+                        stroke={
+                          user.subscription_status === "free"
+                            ? "white"
+                            : user.subscription_status === "PREMIUM"
+                              ? "#ff8000"
+                              : "#fb2c36"
+                        }
+                      />
+                      <span
+                        className={`text-base font-['Inter'] font-medium ${
+                          user.subscription_status === "free"
+                            ? "text-white"
+                            : user?.subscription_status === "PREMIUM"
+                              ? "text-[#ff8000]"
+                              : "text-red-500"
+                        }`}
+                      >
+                        {user?.subscription_status === "free"
+                          ? "Free"
+                          : user?.subscription_status === "PREMIUM"
+                            ? "Premium"
+                            : "Trailing"}
+                      </span>
+                    </Badge>
+                  </td>
 
-                    <DropdownMenuItem
-                      onClick={() => {
-                        setSelectedUser(user);
-                        setDeleteOpen(true);
-                      }}
-                      className="cursor-pointer text-red-400 focus:bg-neutral-800 focus:text-red-400"
-                    >
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </div>
-          ))
-        ) : (
-          <EmptyState />
-        )}
+                  {/* Joined Date */}
+                  <td className="px-4.5">
+                    <div className="font-['Inter'] font-medium text-gray-50 text-sm">
+                      {formatDate(user?.created_at)}
+                    </div>
+                  </td>
+
+                  {/* Actions */}
+                  <td className="px-4.5 text-center">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild className="cursor-pointer">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="w-6 h-6 p-0"
+                        >
+                          <MoreVerticalIcon className="w-6 h-6 text-gray-50" />
+                        </Button>
+                      </DropdownMenuTrigger>
+
+                      <DropdownMenuContent
+                        align="end"
+                        className="min-w-40 bg-neutral-900 border border-zinc-800 rounded-lg"
+                      >
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setSelectedUser(user);
+                            setProfileOpen(true);
+                          }}
+                          className="cursor-pointer text-white focus:bg-neutral-800 focus:text-white"
+                        >
+                          View
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setSelectedUser(user);
+                            setEditOpen(true);
+                          }}
+                          className="cursor-pointer text-white focus:bg-neutral-800 focus:text-white"
+                        >
+                          Edit
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setSelectedUser(user);
+                            setDeleteOpen(true);
+                          }}
+                          className="cursor-pointer text-red-400 focus:bg-neutral-800 focus:text-red-400"
+                        >
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          ) : (
+            <tbody>
+              <EmptyTableState />
+            </tbody>
+          )}
+        </table>
       </div>
       {meta && meta.totalPages > 1 && (
         <div className="flex justify-center">
@@ -283,30 +323,50 @@ export const UserTable = ({ status, search }: UserTableProps): ReactElement => {
         user={selectedUser}
       />
 
-      <UserEditModal open={editOpen} onOpenChange={setEditOpen} />
-      <UserDeleteModal open={deleteOpen} onOpenChange={setDeleteOpen} />
+      <UserEditModal
+        user={selectedUser}
+        open={editOpen}
+        onOpenChange={setEditOpen}
+      />
+      <UserDeleteModal
+        onConfirm={async () => handleDeleteUser(selectedUser?.id)}
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        isLoading={deleteCtx.isLoading}
+      />
     </>
   );
 };
 export default UserTable;
 
-const UserTableSkeleton = () => (
+export const UserTableSkeleton = ({
+  cols = 10,
+  rows = 6,
+}: {
+  cols?: number;
+  rows?: number;
+}) => (
   <>
-    {[...Array(10)].map((_, i) => (
-      <div
-        key={i}
-        className="flex h-16 items-center w-full border-t border-[#212529] animate-pulse"
-      >
-        {headerColumns.map((_, idx) => (
-          <div key={idx} className="flex-1 px-4.5">
+    {[...Array(rows)].map((_, i) => (
+      <tr key={i} className="h-16 border-t border-[#212529] animate-pulse">
+        {Array.from({ length: cols }).map((_, idx) => (
+          <td key={idx} className="px-4.5">
             <div className="h-4 bg-neutral-700 rounded w-3/4" />
-          </div>
+          </td>
         ))}
-      </div>
+      </tr>
     ))}
   </>
 );
 
-const EmptyState = () => (
-  <div className="py-12 text-center text-gray-400">No users found</div>
+export const EmptyTableState = ({
+  msg = "No content available",
+}: {
+  msg?: string;
+}) => (
+  <TableRow className="hover:bg-transparent text-muted-foreground">
+    <TableCell colSpan={100} className="text-center text-base h-12">
+      {msg}
+    </TableCell>
+  </TableRow>
 );

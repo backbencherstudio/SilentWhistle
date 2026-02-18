@@ -69,20 +69,14 @@ export default function ShoutCategories({
         </div>
         <div className="flex justify-start items-center gap-1.5">
           <button
-            onClick={() => setSelectedType("text")}
-            className={`px-1.5 py-0.75 rounded-lg flex justify-center items-center gap-2.5 transition-colors ${
-              selectedType === "text" ? "bg-neutral-800" : ""
-            }`}
+            className={`px-1.5 py-0.75 rounded-lg flex justify-center items-center gap-2.5 transition-colors`}
           >
             <div className="justify-start text-neutral-300 text-sm font-normal font-['Inter'] leading-6 whitespace-nowrap">
               Text Posts
             </div>
           </button>
           <button
-            onClick={() => setSelectedType("voice")}
-            className={`px-1.5 py-0.75 flex justify-center items-center gap-2.5 transition-colors ${
-              selectedType === "voice" ? "bg-neutral-800 rounded-lg" : ""
-            }`}
+            className={`px-1.5 py-0.75 flex justify-center items-center gap-2.5 transition-colors`}
           >
             <div className="justify-start text-neutral-300 text-sm font-normal font-['Inter'] leading-6 whitespace-nowrap">
               Voice Posts
