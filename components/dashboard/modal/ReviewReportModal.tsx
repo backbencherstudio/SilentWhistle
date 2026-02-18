@@ -3,19 +3,19 @@
 import { Button } from "@/components/ui/button";
 import { showDashboardToast } from "@/components/ui/CustomToast";
 import { Dialog, DialogContent, DialogOverlay } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getErrorMessage } from "@/lib/utils";
-import { formatDate, formatDateTime } from "@/lib/utils/formatter";
+import { formatDateTime } from "@/lib/utils/formatter";
 import {
   useBanUserFromReportMutation,
   useGetSingleReportQuery,
-  useUnBanReportedUserUserMutation,
+  useUnBanUserMutation,
   useWarnUserFromReportMutation,
 } from "@/redux/features/reports-moderation/reports-moderation.api";
+import { ReportStatus } from "@/redux/features/reports-moderation/types";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { useState } from "react";
 import WarningModal from "./WarningModal";
-import { ReportStatus } from "@/redux/features/reports-moderation/types";
-import { Skeleton } from "@/components/ui/skeleton";
 
 interface ModalProps {
   open: boolean;
@@ -54,8 +54,7 @@ const ReviewReportModal = ({
   const [warnUser, { isLoading: warnIsLoading }] =
     useWarnUserFromReportMutation();
   const [banUser, { isLoading: banIsLoading }] = useBanUserFromReportMutation();
-  const [unbanUser, { isLoading: unbanIsLoading }] =
-    useUnBanReportedUserUserMutation();
+  const [unbanUser, { isLoading: unbanIsLoading }] = useUnBanUserMutation();
 
   const handleWarn = async (warnReasons: string[]) => {
     if (!data?.id) return;

@@ -4,7 +4,6 @@ import DashboardLayout from "@/components/common/DashboardLayout";
 import UserBan from "@/components/icons/UserBan";
 import UserWarn from "@/components/icons/UserWarn";
 
-// import EllipseDot from "@/components/dashboard/modal/EllipseDot";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -22,12 +21,15 @@ import {
 } from "@/redux/features/user-management/user-management.api";
 import { Ellipsis, MapPin, Search } from "lucide-react";
 import { useParams } from "next/navigation";
-import { toast } from "sonner";
 import { UserAvatar } from "../../_components/UserAvatar";
 import UserDataTab from "../../_components/UserDataTab";
 import { showDashboardToast } from "@/components/ui/CustomToast";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
+import {
+  useRemoveWarnUserMutation,
+  useUnBanUserMutation,
+} from "@/redux/features/reports-moderation/reports-moderation.api";
 
 const SingleUserProfilePage = () => {
   const { id } = useParams<{ id: string }>();
@@ -46,6 +48,56 @@ const SingleUserProfilePage = () => {
 
   const [warnUser, { isLoading: warnIsLoading }] = useWarnUserMutation();
   const [banUser, { isLoading: banIsLoading }] = useBanUserMutation();
+  const [unBanUser, { isLoading: unBanIsLoading }] = useUnBanUserMutation();
+  const [removeWarnUser, { isLoading: removeWarnIsLoading }] =
+    useRemoveWarnUserMutation();
+
+  const isWarning = user?.status === "WARNING";
+  const isBanned = user?.status === "BANNED";
+
+  const handleUnban = async () => {
+    if (!user?.id) return;
+
+    try {
+      await unBanUser({
+        userId: user?.id,
+      }).unwrap();
+      refetch();
+      showDashboardToast({
+        variant: "success",
+        title: "User Unbanned",
+        description: "User unbanned successfully!",
+      });
+    } catch (err) {
+      showDashboardToast({
+        variant: "error",
+        title: "Someting went wrong",
+        description: getErrorMessage(err, "Failed to unban the user"),
+      });
+    }
+  };
+
+  const handleRemoveWarn = async () => {
+    if (!user?.id) return;
+
+    try {
+      await removeWarnUser({
+        userId: user?.id,
+      }).unwrap();
+      refetch();
+      showDashboardToast({
+        variant: "success",
+        title: "Removed User Warned",
+        description: "Removed the user warn successfully!",
+      });
+    } catch (err) {
+      showDashboardToast({
+        variant: "error",
+        title: "Someting went wrong",
+        description: getErrorMessage(err, "Failed to remove user warn"),
+      });
+    }
+  };
 
   const handleWarn = async () => {
     if (!user?.id) return;
@@ -173,7 +225,11 @@ const SingleUserProfilePage = () => {
                               : "text-red-500"
                         }`}
                       >
-                        {warnIsLoading || banIsLoading || isFetching
+                        {warnIsLoading ||
+                        banIsLoading ||
+                        removeWarnIsLoading ||
+                        unBanIsLoading ||
+                        isFetching
                           ? "Updating status"
                           : user?.status}
                       </span>
@@ -206,19 +262,42 @@ const SingleUserProfilePage = () => {
                     className="w-56 bg-[#181818] text-white shadow-md font-thin text-base leading-[130%] -tracking-[1] border-none"
                     align="end"
                   >
-                    <DropdownMenuItem
-                      onClick={handleWarn}
-                      className="hover:bg-[#181818]! hover:text-white!"
-                    >
-                      <UserWarn /> <span>Warn User</span>
-                    </DropdownMenuItem>
+                    {isWarning ? (
+                      <DropdownMenuItem
+                        onClick={handleRemoveWarn}
+                        className="hover:bg-[#181818]! hover:text-white!"
+                      >
+                        <UserWarn className="text-[#ff8000]" />
+                        <span>Remove Warn User</span>
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem
+                        onClick={handleWarn}
+                        className="hover:bg-[#181818]! hover:text-white!"
+                      >
+                        <UserWarn className="text-[#ff8000]" />
+                        <span>Warn User</span>
+                      </DropdownMenuItem>
+                    )}
+
                     <DropdownMenuSeparator className="mx-2 bg-[#282A39]" />
-                    <DropdownMenuItem
-                      onClick={handleBan}
-                      className="hover:bg-[#181818]! hover:text-white!"
-                    >
-                      <UserBan /> <span>Ban User</span>
-                    </DropdownMenuItem>
+                    {isBanned ? (
+                      <DropdownMenuItem
+                        onClick={handleUnban}
+                        className="hover:bg-[#181818]! hover:text-white!"
+                      >
+                        <UserBan className="text-red-500" />
+                        <span>Remove Ban</span>
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem
+                        onClick={handleBan}
+                        className="hover:bg-[#181818]! hover:text-white!"
+                      >
+                        <UserBan className="text-red-500" />
+                        <span>Ban User</span>
+                      </DropdownMenuItem>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>

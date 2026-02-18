@@ -97,14 +97,30 @@ export const reportsModerationApi = baseApi.injectEndpoints({
       invalidatesTags: ["USER", "REPORT"],
     }),
 
-    unBanReportedUserUser: builder.mutation<WithStatus<void>, { userId: string }>({
+    unBanUser: builder.mutation<WithStatus<void>, { userId: string }>({
       query: (body) => ({
         url: "/admin/reports/unban",
         method: "POST",
         body,
       }),
+      invalidatesTags: (_result, _error, { userId }) => [
+        "USER",
+        "REPORT",
+        { type: "USERS", id: userId },
+      ],
+    }),
 
-      invalidatesTags: ["USER", "REPORT"],
+    removeWarnUser: builder.mutation<WithStatus<void>, { userId: string }>({
+      query: (body) => ({
+        url: "/admin/reports/remove-warning",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: (_result, _error, { userId }) => [
+        "USER",
+        "REPORT",
+        { type: "USERS", id: userId },
+      ],
     }),
 
     repostSendToUser: builder.mutation({
@@ -134,7 +150,8 @@ export const {
   useWarnUserFromReportMutation,
   useRemoveWarnFromReportMutation,
   useBanUserFromReportMutation,
-  useUnBanReportedUserUserMutation,
+  useUnBanUserMutation,
+  useRemoveWarnUserMutation,
   useRepostSendToUserMutation,
   useDeleteReportMutation,
   useGetSingleReportQuery,
