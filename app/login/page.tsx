@@ -1,34 +1,32 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Login Page
- * 
+ *
  * @page
  * @route /login
  */
 
-'use client';
+"use client";
 
-import { useState, FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
-import { Eye, EyeOff } from 'lucide-react';
-import { UserService } from '@/service/user/user.service';
-import Image from 'next/image';
-import { useAdminLoginMutation } from '@/redux/features/auth/auth.api';
-import { showDashboardToast } from '@/components/ui/CustomToast';
+import { useState, FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
+import { UserService } from "@/service/user/user.service";
+import Image from "next/image";
+import { useAdminLoginMutation } from "@/redux/features/auth/auth.api";
+import { showDashboardToast } from "@/components/ui/CustomToast";
 
 /**
  * Login Page Component
- * 
+ *
  * Renders the login page with email and password fields
  */
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [loginAsAdmin, { isLoading }] = useAdminLoginMutation()
-
-
+  const [loginAsAdmin, { isLoading }] = useAdminLoginMutation();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -36,18 +34,21 @@ export default function LoginPage() {
       showDashboardToast({
         variant: "error",
         title: "Missing Credentials",
-        description: "Email and password are required."
+        description: "Email and password are required.",
       });
       return;
     }
     try {
       const res = await loginAsAdmin({ email, password }).unwrap();
-      UserService.setTokens(res.authorization.access_token, res.authorization.refresh_token);
+      UserService.setTokens(
+        res.authorization.access_token,
+        res.authorization.refresh_token,
+      );
 
       showDashboardToast({
         variant: "success",
         title: "Login Successful",
-        description: "Welcome back!"
+        description: "Welcome back!",
       });
 
       router.push("/dashboard");
@@ -61,18 +62,29 @@ export default function LoginPage() {
   };
 
   const handleForgotPassword = () => {
-    router.push('/login/forgot-password');
+    router.push("/login/forgot-password");
   };
 
   return (
     <div className="min-h-screen bg-[#05060f] relative overflow-hidden flex items-center justify-center p-4 sm:p-6 md:p-8">
       {/* Background Ellipse 1 - Bottom Left */}
 
-      <Image src="/dashboard/bottom-light.svg" alt='bg bottm' width={1025} height={1025} className='hidden md:block absolute left-0 bottom-0 object-contain' />
-
+      <Image
+        src="/dashboard/bottom-light.svg"
+        alt="bg bottm"
+        width={1025}
+        height={1025}
+        className="hidden md:block absolute left-0 bottom-0 object-contain"
+      />
 
       {/* Background Ellipse 2 - Top Right */}
-      <Image src="/dashboard/top-light.svg" alt='bg top' width={1025} height={1025} className='hidden md:block absolute right-0 top-0 object-contain' />
+      <Image
+        src="/dashboard/top-light.svg"
+        alt="bg top"
+        width={1025}
+        height={1025}
+        className="hidden md:block absolute right-0 top-0 object-contain"
+      />
 
       {/* Login Card */}
       <div className="relative z-10 w-full max-w-146 bg-[#101012] rounded-[24px] p-6 sm:p-7 md:p-8">
@@ -97,13 +109,13 @@ export default function LoginPage() {
               >
                 Email
               </label>
-              <div className="border border-[#1d1f2c] rounded-[48px] h-14 px-4.5 py-4 flex items-center bg-[#101012]">
+              <div className="border focus-within:border-white border-[#1d1f2c] rounded-[48px] h-14 px-4.5 py-4 flex items-center bg-[#101012]">
                 <input
                   id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="demoinfo@gmail.com"
+                  placeholder="Enter your email"
                   className="flex-1 bg-transparent text-[#dfe1e7] text-base font-normal font-['Inter'] leading-[1.6] tracking-[0.08px] outline-none placeholder:text-[#dfe1e7] placeholder:opacity-60"
                 />
               </div>
@@ -117,20 +129,20 @@ export default function LoginPage() {
               >
                 Password
               </label>
-              <div className="border border-white rounded-[48px] h-14 px-4.5 py-4 flex items-center justify-between bg-[#101012]">
+              <div className="border focus-within:border-white border-[#1d1f2c] rounded-[48px] h-14 px-4.5 py-4 flex items-center justify-between bg-[#101012]">
                 <input
                   id="password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder="Enter your password"
                   className="flex-1 bg-transparent text-[#dfe1e7] text-base font-normal font-['Inter'] leading-[1.6] tracking-[0.08px] outline-none placeholder:text-[#dfe1e7] placeholder:opacity-60"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="ml-2 w-6 h-6 flex items-center justify-center text-white hover:opacity-70 transition-opacity"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
                     <EyeOff className="w-6 h-6" />
@@ -167,4 +179,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
