@@ -20,7 +20,11 @@
 import { useState } from "react";
 import Sidebar from "./Sidebar";
 import { User } from "lucide-react";
-import { svg as notificationIcon } from "@/components/icons/notificationicon";
+import { Notificationicon } from "@/components/icons/notificationicon";
+import Link from "next/link";
+import { useGetMeQuery } from "@/redux/features/profile/profile.api";
+import { UserAvatar } from "@/app/dashboard/user-management/_components/UserAvatar";
+import { Skeleton } from "../ui/skeleton";
 
 /**
  * Props for DashboardLayout component
@@ -54,6 +58,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       localStorage.setItem("sidebarCollapsed", String(newState));
     }
   };
+
+  const { data: user, isLoading: userIsLoading } = useGetMeQuery();
 
   return (
     <div className="flex min-h-screen bg-black font-sans">
@@ -111,33 +117,41 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* Top Header Bar */}
         <header className="sticky top-0 z-30 bg-black border-b border-gray-800 px-6 py-4">
           <div className="flex items-center justify-end gap-4">
-            {/* Notification Bell Button */}
-            <button
+            <Link
+              href="/dashboard/notification"
               className="p-2 rounded-full bg-zinc-800 hover:bg-zinc-700 text-white hover:text-gray-300 transition-colors cursor-pointer"
               aria-label="Notifications"
             >
               <div className="w-6 h-6 flex items-center justify-center">
-                {notificationIcon({ size: 20 })}
+                <Notificationicon></Notificationicon>
               </div>
-            </button>
+            </Link>
 
             {/* User Information Section */}
             <div className="flex items-center gap-3">
               {/* User Name and Role */}
               <div className="text-right">
-                <div className="text-white text-sm font-medium">
-                  Gustavo Xavier
-                </div>
-                <div className="flex items-center justify-end gap-2 mt-1">
-                  {/* Admin Badge */}
-                  <span className="px-2 py-0.5 bg-[#22c55e] text-white text-xs font-medium rounded-full">
-                    Admin
-                  </span>
-                </div>
+                {userIsLoading ? (
+                  <>
+                    <Skeleton className="h-5 w-25" />
+                    <Skeleton className="h-5 w-12 mt-1 ml-auto" />
+                  </>
+                ) : (
+                  <>
+                    <div className="text-white text-sm font-medium">
+                      {user?.data.name}
+                    </div>
+                    <div className="flex items-center justify-end gap-2 mt-1">
+                      <span className="px-2 py-0.5 bg-[#22c55e] text-white text-xs font-medium rounded-full">
+                        {user?.data.type}
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
               {/* Profile Picture Placeholder */}
               <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden">
-                <User className="w-6 h-6 text-gray-400" />
+                <UserAvatar name={user?.data.name} />
               </div>
             </div>
           </div>

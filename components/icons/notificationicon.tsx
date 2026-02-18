@@ -4,7 +4,7 @@ type IconProps = SVGProps<SVGSVGElement> & {
   size?: number;
 };
 
-export const svg = ({ size = 24, ...props }: IconProps) => {
+export const Notificationicon = ({ size = 24, ...props }: IconProps) => {
   return (
     <svg
       width="20"

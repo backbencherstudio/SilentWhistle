@@ -177,8 +177,8 @@ const Sidebar: FC<SidebarProps> = ({
     {
       icon: dashboardIcon,
       label: "Dashboard",
-      href: "/",
-      isActive: isActive("/"),
+      href: "/dashboard",
+      isActive: isActive("/dashboard"),
     },
     {
       icon: userManagementIcon,
