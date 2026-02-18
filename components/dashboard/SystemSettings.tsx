@@ -1,17 +1,12 @@
 "use client";
 
-import { cn, getErrorMessage } from "@/lib/utils";
-import { formatDate } from "@/lib/utils/formatter";
-import {
-  useGetMeQuery,
-  useUpdateAdminProfileByIdMutation,
-} from "@/redux/features/profile/profile.api";
+import { cn } from "@/lib/utils";
+import { useGetMeQuery } from "@/redux/features/profile/profile.api";
 import React, { useState } from "react";
-import { Card, CardContent } from "../ui/card";
-import { showDashboardToast } from "../ui/CustomToast";
-import SystemSettingsForm from "./SystemSettingsForm";
 import { Button } from "../ui/button";
+import { Card, CardContent } from "../ui/card";
 import { Skeleton } from "../ui/skeleton";
+import SystemSettingsForm from "./SystemSettingsForm";
 
 export const SystemSettings = (): React.ReactElement => {
   const { data, isLoading } = useGetMeQuery();
@@ -110,77 +105,3 @@ export const SystemSettings = (): React.ReactElement => {
     </div>
   );
 };
-
-const UpdateUserProfile = ({ userId }: { userId: string }) => {
-  const [updateUserProfile] = useUpdateUserProfileMutation();
-
-  const [profileData, setProfileData] = useState({
-    name: "",
-    email: "",
-    phone_number: "",
-    address: "",
-  });
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setProfileData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleUpdateProfile = async (e) => {
-    try {
-      await updateUserProfile({
-        id: userId,
-        ...profileData,
-      }).unwrap();
-      showDashboardToast({
-        variant: "success",
-        title: "Profile updated successfully",
-      });
-    } catch (error) {
-      showDashboardToast({
-        variant: "error",
-        title: "Failed to update profile.",
-        description: getErrorMessage(error),
-      });
-    }
-  };
-
-  return (
-    <div className="bg-white text-white">
-      <h2>Update Profile</h2>
-      <form onSubmit={handleUpdateProfile}>
-        <input
-          type="text"
-          name="name"
-          value={profileData.name}
-          onChange={handleInputChange}
-          placeholder="Name"
-        />
-        <input
-          type="email"
-          name="email"
-          value={profileData.email}
-          onChange={handleInputChange}
-          placeholder="Email"
-        />
-        <input
-          type="text"
-          name="phone_number"
-          value={profileData.phone_number}
-          onChange={handleInputChange}
-          placeholder="Phone Number"
-        />
-        <input
-          type="text"
-          name="address"
-          value={profileData.address}
-          onChange={handleInputChange}
-          placeholder="Address"
-        />
-        <button type="submit">Update Profile</button>
-      </form>
-    </div>
-  );
-};
-
-export default UpdateUserProfile;

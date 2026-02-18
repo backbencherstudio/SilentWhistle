@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { Card, CardContent } from "../ui/card";
-import { IDashboartOverviewPeriodResponse } from "@/redux/features/overview/overview.api";
+import { IDashboartOverviewPeriodResponse } from "@/redux/features/overview/overview.types";
 
 export default function OverviewCards({
   cardData,
