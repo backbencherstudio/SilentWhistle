@@ -1,0 +1,24 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "development",
+    "hasan",
+    "main",
+    "nafiz",
+    "shipan"
+  ],
+  "parent": {
+    "development": "main",
+    "hasan": "main",
+    "main": null,
+    "nafiz": "main",
+    "shipan": "main"
+  },
+  "order": [
+    "main",
+    "development",
+    "hasan",
+    "nafiz",
+    "shipan"
+  ]
+}
