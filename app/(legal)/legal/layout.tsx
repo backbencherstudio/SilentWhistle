@@ -12,6 +12,10 @@ const legalLinks = [
     href: "/legal/terms-and-condition",
     label: "Terms & Conditions",
   },
+  {
+    href: "/legal/support",
+    label: "Support",
+  },
 ];
 
 export default function Legallayout({
@@ -36,7 +40,7 @@ export default function Legallayout({
             </Link>
 
             <div className="hidden rounded-full border border-zinc-800 bg-[#101012] px-3 py-1 text-xs uppercase tracking-[0.18em] text-zinc-500 sm:inline-flex">
-              Policies
+              Legal and Support
             </div>
           </div>
 
