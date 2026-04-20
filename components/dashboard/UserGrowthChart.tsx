@@ -19,6 +19,7 @@
 
 import { useState, useRef } from 'react';
 import dynamic from 'next/dynamic';
+import type { ApexOptions } from 'apexcharts';
 import { TrendingUpIcon } from 'lucide-react';
 import { Badge } from '../ui/badge';
 import { Card, CardContent } from '../ui/card';
@@ -43,6 +44,12 @@ interface UserGrowthChartProps {
   selectedPeriod: Period;
   data?: { label: string; active: number; anonymous: number }[];
 }
+
+type ApexPointEventConfig = {
+  dataPointIndex?: number;
+  seriesIndex?: number;
+  x?: number;
+};
 
 /**
  * User Growth Chart Component
@@ -166,7 +173,7 @@ export default function UserGrowthChart({ selectedPeriod, data }: UserGrowthChar
   };
 
   // ApexCharts configuration
-  const chartOptions = {
+  const chartOptions: ApexOptions = {
     chart: {
       type: 'area' as const,
       toolbar: {
@@ -178,7 +185,11 @@ export default function UserGrowthChart({ selectedPeriod, data }: UserGrowthChar
       offsetX: 0,
       offsetY: 0,
       events: {
-        dataPointMouseEnter: (_event: unknown, _chartContext: unknown, config: { dataPointIndex?: number; seriesIndex?: number; x?: number }) => {
+        dataPointMouseEnter: (_event: unknown, _chartContext?: unknown, config?: ApexPointEventConfig) => {
+          if (!config) {
+            return;
+          }
+
           const dataPointIndex = config.dataPointIndex;
           const seriesIndex = config.seriesIndex;
           const xPosition = config.x;
@@ -250,7 +261,7 @@ export default function UserGrowthChart({ selectedPeriod, data }: UserGrowthChar
         dataPointMouseLeave: () => {
           // Keep tooltip visible when moving between data points
         },
-        mouseMove: (_event: unknown, _chartContext: unknown, config: { dataPointIndex?: number; seriesIndex?: number; x?: number }) => {
+        mouseMove: (_event: unknown, _chartContext?: unknown, config?: ApexPointEventConfig) => {
           // Handle mouse move for smoother tooltip following
           if (config && config.dataPointIndex !== undefined && config.seriesIndex === 0) {
             const dataPointIndex = config.dataPointIndex;
@@ -354,7 +365,6 @@ export default function UserGrowthChart({ selectedPeriod, data }: UserGrowthChar
       yaxis: {
         lines: {
           show: true,
-          strokeDashArray: 0,
         },
       },
     },
