@@ -1,6 +1,6 @@
 const termsSections = [
   {
-    title: "1. Use of the App",
+    title: "Use of the App",
     body: "You agree to use the App only for lawful purposes. You must not use the App to:",
     items: [
       "Post false, misleading, or harmful information",
@@ -10,56 +10,56 @@ const termsSections = [
     ],
   },
   {
-    title: "2. User Accounts",
+    title: "User Accounts",
     paragraphs: [
       "The App may require you to provide basic information such as your name and email address. You are responsible for maintaining the confidentiality of your account.",
       "Silent Whistle uses system-generated usernames to protect your identity. You agree not to attempt to reveal the identity of other users.",
     ],
   },
   {
-    title: "3. Anonymous Reporting",
+    title: "Anonymous Reporting",
     paragraphs: [
       "While the App allows anonymous reporting, you agree that all information submitted must be accurate to the best of your knowledge. Misuse of this feature may result in suspension or termination of access.",
     ],
   },
+  // {
+  //   title: "Payments",
+  //   paragraphs: [
+  //     "Some features of the App may require payment. All payments are processed securely through third-party providers. We do not store your card details.",
+  //   ],
+  // },
   {
-    title: "4. Payments",
-    paragraphs: [
-      "Some features of the App may require payment. All payments are processed securely through third-party providers. We do not store your card details.",
-    ],
-  },
-  {
-    title: "5. Intellectual Property",
+    title: "Intellectual Property",
     paragraphs: [
       "All content, trademarks, and intellectual property related to the App are owned by Silent Whistle Enterprise. You may not copy, modify, or distribute any part of the App without permission.",
     ],
   },
   {
-    title: "6. Privacy",
+    title: "Privacy",
     paragraphs: [
       "Your use of the App is also governed by our Privacy Policy. We are committed to protecting your privacy and ensuring anonymity where applicable.",
     ],
   },
   {
-    title: "7. Limitation of Liability",
+    title: "Limitation of Liability",
     paragraphs: [
       "Silent Whistle Enterprise is not responsible for any damages or losses resulting from the use of the App, including reliance on user-generated content.",
     ],
   },
   {
-    title: "8. Termination",
+    title: "Termination",
     paragraphs: [
       "We reserve the right to suspend or terminate your access to the App at any time if you violate these Terms.",
     ],
   },
   {
-    title: "9. Changes to Terms",
+    title: "Changes to Terms",
     paragraphs: [
       "We may update these Terms from time to time. Continued use of the App after changes means you accept the revised Terms.",
     ],
   },
   {
-    title: "10. Governing Law",
+    title: "Governing Law",
     paragraphs: [
       "These Terms shall be governed by and interpreted in accordance with the laws of the Federal Republic of Nigeria.",
     ],
@@ -70,7 +70,7 @@ export default function TermsAndConditionPage() {
   return (
     <main className="min-h-screen bg-black text-white">
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(34,197,94,0.16),_transparent_32%),radial-gradient(circle_at_bottom_right,_rgba(255,255,255,0.06),_transparent_30%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(34,197,94,0.16),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.06),transparent_30%)]" />
 
         <div className="relative mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
           <div className="rounded-[28px] border border-zinc-800 bg-[#0D0F10]/95 p-6 shadow-2xl shadow-black/40 sm:p-8 lg:p-10">
@@ -112,17 +112,19 @@ export default function TermsAndConditionPage() {
             </div>
 
             <div className="mt-8 space-y-5">
-              {termsSections.map((section) => (
+              {termsSections.map((section, index) => (
                 <article
                   key={section.title}
                   className="rounded-2xl border border-zinc-800 bg-[#101012] p-5 sm:p-6"
                 >
                   <h2 className="text-lg font-semibold text-white sm:text-xl">
-                    {section.title}
+                    {index + 1}. {section.title}
                   </h2>
 
                   <div className="mt-4 space-y-4 text-sm leading-7 text-zinc-300 sm:text-[15px]">
-                    {"body" in section && section.body ? <p>{section.body}</p> : null}
+                    {"body" in section && section.body ? (
+                      <p>{section.body}</p>
+                    ) : null}
 
                     {"paragraphs" in section && section.paragraphs
                       ? section.paragraphs.map((paragraph) => (
@@ -147,7 +149,7 @@ export default function TermsAndConditionPage() {
 
             <div className="mt-8 rounded-2xl border border-zinc-800 bg-gradient-to-br from-[#101012] to-[#111813] p-6">
               <h2 className="text-lg font-semibold text-white sm:text-xl">
-                11. Contact Information
+                {termsSections.length + 1}. Contact Information
               </h2>
               <p className="mt-4 text-sm leading-7 text-zinc-300 sm:text-[15px]">
                 If you have any questions about these Terms, please contact us:

@@ -12,10 +12,10 @@ const legalLinks = [
     href: "/legal/terms-and-condition",
     label: "Terms & Conditions",
   },
-  {
-    href: "/legal/eula",
-    label: "EULA",
-  },
+  // {
+  //   href: "/legal/eula",
+  //   label: "EULA",
+  // },
   {
     href: "/legal/support",
     label: "Support",
