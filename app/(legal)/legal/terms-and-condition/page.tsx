@@ -147,7 +147,7 @@ export default function TermsAndConditionPage() {
               ))}
             </div>
 
-            <div className="mt-8 rounded-2xl border border-zinc-800 bg-gradient-to-br from-[#101012] to-[#111813] p-6">
+            <div className="mt-8 rounded-2xl border border-zinc-800 bg-linear-to-br from-[#101012] to-[#111813] p-6">
               <h2 className="text-lg font-semibold text-white sm:text-xl">
                 {termsSections.length + 1}. Contact Information
               </h2>
