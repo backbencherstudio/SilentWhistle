@@ -4,7 +4,7 @@ const privacySections = [
     body: "We may collect the following information:",
     items: [
       "Personal Information: Name and email address provided during account setup.",
-      "Payment Information: Card details for in-app purchases (processed securely by third-party payment providers).",
+      // "Payment Information: Card details for in-app purchases (processed securely by third-party payment providers).",
       "Device Permissions: Location, camera, and microphone access for app functionality.",
     ],
     note: "Note: We do not store user personal details on our servers.",
