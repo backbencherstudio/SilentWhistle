@@ -24,7 +24,8 @@ const subscriptionPlans = [
     label: "Annual",
     price: "₦10,000",
     detail: "12 months of premium access at the best value.",
-    accent: "border-green-500/30 bg-gradient-to-br from-green-500/12 to-[#101612]",
+    accent:
+      "border-green-500/30 bg-gradient-to-br from-green-500/12 to-[#101612]",
   },
 ];
 
@@ -32,17 +33,20 @@ const quickFacts = [
   {
     label: "Trial Window",
     value: "90 Days",
-    detail: "Cancel at least 24 hours before the trial expires to avoid charges.",
+    detail:
+      "Cancel at least 24 hours before the trial expires to avoid charges.",
   },
   {
     label: "Renewal",
     value: "Automatic",
-    detail: "Subscriptions renew unless auto-renew is turned off in your store settings.",
+    detail:
+      "Subscriptions renew unless auto-renew is turned off in your store settings.",
   },
   {
     label: "Refunds",
     value: "Store Managed",
-    detail: "Apple and Google handle billing, payments, and refund decisions directly.",
+    detail:
+      "Apple and Google handle billing, payments, and refund decisions directly.",
   },
 ];
 
@@ -101,7 +105,7 @@ export default function EulaPage() {
   return (
     <main className="min-h-screen bg-black text-white">
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(34,197,94,0.17),_transparent_30%),radial-gradient(circle_at_bottom_left,_rgba(255,255,255,0.06),_transparent_28%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(34,197,94,0.17),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.06),transparent_28%)]" />
 
         <div className="relative mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
           <div className="rounded-[28px] border border-zinc-800 bg-[#0D0F10]/95 p-6 shadow-2xl shadow-black/40 sm:p-8 lg:p-10">
@@ -197,7 +201,11 @@ export default function EulaPage() {
             <div className="mt-8 grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.95fr)]">
               <div className="space-y-5">
                 {billingSections
-                  .filter((section) => section.title !== "1. Subscription Plans & Premium Access")
+                  .filter(
+                    (section) =>
+                      section.title !==
+                      "1. Subscription Plans & Premium Access",
+                  )
                   .map((section) => (
                     <article
                       key={section.title}
@@ -230,7 +238,7 @@ export default function EulaPage() {
               </div>
 
               <div className="space-y-5">
-                <article className="rounded-2xl border border-green-500/20 bg-gradient-to-br from-green-500/10 to-[#101612] p-5 sm:p-6">
+                <article className="rounded-2xl border border-green-500/20 bg-linear-to-br from-green-500/10 to-[#101612] p-5 sm:p-6">
                   <p className="text-xs uppercase tracking-[0.18em] text-green-400">
                     3. Easy Cancellation Guide
                   </p>
@@ -277,8 +285,8 @@ export default function EulaPage() {
                   </p>
                   <p className="mt-2 text-sm leading-7 text-zinc-400 sm:text-[15px]">
                     For product support questions, contact Silent Whistle
-                    directly. Refund decisions still remain with Apple or
-                    Google based on the platform used for payment.
+                    directly. Refund decisions still remain with Apple or Google
+                    based on the platform used for payment.
                   </p>
                 </a>
               </div>
