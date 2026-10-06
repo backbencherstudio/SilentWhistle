@@ -2,7 +2,7 @@
 
 A modern, responsive dashboard application built with Next.js, React, and TypeScript.
 
-## 📁 Project Structure.
+## 📁 Project Structure
 
 ```
 silent/
